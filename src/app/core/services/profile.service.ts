@@ -1,3 +1,4 @@
+// profile.service.ts
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
@@ -13,7 +14,7 @@ export interface UserProfile {
   profileImage: string | null;
   numberOfStudents: number;
   subjects: string[];
-  students: { name: string; email: string; phone: string; grade?: string; subject?: string }[];
+  students: { name: string; email: string; phone: string; grade?: string; subjects: string[] }[];
   meetings: { _id?: string; id?: string; title: string; date: string | Date; startTime: string; endTime: string }[];
   lectures: { _id: string; link: string; createdAt: string }[];
   lectureCount: number;
@@ -136,15 +137,37 @@ export class ProfileService {
       return throwError(() => ({
         success: false,
         message: 'كلمة المرور الحالية والجديدة مطلوبة',
+        error: 'missing_fields'
+      }));
+    }
+    if (currentPassword === newPassword) {
+      return throwError(() => ({
+        success: false,
+        message: 'كلمة المرور الجديدة لا يمكن أن تكون نفس كلمة المرور الحالية',
+        error: 'same_password'
       }));
     }
     return this.http.put<UpdatePasswordResponse>(ApiEndpoints.profile.updatePassword, { currentPassword, newPassword }, { headers: this.getHeaders() }).pipe(
       catchError(error => {
         console.error('Error updating password:', error);
+        let errorMessage = 'فشل في تغيير كلمة المرور';
+        let errorCode = 'unknown_error';
+
+        if (error.status === 401) {
+          errorMessage = 'كلمة المرور الحالية غير صحيحة';
+          errorCode = 'incorrect_password';
+        } else if (error.status === 400 && error.error?.message.includes('same password')) {
+          errorMessage = 'كلمة المرور الجديدة لا يمكن أن تكون نفس كلمة المرور الحالية';
+          errorCode = 'same_password';
+        } else if (error.error?.message) {
+          errorMessage = error.error.message;
+          errorCode = error.error.code || 'unknown_error';
+        }
+
         return throwError(() => ({
           success: false,
-          message: error.message || 'فشل في تغيير كلمة المرور',
-          error: error.message,
+          message: errorMessage,
+          error: errorCode
         }));
       })
     );

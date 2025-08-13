@@ -51,6 +51,11 @@ export const routes: Routes = [
     canActivate: [AuthGuard, AdminGuard]
   },
   {
+    path: 'lectures-request',
+    loadComponent: () => import('./dashboard/lectures-request/lectures-request.component').then(m => m.LecturesRequestComponent),
+    canActivate: [AuthGuard, AdminGuard]
+  },
+  {
     path: 'add-leaderboards',
     loadComponent: () => import('./dashboard/add-leaderboards/add-leaderboards.component').then(m => m.AddLeaderboardsComponent),
     canActivate: [AuthGuard, AdminGuard]

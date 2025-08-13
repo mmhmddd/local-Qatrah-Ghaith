@@ -1,3 +1,4 @@
+// profile.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -5,6 +6,7 @@ import { ProfileService } from '../../core/services/profile.service';
 import { Router } from '@angular/router';
 import { JoinRequestService, JoinRequestResponse } from '../../core/services/join-request.service';
 import { LectureService, LectureResponse, NotificationResponse } from '../../core/services/lecture.service';
+import { LectureRequestService, LectureRequestData } from '../../core/services/lecture-request.service';
 
 @Component({
   selector: 'app-profile',
@@ -16,9 +18,12 @@ import { LectureService, LectureResponse, NotificationResponse } from '../../cor
 export class ProfileComponent implements OnInit {
   profile: JoinRequestResponse['data'] | null = null;
   error: string | null = null;
+  errorCode: string | null = null;
   successMessage: string | null = null;
   lectureForm: FormGroup;
+  pdfRequestForm: FormGroup;
   isUploadingLecture: boolean = false;
+  isUploadingPdfRequest: boolean = false;
   notifications: NotificationResponse['notifications'] = [];
   unreadNotificationsCount: number = 0;
   currentPassword: string = '';
@@ -37,14 +42,33 @@ export class ProfileComponent implements OnInit {
   };
   showMeetingModal: boolean = false;
   selectedFile: File | null = null;
+  selectedPdfFile: File | null = null;
   isUploading: boolean = false;
   showUploadField: boolean = true;
   activeSection: string = 'profile';
+
+  subjects = [
+    'الرياضيات', 'الفيزياء', 'الكيمياء', 'الأحياء', 'اللغة العربية',
+    'اللغة الإنجليزية', 'التاريخ', 'الجغرافيا', 'العلوم الإسلامية',
+    'الحاسوب', 'الفلسفة', 'علم النفس', 'الاقتصاد', 'الإحصاء'
+  ];
+
+  semesters = ['الفصل الأول', 'الفصل الثاني'];
+
+  countries = [
+    'الأردن', 'فلسطين',
+  ];
+
+  academicLevels = [
+    'الثانوية العامة', 'البكالوريوس', 'الماجستير', 'الدكتوراه',
+    'الدبلوم', 'الدراسات العليا'
+  ];
 
   constructor(
     private profileService: ProfileService,
     private joinRequestService: JoinRequestService,
     private lectureService: LectureService,
+    private lectureRequestService: LectureRequestService,
     private router: Router,
     private fb: FormBuilder
   ) {
@@ -52,6 +76,16 @@ export class ProfileComponent implements OnInit {
       link: ['', [Validators.required, Validators.pattern('https?://.+')]],
       name: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(100)]],
       subject: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(100)]]
+    });
+
+    this.pdfRequestForm = this.fb.group({
+      title: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
+      description: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(500)]],
+      creatorName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
+      subject: ['', [Validators.required]],
+      semester: ['', [Validators.required]],
+      country: ['', [Validators.required]],
+      academicLevel: ['', [Validators.required]]
     });
   }
 
@@ -67,10 +101,10 @@ export class ProfileComponent implements OnInit {
         if (response.success && response.data) {
           this.profile = {
             ...response.data,
-            students: response.data.students.map((student: { grade: any; subject: any; }) => ({
+            students: response.data.students.map((student: any) => ({
               ...student,
               grade: student.grade || '',
-              subject: student.subject || ''
+              subjects: student.subjects || [] // Keep subjects as array
             }))
           };
           this.showUploadField = !this.profile.profileImage;
@@ -151,6 +185,30 @@ export class ProfileComponent implements OnInit {
     }
   }
 
+  onPdfFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+
+      // Validate file type
+      if (file.type !== 'application/pdf') {
+        this.error = 'الملفات المسموح بها هي: PDF فقط';
+        input.value = '';
+        return;
+      }
+
+      // Validate file size (10MB max)
+      if (file.size > 10 * 1024 * 1024) {
+        this.error = 'حجم الملف كبير جدًا. الحد الأقصى 10 ميغابايت';
+        input.value = '';
+        return;
+      }
+
+      this.selectedPdfFile = file;
+      this.error = null;
+    }
+  }
+
   uploadProfileImage(): void {
     if (!this.selectedFile) {
       this.error = 'يرجى اختيار صورة أولاً';
@@ -181,6 +239,47 @@ export class ProfileComponent implements OnInit {
     });
   }
 
+  uploadPdfRequest(): void {
+    if (this.pdfRequestForm.invalid) {
+      this.error = 'يرجى ملء جميع الحقول بشكل صحيح';
+      this.pdfRequestForm.markAllAsTouched();
+      return;
+    }
+
+    if (!this.selectedPdfFile) {
+      this.error = 'يرجى اختيار ملف PDF للرفع';
+      return;
+    }
+
+    this.isUploadingPdfRequest = true;
+    const lectureData: LectureRequestData = this.pdfRequestForm.value;
+
+    this.lectureRequestService.uploadLectureRequest(lectureData, this.selectedPdfFile).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.successMessage = response.message;
+          this.error = null;
+          this.pdfRequestForm.reset();
+          this.selectedPdfFile = null;
+
+          // Clear the file input
+          const fileInput = document.getElementById('pdfFileInput') as HTMLInputElement;
+          if (fileInput) fileInput.value = '';
+
+          // Optionally fetch notifications to show any new ones
+          this.fetchNotifications();
+        }
+      },
+      error: (err) => {
+        this.error = err.message || 'فشل في رفع طلب المحاضرة';
+        console.error('Upload PDF request error:', err);
+      },
+      complete: () => {
+        this.isUploadingPdfRequest = false;
+      }
+    });
+  }
+
   changeImage(): void {
     this.showUploadField = true;
   }
@@ -193,22 +292,32 @@ export class ProfileComponent implements OnInit {
     this.showPasswordModal = false;
     this.currentPassword = '';
     this.newPassword = '';
+    this.error = null;
+    this.errorCode = null;
   }
 
   changePassword(): void {
-    if (this.currentPassword && this.newPassword) {
-      this.profileService.updatePassword(this.currentPassword, this.newPassword).subscribe({
-        next: (response) => {
-          this.successMessage = response.message || 'تم تغيير كلمة المرور بنجاح';
-          this.closePasswordModal();
-        },
-        error: (err) => {
-          this.error = err.message || 'فشل في تغيير كلمة المرور';
-        }
-      });
-    } else {
+    if (!this.currentPassword || !this.newPassword) {
       this.error = 'يرجى إدخال كلمة المرور الحالية والجديدة';
+      return;
     }
+
+    this.profileService.updatePassword(this.currentPassword, this.newPassword).subscribe({
+      next: (response) => {
+        this.successMessage = response.message || 'تم تغيير كلمة المرور بنجاح';
+        this.error = null;
+        this.closePasswordModal();
+      },
+      error: (err) => {
+        this.error = err.message || 'فشل في تغيير كلمة المرور';
+        this.errorCode = err.error || 'unknown_error'; // Store error code for conditional rendering
+      }
+    });
+  }
+
+  navigateToForgotPassword(): void {
+    this.router.navigate(['forgot-password']);
+    this.closePasswordModal();
   }
 
   openMeetingModal(): void {
@@ -300,5 +409,16 @@ export class ProfileComponent implements OnInit {
         this.isUploadingLecture = false;
       }
     });
+  }
+
+  // Helper method to display subjects properly
+  getStudentSubjects(student: any): string {
+    if (!student.subjects || !Array.isArray(student.subjects)) {
+      return 'غير محدد';
+    }
+    if (student.subjects.length === 0) {
+      return 'غير محدد';
+    }
+    return student.subjects.join(', ');
   }
 }

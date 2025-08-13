@@ -18,11 +18,13 @@ export class ShowMemberComponent implements OnInit {
   member: JoinRequest | null = null;
   toastMessage: { message: string; type: 'success' | 'error' } | null = null;
   memberId: string | null = null;
-  newStudent = { name: '', email: '', phone: '', grade: '', subject: '' };
+  newStudent = { name: '', email: '', phone: '', grade: '', subjects: [] as string[] };
   editMode = false;
   editedVolunteerHours: number = 0;
   editedSubjects: string[] = [];
-  editedStudents: { name: string; email: string; phone: string; grade?: string; subject?: string }[] = [];
+  editedStudents: { name: string; email: string; phone: string; grade?: string; subjects: string[] }[] = [];
+  subjectCount: number = 0;
+  subjectInputs: string[] = [];
 
   constructor(
     private joinRequestService: JoinRequestService,
@@ -41,6 +43,10 @@ export class ShowMemberComponent implements OnInit {
     } else {
       this.showToast('معرف العضو غير موجود', 'error');
     }
+  }
+
+  trackByIndex(index: number): number {
+    return index;
   }
 
   checkAuth() {
@@ -62,7 +68,7 @@ export class ShowMemberComponent implements OnInit {
               year: 'numeric',
               month: '2-digit',
               day: '2-digit'
-            }), // Format member createdAt as Gregorian (Miladi)
+            }),
             lectureCount: response.member.lectureCount || 0,
             lectures: response.member.lectures.map(lecture => ({
               ...lecture,
@@ -70,7 +76,7 @@ export class ShowMemberComponent implements OnInit {
                 year: 'numeric',
                 month: '2-digit',
                 day: '2-digit'
-              }) // Format lecture createdAt as Gregorian (Miladi)
+              })
             })) || [],
             hasNewLecture: response.member.hasNewLecture || false
           };
@@ -79,7 +85,7 @@ export class ShowMemberComponent implements OnInit {
           this.editedStudents = [...this.member.students.map(student => ({
             ...student,
             grade: student.grade || '',
-            subject: student.subject || ''
+            subjects: student.subjects || []
           }))];
           this.checkMonthlyLectures();
           this.showToast('تم جلب بيانات العضو بنجاح', 'success');
@@ -115,7 +121,6 @@ export class ShowMemberComponent implements OnInit {
             )
           }));
 
-          // Mark notifications as read after loading
           this.markNotificationsAsRead();
         }
       },
@@ -157,45 +162,105 @@ export class ShowMemberComponent implements OnInit {
     return emailRegex.test(email);
   }
 
+  updateSubjectInputs(): void {
+    const currentLength = this.subjectInputs.length;
+    const newLength = Number(this.subjectCount);
+    if (newLength > currentLength) {
+      for (let i = currentLength; i < newLength; i++) {
+        this.subjectInputs.push('');
+      }
+    } else if (newLength < currentLength) {
+      this.subjectInputs.length = newLength;
+    }
+  }
+
+  clearSubjectInputs(): void {
+    this.subjectCount = 0;
+    this.subjectInputs = [];
+    this.newStudent.subjects = [];
+  }
+
+  updateStudentSubjects(index: number, value: string): void {
+    this.editedStudents[index].subjects = value ? value.split(',').map(s => s.trim()).filter(s => s) : [];
+  }
+
   addStudent(): void {
     if (!this.memberId) {
       this.showToast('معرف العضو غير موجود', 'error');
       return;
     }
-    if (!this.newStudent.name || !this.newStudent.email || !this.newStudent.phone) {
+
+    // Basic validation
+    if (!this.newStudent.name.trim() || !this.newStudent.email.trim() || !this.newStudent.phone.trim()) {
       this.showToast('يرجى إدخال جميع تفاصيل الطالب الأساسية (الاسم، البريد الإلكتروني، الهاتف)', 'error');
       return;
     }
+
     if (!this.isValidEmail(this.newStudent.email)) {
       this.showToast('البريد الإلكتروني للطالب غير صالح', 'error');
       return;
     }
+
     if (this.newStudent.grade && (this.newStudent.grade.length < 1 || this.newStudent.grade.length > 50)) {
       this.showToast('الصف يجب أن يكون بين 1 و50 حرفًا إذا تم توفيره', 'error');
       return;
     }
-    if (this.newStudent.subject && (this.newStudent.subject.length < 1 || this.newStudent.subject.length > 100)) {
-      this.showToast('المادة يجب أن تكون بين 1 و100 حرف إذا تم توفيرها', 'error');
-      return;
+
+    // Handle subjects
+    let subjects: string[] = [];
+
+    if (this.subjectCount > 0) {
+      // Get valid subjects from inputs
+      const validSubjects = this.subjectInputs
+        .map(subject => subject.trim())
+        .filter(subject => subject !== '');
+
+      if (validSubjects.length !== Number(this.subjectCount)) {
+        this.showToast(`يرجى إدخال ${this.subjectCount} مادة/مواد بالكامل، تأكد من ملء جميع حقول المواد`, 'error');
+        return;
+      }
+
+      if (validSubjects.some(subject => subject.length < 1 || subject.length > 100)) {
+        this.showToast('كل مادة يجب أن تكون بين 1 و100 حرف', 'error');
+        return;
+      }
+
+      subjects = validSubjects;
     }
+
+    console.log('Adding student with data:', {
+      name: this.newStudent.name.trim(),
+      email: this.newStudent.email.trim(),
+      phone: this.newStudent.phone.trim(),
+      grade: this.newStudent.grade?.trim() || undefined,
+      subjects: subjects
+    });
+
     this.joinRequestService.addStudent(
       this.memberId,
-      this.newStudent.name,
-      this.newStudent.email,
-      this.newStudent.phone,
-      this.newStudent.grade || undefined,
-      this.newStudent.subject || undefined
+      this.newStudent.name.trim(),
+      this.newStudent.email.trim(),
+      this.newStudent.phone.trim(),
+      this.newStudent.grade?.trim() || undefined,
+      subjects
     ).subscribe({
       next: (response: JoinRequestResponse) => {
+        console.log('Add student response:', response);
         if (response.success && response.data && this.member) {
           this.member.students = response.data.students;
           this.member.numberOfStudents = response.data.numberOfStudents;
+          this.member.subjects = response.data.subjects;
           this.editedStudents = [...this.member.students.map(student => ({
             ...student,
             grade: student.grade || '',
-            subject: student.subject || ''
+            subjects: student.subjects || []
           }))];
-          this.newStudent = { name: '', email: '', phone: '', grade: '', subject: '' };
+          this.editedSubjects = [...this.member.subjects];
+
+          // Reset form
+          this.newStudent = { name: '', email: '', phone: '', grade: '', subjects: [] };
+          this.clearSubjectInputs();
+
           this.showToast(response.message || 'تم إضافة الطالب بنجاح', 'success');
           this.checkMonthlyLectures();
         } else {
@@ -203,8 +268,8 @@ export class ShowMemberComponent implements OnInit {
         }
       },
       error: (err) => {
-        this.showToast(err.message || 'حدث خطأ أثناء إضافة الطالب', 'error');
         console.error('Add student error:', err);
+        this.showToast(err.message || 'حدث خطأ أثناء إضافة الطالب، تحقق من البيانات أو الاتصال بالخادم', 'error');
       }
     });
   }
@@ -217,7 +282,7 @@ export class ShowMemberComponent implements OnInit {
       this.editedStudents = [...this.member.students.map(student => ({
         ...student,
         grade: student.grade || '',
-        subject: student.subject || ''
+        subjects: student.subjects || []
       }))];
     }
   }
@@ -239,8 +304,8 @@ export class ShowMemberComponent implements OnInit {
       this.showToast('الصف يجب أن يكون بين 1 و50 حرفًا إذا تم توفيره', 'error');
       return;
     }
-    if (this.editedStudents.some(student => student.subject && (student.subject.length < 1 || student.subject.length > 100))) {
-      this.showToast('المادة يجب أن تكون بين 1 و100 حرف إذا تم توفيرها', 'error');
+    if (this.editedStudents.some(student => student.subjects.some(subject => subject.length < 1 || subject.length > 100))) {
+      this.showToast('كل مادة يجب أن تكون بين 1 و100 حرف إذا تم توفيرها', 'error');
       return;
     }
     this.joinRequestService.updateMemberDetails(
@@ -277,8 +342,8 @@ export class ShowMemberComponent implements OnInit {
   }
 
   addSubject(subject: string): void {
-    if (subject && !this.editedSubjects.includes(subject)) {
-      this.editedSubjects.push(subject);
+    if (subject.trim() && !this.editedSubjects.includes(subject.trim())) {
+      this.editedSubjects.push(subject.trim());
     }
   }
 

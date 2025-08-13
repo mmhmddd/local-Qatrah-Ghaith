@@ -39,6 +39,12 @@ export const ApiEndpoints = {
     lowLectureMembers: `${base}/lectures/low-lecture-members`,
     user: (userId: string) => `${base}/lectures/user/${userId}`,
   },
+  lectureRequests: {
+    upload: `${base}/lecture-requests/upload`,
+    pending: `${base}/lecture-requests/pending`,
+    action: (id: string) => `${base}/lecture-requests/${id}/action`,
+    file: (id: string) => `${base}/lecture-requests/${id}/file`, // New endpoint for fetching PDF
+  },
   notifications: {
     get: `${base}/lectures/notifications`,
     markRead: `${base}/lectures/notifications/mark-read`,
@@ -49,12 +55,12 @@ export const ApiEndpoints = {
     delete: (id: string) => `${base}/pdf/${id}`,
     view: (id: string) => `${base}/pdf/view/${id}`,
   },
-leaderboard: {
-  add: `${base}/leaderboard/add`,
-  get: `${base}/leaderboard`,
-  edit: `${base}/leaderboard/edit`,
-  remove: `${base}/leaderboard/remove`,
-},
+  leaderboard: {
+    add: `${base}/leaderboard/add`,
+    get: `${base}/leaderboard`,
+    edit: `${base}/leaderboard/edit`,
+    remove: `${base}/leaderboard/remove`,
+  },
   testimonials: {
     create: `${base}/testimonials/create`,
     list: `${base}/testimonials/list`,

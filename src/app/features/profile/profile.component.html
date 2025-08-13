@@ -1,3 +1,4 @@
+<!-- profile.component.html -->
 <div class="container-fluid p-0">
   <main class="main-content container">
     <!-- Profile Header -->
@@ -19,6 +20,7 @@
       <button class="nav-tab" [ngClass]="{'active': activeSection === 'profile'}" (click)="setActiveSection('profile')">الملف الشخصي</button>
       <button class="nav-tab" [ngClass]="{'active': activeSection === 'students'}" (click)="setActiveSection('students')">الطلاب</button>
       <button class="nav-tab" [ngClass]="{'active': activeSection === 'meetings'}" (click)="setActiveSection('meetings')">المواعيد</button>
+      <button class="nav-tab" [ngClass]="{'active': activeSection === 'pdf-request'}" (click)="setActiveSection('pdf-request')">رفع محاضرة PDF</button>
       <button class="nav-tab" [ngClass]="{'active': activeSection === 'notifications'}" (click)="setActiveSection('notifications')">
         الإشعارات
         <span *ngIf="unreadNotificationsCount > 0" class="badge">{{ unreadNotificationsCount }}</span>
@@ -64,7 +66,7 @@
               <dt class="col-sm-4">عدد الطلاب:</dt>
               <dd class="col-sm-8">{{ profile.numberOfStudents }}</dd>
               <dt class="col-sm-4">المواد:</dt>
-              <dd class="col-sm-8">{{ profile.subjects.join(', ') }}</dd>
+              <dd class="col-sm-8">{{ profile.subjects?.length > 0 ? profile.subjects.join(', ') : 'غير محدد' }}</dd>
               <dt class="col-sm-4">عدد المحاضرات:</dt>
               <dd class="col-sm-8">{{ profile.lectureCount }}</dd>
             </dl>
@@ -132,6 +134,170 @@
       </div>
     </div>
 
+    <!-- PDF Request Section -->
+    <div id="pdf-request" *ngIf="activeSection === 'pdf-request'" class="card shadow-sm mt-4">
+      <div class="card-header">
+        <h3 class="mb-0">طلب رفع محاضرة PDF</h3>
+      </div>
+      <div class="card-body">
+        <form [formGroup]="pdfRequestForm" (ngSubmit)="uploadPdfRequest()">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group mb-3">
+                <label for="pdfTitle" class="form-label">عنوان المحاضرة</label>
+                <input
+                  id="pdfTitle"
+                  formControlName="title"
+                  type="text"
+                  class="form-control"
+                  placeholder="أدخل عنوان المحاضرة"
+                  [class.is-invalid]="pdfRequestForm.get('title')?.invalid && pdfRequestForm.get('title')?.touched"
+                />
+                <div *ngIf="pdfRequestForm.get('title')?.invalid && pdfRequestForm.get('title')?.touched" class="invalid-feedback">
+                  <span *ngIf="pdfRequestForm.get('title')?.errors?.['required']">عنوان المحاضرة مطلوب</span>
+                  <span *ngIf="pdfRequestForm.get('title')?.errors?.['minlength']">العنوان قصير جدًا (الحد الأدنى 3 أحرف)</span>
+                  <span *ngIf="pdfRequestForm.get('title')?.errors?.['maxlength']">العنوان طويل جدًا (الحد الأقصى 100 حرف)</span>
+                </div>
+              </div>
+
+              <div class="form-group mb-3">
+                <label for="pdfDescription" class="form-label">وصف المحاضرة</label>
+                <textarea
+                  id="pdfDescription"
+                  formControlName="description"
+                  class="form-control"
+                  rows="4"
+                  placeholder="أدخل وصف تفصيلي للمحاضرة"
+                  [class.is-invalid]="pdfRequestForm.get('description')?.invalid && pdfRequestForm.get('description')?.touched"
+                ></textarea>
+                <div *ngIf="pdfRequestForm.get('description')?.invalid && pdfRequestForm.get('description')?.touched" class="invalid-feedback">
+                  <span *ngIf="pdfRequestForm.get('description')?.errors?.['required']">وصف المحاضرة مطلوب</span>
+                  <span *ngIf="pdfRequestForm.get('description')?.errors?.['minlength']">الوصف قصير جدًا (الحد الأدنى 10 أحرف)</span>
+                  <span *ngIf="pdfRequestForm.get('description')?.errors?.['maxlength']">الوصف طويل جدًا (الحد الأقصى 500 حرف)</span>
+                </div>
+              </div>
+
+              <div class="form-group mb-3">
+                <label for="pdfCreatorName" class="form-label">اسم منشئ المحاضرة</label>
+                <input
+                  id="pdfCreatorName"
+                  formControlName="creatorName"
+                  type="text"
+                  class="form-control"
+                  placeholder="أدخل اسم منشئ المحاضرة"
+                  [class.is-invalid]="pdfRequestForm.get('creatorName')?.invalid && pdfRequestForm.get('creatorName')?.touched"
+                />
+                <div *ngIf="pdfRequestForm.get('creatorName')?.invalid && pdfRequestForm.get('creatorName')?.touched" class="invalid-feedback">
+                  <span *ngIf="pdfRequestForm.get('creatorName')?.errors?.['required']">اسم منشئ المحاضرة مطلوب</span>
+                  <span *ngIf="pdfRequestForm.get('creatorName')?.errors?.['minlength']">الاسم قصير جدًا (الحد الأدنى حرفان)</span>
+                  <span *ngIf="pdfRequestForm.get('creatorName')?.errors?.['maxlength']">الاسم طويل جدًا (الحد الأقصى 50 حرف)</span>
+                </div>
+              </div>
+
+              <div class="form-group mb-3">
+                <label for="pdfFile" class="form-label">ملف المحاضرة (PDF)</label>
+                <input
+                  id="pdfFileInput"
+                  type="file"
+                  class="form-control"
+                  accept=".pdf"
+                  (change)="onPdfFileSelected($event)"
+                />
+                <div class="form-text text-muted">الحد الأقصى لحجم الملف: 10 ميغابايت، الصيغة المدعومة: PDF فقط</div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="form-group mb-3">
+                <label for="pdfSubject" class="form-label">المادة</label>
+                <select
+                  id="pdfSubject"
+                  formControlName="subject"
+                  class="form-control"
+                  [class.is-invalid]="pdfRequestForm.get('subject')?.invalid && pdfRequestForm.get('subject')?.touched"
+                >
+                  <option value="" disabled selected>اختر المادة</option>
+                  <option *ngFor="let subject of subjects" [value]="subject">{{ subject }}</option>
+                </select>
+                <div *ngIf="pdfRequestForm.get('subject')?.invalid && pdfRequestForm.get('subject')?.touched" class="invalid-feedback">
+                  <span *ngIf="pdfRequestForm.get('subject')?.errors?.['required']">المادة مطلوبة</span>
+                </div>
+              </div>
+
+              <div class="form-group mb-3">
+                <label for="pdfSemester" class="form-label">الفصل الدراسي</label>
+                <select
+                  id="pdfSemester"
+                  formControlName="semester"
+                  class="form-control"
+                  [class.is-invalid]="pdfRequestForm.get('semester')?.invalid && pdfRequestForm.get('semester')?.touched"
+                >
+                  <option value="" disabled selected>اختر الفصل الدراسي</option>
+                  <option *ngFor="let semester of semesters" [value]="semester">{{ semester }}</option>
+                </select>
+                <div *ngIf="pdfRequestForm.get('semester')?.invalid && pdfRequestForm.get('semester')?.touched" class="invalid-feedback">
+                  <span *ngIf="pdfRequestForm.get('semester')?.errors?.['required']">الفصل الدراسي مطلوب</span>
+                </div>
+              </div>
+
+              <div class="form-group mb-3">
+                <label for="pdfCountry" class="form-label">الدولة</label>
+                <select
+                  id="pdfCountry"
+                  formControlName="country"
+                  class="form-control"
+                  [class.is-invalid]="pdfRequestForm.get('country')?.invalid && pdfRequestForm.get('country')?.touched"
+                >
+                  <option value="" disabled selected>اختر الدولة</option>
+                  <option *ngFor="let country of countries" [value]="country">{{ country }}</option>
+                </select>
+                <div *ngIf="pdfRequestForm.get('country')?.invalid && pdfRequestForm.get('country')?.touched" class="invalid-feedback">
+                  <span *ngIf="pdfRequestForm.get('country')?.errors?.['required']">الدولة مطلوبة</span>
+                </div>
+              </div>
+
+              <div class="form-group mb-3">
+                <label for="pdfAcademicLevel" class="form-label">المرحلة الدراسية</label>
+                <select
+                  id="pdfAcademicLevel"
+                  formControlName="academicLevel"
+                  class="form-control"
+                  [class.is-invalid]="pdfRequestForm.get('academicLevel')?.invalid && pdfRequestForm.get('academicLevel')?.touched"
+                >
+                  <option value="" disabled selected>اختر المرحلة الدراسية</option>
+                  <option *ngFor="let level of academicLevels" [value]="level">{{ level }}</option>
+                </select>
+                <div *ngIf="pdfRequestForm.get('academicLevel')?.invalid && pdfRequestForm.get('academicLevel')?.touched" class="invalid-feedback">
+                  <span *ngIf="pdfRequestForm.get('academicLevel')?.errors?.['required']">المرحلة الدراسية مطلوبة</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-center mt-4">
+            <button
+              type="submit"
+              class="btn btn-primary btn-lg"
+              [disabled]="isUploadingPdfRequest || pdfRequestForm.invalid || !selectedPdfFile"
+            >
+              {{ isUploadingPdfRequest ? 'جاري إرسال الطلب...' : 'إرسال طلب رفع المحاضرة' }}
+            </button>
+          </div>
+        </form>
+
+        <div class="mt-4 p-3 bg-light rounded">
+          <h5 class="text-info">ملاحظات مهمة:</h5>
+          <ul class="mb-0">
+            <li>سيتم مراجعة طلبك من قبل الإدارة قبل الموافقة على النشر</li>
+            <li>يُرجى التأكد من صحة جميع المعلومات المدخلة</li>
+            <li>الملف المرفوع يجب أن يكون بصيغة PDF فقط</li>
+            <li>الحد الأقصى لحجم الملف هو 10 ميغابايت</li>
+            <li>ستتلقى إشعارًا عند الموافقة على الطلب أو رفضه</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
     <!-- Notifications Section -->
     <div id="notifications" *ngIf="activeSection === 'notifications'" class="card shadow-sm mt-4">
       <div class="card-header">
@@ -176,7 +342,7 @@
                 <th>البريد الإلكتروني</th>
                 <th>الهاتف</th>
                 <th>الصف</th>
-                <th>المادة</th>
+                <th>المواد</th>
               </tr>
             </thead>
             <tbody>
@@ -185,7 +351,7 @@
                 <td>{{ student.email || 'غير متوفر' }}</td>
                 <td>{{ student.phone || 'غير متوفر' }}</td>
                 <td>{{ student.grade || 'غير محدد' }}</td>
-                <td>{{ student.subject || 'غير محدد' }}</td>
+                <td>{{ getStudentSubjects(student) }}</td>
               </tr>
             </tbody>
           </table>
@@ -237,13 +403,28 @@
             <button type="button" class="btn-close" (click)="closePasswordModal()" aria-label="Close"></button>
           </div>
           <div class="modal-body">
+            <!-- Error Message -->
+            <div *ngIf="error" class="alert alert-danger alert-dismissible fade show" role="alert">
+              {{ error }}
+              <button type="button" class="btn-close" (click)="error = null"></button>
+            </div>
+            <!-- Forgot Password Button for Incorrect Password -->
+            <div *ngIf="errorCode === 'incorrect_password'" class="mb-3 text-center">
+              <button class="btn btn-link" (click)="navigateToForgotPassword()" aria-label="نسيت كلمة المرور">هل نسيت كلمة المرور؟</button>
+            </div>
             <div class="mb-3">
               <label for="currentPassword" class="form-label">كلمة المرور الحالية</label>
-              <input type="password" class="form-control" id="currentPassword" [(ngModel)]="currentPassword">
+              <input type="password" class="form-control" id="currentPassword" [(ngModel)]="currentPassword" [class.is-invalid]="errorCode === 'incorrect_password'">
+              <div *ngIf="errorCode === 'incorrect_password'" class="invalid-feedback">
+                كلمة المرور الحالية غير صحيحة
+              </div>
             </div>
             <div class="mb-3">
               <label for="newPassword" class="form-label">كلمة المرور الجديدة</label>
-              <input type="password" class="form-control" id="newPassword" [(ngModel)]="newPassword">
+              <input type="password" class="form-control" id="newPassword" [(ngModel)]="newPassword" [class.is-invalid]="errorCode === 'same_password'">
+              <div *ngIf="errorCode === 'same_password'" class="invalid-feedback">
+                كلمة المرور الجديدة لا يمكن أن تكون نفس كلمة المرور الحالية
+              </div>
             </div>
           </div>
           <div class="modal-footer">

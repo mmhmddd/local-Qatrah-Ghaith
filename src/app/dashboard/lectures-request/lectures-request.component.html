@@ -1,0 +1,246 @@
+<div class="page-wrapper">
+  <div class="container">
+    <!-- Page Header -->
+    <div class="page-header">
+      <h2>طلبات رفع المحاضرات</h2>
+      <div class="page-actions">
+        <button
+          class="refresh-btn"
+          (click)="refreshData()"
+          [disabled]="loading"
+          title="تحديث البيانات">
+          <span class="refresh-icon" [class.spinning]="loading">🔄</span>
+          تحديث
+        </button>
+      </div>
+    </div>
+
+    <!-- Success Message -->
+    <div *ngIf="successMessage" class="success-message">
+      <span class="icon">✅</span>
+      {{ successMessage }}
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="error-message">
+      <span class="icon">❌</span>
+      {{ errorMessage }}
+      <button class="retry-btn" (click)="refreshData()">إعادة المحاولة</button>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-message">
+      <div class="spinner"></div>
+      جار تحميل طلبات المحاضرات...
+    </div>
+
+    <!-- Main Content -->
+    <div *ngIf="!loading" class="content-wrapper">
+      <!-- Filters and Search -->
+      <div class="filters-section">
+        <div class="search-container">
+          <input
+            type="text"
+            class="search-input"
+            placeholder="البحث في الطلبات (العنوان، المنشئ، المادة...)"
+            [(ngModel)]="searchTerm"
+            (input)="onSearchChange()">
+          <span class="search-icon">🔍</span>
+        </div>
+
+        <div class="filters-row">
+          <div class="filter-group">
+            <label>تصفية حسب التاريخ:</label>
+            <select
+              class="filter-select"
+              [(ngModel)]="selectedFilter"
+              (change)="onFilterChange()">
+              <option
+                *ngFor="let option of filterOptions"
+                [value]="option.value">
+                {{ option.label }}
+              </option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label>ترتيب حسب:</label>
+            <div class="sort-container">
+              <select
+                class="filter-select"
+                [(ngModel)]="sortBy"
+                (change)="onSortChange()">
+                <option
+                  *ngFor="let option of sortOptions"
+                  [value]="option.value">
+                  {{ option.label }}
+                </option>
+              </select>
+              <button
+                class="sort-order-btn"
+                (click)="toggleSortOrder()"
+                [title]="sortOrder === 'asc' ? 'ترتيب تصاعدي' : 'ترتيب تنازلي'">
+                {{ sortOrder === 'asc' ? '↑' : '↓' }}
+              </button>
+            </div>
+          </div>
+
+          <div class="results-count">
+            <span>{{ filteredRequests.length }} طلب</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- No Results -->
+      <div *ngIf="filteredRequests.length === 0 && !loading" class="no-requests">
+        <div class="no-requests-icon">📋</div>
+        <div class="no-requests-content">
+          <h3>لا توجد طلبات محاضرات</h3>
+          <p *ngIf="searchTerm || selectedFilter !== 'all'">
+            لم يتم العثور على طلبات تطابق معايير البحث المحددة
+          </p>
+          <p *ngIf="!searchTerm && selectedFilter === 'all'">
+            لا توجد طلبات محاضرات في انتظار الموافقة حالياً
+          </p>
+        </div>
+      </div>
+
+      <!-- Requests List -->
+      <div *ngIf="filteredRequests.length > 0" class="requests-container">
+        <div
+          *ngFor="let request of filteredRequests; trackBy: trackByRequestId"
+          class="request-card"
+          [class.expanded]="request.expanded">
+
+          <!-- Request Header -->
+          <div class="request-header" (click)="toggleRequestDetails(request.id)">
+            <div class="request-main-info">
+              <div class="creator-avatar">
+                {{ getInitials(request.creatorName) }}
+              </div>
+              <div class="request-title-section">
+                <h3 class="request-title">{{ request.title }}</h3>
+                <div class="request-meta">
+                  <span class="creator-name">{{ request.creatorName }}</span>
+                  <span class="separator">•</span>
+                  <span class="subject">{{ request.subject }}</span>
+                  <span class="separator">•</span>
+                  <span class="date">{{ formatDate(request.createdAt) }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="request-actions-quick">
+              <div class="expand-icon" [class.rotated]="request.expanded">
+                ⌄
+              </div>
+            </div>
+          </div>
+
+          <!-- Request Details (Expanded) -->
+          <div *ngIf="request.expanded" class="request-details">
+            <div class="details-grid">
+              <div class="detail-item">
+                <label>الوصف:</label>
+                <p>{{ request.description }}</p>
+              </div>
+
+              <div class="detail-item">
+                <label>المستوى الأكاديمي:</label>
+                <span class="badge academic-level">{{ request.academicLevel }}</span>
+              </div>
+
+              <div class="detail-item">
+                <label>الفصل الدراسي:</label>
+                <span class="badge semester">{{ request.semester }}</span>
+              </div>
+
+              <div class="detail-item">
+                <label>البلد:</label>
+                <span class="badge country">{{ request.country }}</span>
+              </div>
+
+              <div class="detail-item">
+                <label>اسم الملف:</label>
+                <div class="file-actions">
+                  <button
+                    class="file-name-btn"
+                    (click)="openPdfFile(request.id, request.fileName)"
+                    [disabled]="isPdfLoading(request.id, 'view')"
+                    title="فتح الملف في تبويب جديد">
+                    <span *ngIf="!isPdfLoading(request.id, 'view')" class="file-icon">📄</span>
+                    <span *ngIf="isPdfLoading(request.id, 'view')" class="spinner-small"></span>
+                    {{ request.fileName }}
+                    <span *ngIf="!isPdfLoading(request.id, 'view')" class="open-icon">🔗</span>
+                  </button>
+                  <button
+                    class="download-btn"
+                    (click)="downloadPdfFile(request.id, request.fileName)"
+                    [disabled]="isPdfLoading(request.id, 'download')"
+                    title="تحميل الملف">
+                    <span *ngIf="!isPdfLoading(request.id, 'download')" class="download-icon">⬇️</span>
+                    <span *ngIf="isPdfLoading(request.id, 'download')" class="spinner-small"></span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="detail-item">
+                <label>رفعه:</label>
+                <span class="uploader">{{ request.uploadedBy }}</span>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+              <button
+                class="approve-btn"
+                (click)="showConfirmation('approve', request.id, request.title)"
+                [disabled]="isProcessing(request.id)"
+                title="الموافقة على الطلب">
+                <span *ngIf="!isProcessing(request.id)" class="icon">✅</span>
+                <span *ngIf="isProcessing(request.id)" class="spinner-small"></span>
+                موافقة
+              </button>
+
+              <button
+                class="reject-btn"
+                (click)="showConfirmation('reject', request.id, request.title)"
+                [disabled]="isProcessing(request.id)"
+                title="رفض الطلب">
+                <span *ngIf="!isProcessing(request.id)" class="icon">❌</span>
+                <span *ngIf="isProcessing(request.id)" class="spinner-small"></span>
+                رفض
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Confirmation Dialog -->
+    <div *ngIf="showConfirmDialog" class="confirm-dialog">
+      <div class="dialog-content">
+        <h3>تأكيد العملية</h3>
+        <p>
+          هل أنت متأكد من رغبتك في
+          <strong>{{ confirmAction === 'approve' ? 'الموافقة على' : 'رفض' }}</strong>
+          طلب المحاضرة:
+        </p>
+        <p class="request-title-confirm">{{ selectedRequestTitle }}</p>
+
+        <div class="dialog-actions">
+          <button
+            class="confirm-btn"
+            (click)="confirmActionSubmit()"
+            [class.approve]="confirmAction === 'approve'"
+            [class.reject]="confirmAction === 'reject'">
+            {{ confirmAction === 'approve' ? 'موافقة' : 'رفض' }}
+          </button>
+          <button class="cancel-btn" (click)="cancelConfirmation()">
+            إلغاء
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
