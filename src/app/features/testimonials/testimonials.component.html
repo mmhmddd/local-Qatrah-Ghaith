@@ -1,0 +1,75 @@
+<section class="hero-section">
+  <div class="container hero-container">
+    <div class="text-container" dir="rtl">
+      <h1 class="hero-title">آراء المستفيدين</h1>
+      <p class="hero-description">
+        نَبني أُمّة لتحي أُمّة، لا يسودها الأُمّية؛ لنبني حضارة
+      </p>
+      <button class="hero-button btn" (click)="scrollToSwiper()">عرض جميع الآراء</button>
+    </div>
+  </div>
+</section>
+
+<section class="values-section">
+  <div class="container values-container">
+    <div class="row text-center" dir="rtl">
+      <div class="col-4 value-item">
+        <i class="fas fa-lightbulb fa-3x value-icon"></i>
+        <h3 class="value-title">الخبرة</h3>
+      </div>
+      <div class="col-4 value-item">
+        <i class="fas fa-book fa-3x value-icon"></i>
+        <h3 class="value-title">التعلم</h3>
+      </div>
+      <div class="col-4 value-item">
+        <i class="fas fa-heart fa-3x value-icon"></i>
+        <h3 class="value-title">الإنسانية</h3>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="swiper-container" id="swiper_container">
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+  <div class="swiper-wrapper" *ngIf="testimonialChunks.length; else noTestimonials">
+    <div class="swiper-slide" *ngFor="let slideTestimonials of testimonialChunks">
+      <div class="cards-wrapper">
+        <div class="testimonial-card card" *ngFor="let testimonial of slideTestimonials">
+          <div class="card-body">
+            <div class="profile-container d-flex">
+              <img [src]="getImageUrl(testimonial.image)" alt="Profile" class="profile-image" (error)="handleImageError($event)">
+              <div class="profile-text">
+                <h3 class="name">{{ testimonial.name }}</h3>
+                <span class="role" *ngIf="testimonial.major">{{ testimonial.major }}</span>
+              </div>
+            </div>
+            <div class="rating">
+              <span *ngFor="let star of [1,2,3,4,5]" [ngClass]="getStarClass(testimonial.rating, star)">★</span>
+            </div>
+            <p class="comment" lang="ar" dir="rtl">{{ testimonial.reviewText }}</p>
+          </div>
+        </div>
+        <!-- Add placeholder card if only one testimonial in chunk -->
+        <div class="testimonial-card card placeholder" *ngIf="slideTestimonials.length === 1">
+          <div class="card-body">
+            <div class="profile-container d-flex align-items-center">
+              <div class="profile-image placeholder-image"></div>
+              <h3 class="name placeholder-text">...</h3>
+            </div>
+            <div class="rating">
+              <span class="star placeholder-text">...</span>
+            </div>
+            <p class="comment placeholder-text">...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="swiper-pagination"></div>
+</div>
+
+<ng-template #noTestimonials>
+  <div class="alert alert-info">
+    لا توجد شهادات متاحة حاليًا
+  </div>
+</ng-template>

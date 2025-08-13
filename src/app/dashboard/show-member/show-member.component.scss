@@ -1,0 +1,408 @@
+$primary-color: #00adb5;
+$secondary-color: #0097b2;
+$accent-color: #ff914d;
+$success-color: #28a745;
+$danger-color: #dc3545;
+$neutral-color: #495057;
+$background-color: #f4f6f9;
+$white: #ffffff;
+$border-color: #e0e4e8;
+$info-color: #17a2b8;
+
+.container {
+  display: flex;
+  min-height: 100vh;
+  background-color: $background-color;
+  direction: rtl;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.col-md-9 {
+  flex: 1;
+  padding: 1.5rem;
+  background-color: $white;
+  border-radius: 10px;
+  margin-right: 100px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+  @media (max-width: 768px) {
+    margin-right: 0;
+    padding: 1rem;
+  }
+}
+
+.toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 280px;
+  padding: 0.75rem 1.25rem;
+  border-radius: 6px;
+  color: $white;
+  text-align: center; // Center toast message
+  z-index: 2000;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  animation: slideIn 0.3s ease-out, fadeOut 0.3s ease-out 2.7s forwards;
+
+  &.toast-success {
+    background-color: $success-color;
+  }
+
+  &.toast-error {
+    background-color: $danger-color;
+  }
+}
+
+.alert {
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1.25rem;
+  font-weight: 500;
+  border: 1px solid $border-color;
+  background-color: $white;
+  color: $neutral-color;
+  text-align: center;
+
+  &.alert-info {
+    background-color: #e7f3fe;
+    border-color: #b8daff;
+    color: #004085;
+  }
+
+  &.alert-warning {
+    background-color: #fff3cd;
+    border-color: #ffeeba;
+    color: #856404;
+  }
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.35em 0.65em;
+  font-size: 0.75em;
+  font-weight: 700;
+  line-height: 1;
+  color: $white;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: 0.25rem;
+
+  &.bg-info {
+    background-color: $info-color;
+  }
+}
+
+
+// Card styles
+.card {
+  background: $white;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  border: none;
+  margin-bottom: 1.5rem;
+
+  .card-header {
+    background: $primary-color;
+    padding: 1rem;
+    border-bottom: 1px solid $border-color;
+    text-align: center; // Center card header text
+
+    h3, h4 {
+      margin: 0;
+      font-weight: 500;
+      font-size: 1.25rem;
+      text-align: center; // Center headers
+    }
+  }
+
+  .card-body {
+    padding: 1.5rem;
+    text-align: center; // Center card body text
+  }
+}
+
+// Definition list styles
+dl.row {
+  margin-bottom: 0;
+
+  dt {
+    font-weight: 500;
+    color: $neutral-color;
+    padding-bottom: 0.5rem;
+    text-align: right; // Keep right-aligned for RTL
+  }
+
+  dd {
+    color: $neutral-color;
+    padding-bottom: 0.5rem;
+    text-align: right; // Keep right-aligned for RTL
+  }
+}
+
+// Form label and input styles
+.form-label {
+  font-weight: 500;
+  color: $neutral-color;
+  margin-bottom: 0.5rem;
+  text-align: center; // Center form labels
+}
+
+.form-control {
+  border: 1px solid $border-color;
+  border-radius: 6px;
+  padding: 0.75rem;
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  text-align: center; // Center input text
+
+  &:focus {
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+    outline: none;
+  }
+
+  &::placeholder {
+    color: #adb5bd;
+    text-align: center; // Center placeholder text
+  }
+}
+
+// Button group for centered buttons
+.button-group {
+  display: flex;
+  justify-content: center; // Center buttons
+  gap: 0.75rem; // Space between buttons
+}
+
+// Button styles
+.btn {
+  border-radius: 6px;
+  font-weight: 500;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+
+  &.btn-primary {
+    background-color: $primary-color;
+    color: $white;
+
+    &:hover {
+      background-color: darken($primary-color, 10%);
+    }
+  }
+
+  &.btn-secondary {
+    background-color: $secondary-color;
+    color: $white;
+
+    &:hover {
+      background-color: darken($secondary-color, 10%);
+    }
+  }
+
+  &.btn-success {
+    background-color: $success-color;
+    color: $white;
+
+    &:hover {
+      background-color: darken($success-color, 10%);
+    }
+  }
+
+  &.btn-danger {
+    background-color: $danger-color;
+    color: $white;
+
+    &:hover {
+      background-color: darken($danger-color, 10%);
+    }
+  }
+
+  &.btn-outline-secondary {
+    background: transparent;
+    border: 1px solid $secondary-color;
+    color: $secondary-color;
+
+    &:hover {
+      background: $secondary-color;
+      color: $white;
+    }
+  }
+
+  &.btn-sm {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+  }
+}
+
+// Input group styles
+.input-group {
+  display: flex;
+  border-radius: 6px;
+  justify-content: center; // Center input group
+
+  .form-control {
+    border-right: none;
+    text-align: center; // Center input text
+  }
+
+  .btn {
+    border-radius: 0 6px 6px 0;
+  }
+}
+
+// Table styles
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+
+  &.table-bordered {
+    border: 1px solid $border-color;
+    border-radius: 6px;
+  }
+
+  &.table-hover {
+    tbody tr:hover {
+      background-color: rgba($primary-color, 0.05);
+    }
+  }
+
+  th {
+    background-color: $background-color;
+    font-weight: 500;
+    color: $neutral-color;
+    padding: 0.75rem;
+    text-align: center; // Center table headers
+    border-bottom: 1px solid $border-color;
+  }
+
+  td {
+    padding: 0.75rem;
+    text-align: center; // Center table data
+    color: $neutral-color;
+    border-bottom: 1px solid $border-color;
+  }
+
+  a {
+    color: $primary-color;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+// Table responsive wrapper
+.table-responsive {
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+// List group styles
+.list-group {
+  border-radius: 6px;
+
+  .list-group-item {
+    border: 1px solid $border-color;
+    padding: 0.75rem;
+    background: $white;
+    transition: background-color 0.2s ease;
+    text-align: center; // Center list group items
+
+    &:hover {
+      background-color: rgba($primary-color, 0.05);
+    }
+
+    &:first-child {
+      border-top-left-radius: 6px;
+      border-top-right-radius: 6px;
+    }
+
+    &:last-child {
+      border-bottom-left-radius: 6px;
+      border-bottom-right-radius: 6px;
+    }
+  }
+}
+
+// Margin utilities
+.mb-3 {
+  margin-bottom: 1.25rem;
+}
+
+.mt-3 {
+  margin-top: 1.25rem;
+}
+
+.mt-4 {
+  margin-top: 1.5rem;
+}
+
+.me-2 {
+  margin-left: 0.75rem;
+}
+
+// Animations
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .col-md-9 {
+    margin-right: 0 !important;
+    padding: 1rem;
+  }
+
+  .card {
+    margin-bottom: 1rem;
+
+    .card-body {
+      padding: 1rem;
+      text-align: center; // Ensure centering on mobile
+    }
+  }
+
+  .table {
+    font-size: 0.85rem;
+
+    th, td {
+      padding: 0.5rem;
+      text-align: center; // Ensure centering on mobile
+    }
+  }
+
+  .btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .form-control {
+    text-align: center;
+  }
+}

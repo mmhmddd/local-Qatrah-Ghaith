@@ -1,0 +1,77 @@
+<div class="profile-wrapper">
+  <div class="profile-container">
+    <!-- Profile Image with modern border -->
+    <div class="profile-image-wrapper">
+      <img
+        class="profile-image"
+        src="/assets/images/home/twocolorlogo.png"
+        alt="مبادرة قطرة غيث"
+      >
+    </div>
+
+    <!-- Profile Title -->
+    <h1 class="profile-title">مبادرة قطرة غيث التعليمية</h1>
+
+    <!-- Profile Bio -->
+    <p class="profile-bio">
+      مبادرة تطوعية غير ربحية هدفها منح العلم للطلبة وتدريسهم من قبل طلاب جامعات أو خريجين،
+      فاقصد مسيرك للغلا متوكلا البذل روح والمنى أجساء.
+    </p>
+
+    <!-- Social Links in containers -->
+    <div class="social-links-grid">
+      <a
+        *ngFor="let social of socialLinks"
+        class="social-link-container"
+        [href]="social.href"
+        target="_blank"
+        rel="noopener nofollow"
+        (click)="trackClick(social.id, 'social')"
+        [title]="social.title"
+      >
+        <div class="social-icon-wrapper">
+          <i class="social-icon" [ngClass]="social.icon"></i>
+        </div>
+      </a>
+    </div>
+
+    <!-- Bottom Action Buttons (replacing pageItems) -->
+    <div class="action-buttons">
+      <a
+        href="https://wh.ms/962795686452"
+        class="action-btn donate-btn"
+        target="_blank"
+        rel="noopener nofollow"
+        (click)="trackClick('donate', 'action')"
+        title="التبرع للمبادرة"
+      >
+        <i class="fas fa-heart"></i>
+        تبرع
+      </a>
+
+      <a
+        href="https://www.qatrah-ghaith.com/join-us"
+        class="action-btn volunteer-btn"
+        target="_blank"
+        rel="noopener nofollow"
+        (click)="trackClick('volunteer', 'action')"
+        title="التطوع"
+      >
+        <i class="fas fa-hands-helping"></i>
+        تطوع
+      </a>
+
+      <a
+        href="https://wh.ms/962795686452"
+        class="action-btn courses-btn"
+        target="_blank"
+        rel="noopener nofollow"
+        (click)="trackClick('courses', 'action')"
+        title="الدورات التعليمية"
+      >
+        <i class="fas fa-graduation-cap"></i>
+        دورات
+      </a>
+    </div>
+  </div>
+</div>

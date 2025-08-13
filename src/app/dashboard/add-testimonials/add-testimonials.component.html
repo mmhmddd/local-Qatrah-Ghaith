@@ -1,0 +1,209 @@
+<div class="container">
+  <!-- Sidebar -->
+  <app-sidebar></app-sidebar>
+
+  <div class="content">
+    <!-- Add Testimonial Section -->
+    <div class="add-testimonial-section">
+      <h2>إدارة الآراء</h2>
+
+      <!-- Success and Error Messages -->
+      <div *ngIf="success" class="success-message">{{ success }}</div>
+      <div *ngIf="error" class="error-message">{{ error }}</div>
+
+      <!-- Add Testimonial Form -->
+      <div class="add-testimonial-form">
+        <h3>إضافة رأي</h3>
+        <form (ngSubmit)="addTestimonial()" #addTestimonialForm="ngForm">
+          <!-- Image Preview -->
+          <div class="form-group" *ngIf="newTestimonial.imagePreview">
+            <label>معاينة الصورة</label>
+            <img [src]="newTestimonial.imagePreview" alt="معاينة الصورة" class="testimonial-image" />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="name">الاسم</label>
+              <input
+                id="name"
+                type="text"
+                [(ngModel)]="newTestimonial.name"
+                name="name"
+                placeholder="أدخل الاسم"
+                required
+                #name="ngModel"
+                [ngClass]="{'invalid': name.invalid && (name.dirty || name.touched)}"
+              />
+              <div *ngIf="name.invalid && (name.dirty || name.touched)" class="error-text">
+                الاسم مطلوب
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="major">التخصص</label>
+              <input
+                id="major"
+                type="text"
+                [(ngModel)]="newTestimonial.major"
+                name="major"
+                placeholder="أدخل التخصص"
+                required
+                #major="ngModel"
+                [ngClass]="{'invalid': major.invalid && (major.dirty || major.touched)}"
+              />
+              <div *ngIf="major.invalid && (major.dirty || major.touched)" class="error-text">
+                التخصص مطلوب
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="rating">التقييم</label>
+              <select
+                id="rating"
+                [(ngModel)]="newTestimonial.rating"
+                name="rating"
+                required
+                #rating="ngModel"
+                [ngClass]="{'invalid': rating.invalid && (rating.dirty || rating.touched)}"
+              >
+                <option value="" disabled selected>اختر التقييم</option>
+                <option *ngFor="let star of [1,2,3,4,5]" [value]="star">{{ star }} نجمة</option>
+              </select>
+              <div *ngIf="rating.invalid && (rating.dirty || rating.touched)" class="error-text">
+                التقييم مطلوب
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="image">الصورة</label>
+              <input
+                id="image"
+                type="file"
+                (change)="onImageSelected($event)"
+                name="image"
+                accept="image/jpeg,image/jpg,image/png"
+                required
+                #image
+              />
+              <div *ngIf="!newTestimonial.image && addTestimonialForm.submitted" class="error-text">
+                الصورة مطلوبة
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="reviewText">نص التعليق</label>
+            <textarea
+              id="reviewText"
+              [(ngModel)]="newTestimonial.reviewText"
+              name="reviewText"
+              placeholder="أدخل نص التعليق"
+              rows="4"
+              required
+              #reviewText="ngModel"
+              [ngClass]="{'invalid': reviewText.invalid && (reviewText.dirty || reviewText.touched)}"
+            ></textarea>
+            <div *ngIf="reviewText.invalid && (reviewText.dirty || reviewText.touched)" class="error-text">
+              نص التعليق مطلوب
+            </div>
+          </div>
+          <button type="submit" class="btn primary" [disabled]="addTestimonialForm.invalid">إضافة رأي</button>
+        </form>
+      </div>
+
+      <!-- Testimonials Table -->
+      <div class="testimonial-table" *ngIf="testimonials.length; else noTestimonials">
+        <h3>قائمة الآراء</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>الصورة</th>
+              <th>الاسم</th>
+              <th>التخصص</th>
+              <th>التقييم</th>
+              <th>نص التعليق</th>
+              <th>تاريخ الإنشاء</th>
+              <th>الإجراءات</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let testimonial of testimonials">
+              <ng-container *ngIf="editingTestimonial?.id === testimonial.id; else showTestimonial">
+                <!-- Edit Form -->
+                <td>
+                  <img *ngIf="editImagePreview" [src]="editImagePreview" alt="صورة الشهادة" class="testimonial-image" />
+                  <img *ngIf="!editImagePreview && testimonial.image" [src]="getImageUrl(testimonial.image)" alt="صورة الشهادة" class="testimonial-image" />
+                </td>
+                <td>
+                  <input
+                    type="text"
+                    [(ngModel)]="editName"
+                    name="editName"
+                    required
+                    [ngClass]="{'invalid': !editName.trim()}"
+                  />
+                </td>
+                <td>
+                  <input
+                    type="text"
+                    [(ngModel)]="editMajor"
+                    name="editMajor"
+                    required
+                    [ngClass]="{'invalid': !editMajor.trim()}"
+                  />
+                </td>
+                <td>
+                  <select
+                    [(ngModel)]="editRating"
+                    name="editRating"
+                    required
+                    [ngClass]="{'invalid': editRating < 1 || editRating > 5}"
+                  >
+                    <option value="" disabled>اختر التقييم</option>
+                    <option *ngFor="let star of [1,2,3,4,5]" [value]="star">{{ star }} نجمة</option>
+                  </select>
+                </td>
+                <td>
+                  <textarea
+                    [(ngModel)]="editReviewText"
+                    name="editReviewText"
+                    rows="4"
+                    required
+                    [ngClass]="{'invalid': !editReviewText.trim()}"
+                  ></textarea>
+                </td>
+                <td>{{ testimonial.createdAt | date:'medium':'ar' }}</td>
+                <td>
+                  <input
+                    type="file"
+                    (change)="onEditImageSelected($event)"
+                    name="editImage"
+                    accept="image/jpeg,image/jpg,image/png"
+                  />
+                  <button class="btn success" (click)="saveEdit()">حفظ</button>
+                  <button class="btn danger" (click)="cancelEdit()">إلغاء</button>
+                </td>
+              </ng-container>
+              <ng-template #showTestimonial>
+                <td>
+                  <img *ngIf="testimonial.image" [src]="getImageUrl(testimonial.image)" alt="صورة الشهادة" class="testimonial-image" />
+                  <span *ngIf="!testimonial.image">لا توجد صورة</span>
+                </td>
+                <td>{{ testimonial.name }}</td>
+                <td>{{ testimonial.major }}</td>
+                <td>{{ testimonial.rating }} نجمة</td>
+                <td>{{ testimonial.reviewText }}</td>
+                <td>{{ testimonial.createdAt | date:'medium':'ar' }}</td>
+                <td>
+                  <button class="view-btn" (click)="startEdit(testimonial)">تعديل</button>
+                  <button class="delete-btn" (click)="deleteTestimonial(testimonial.id)">حذف</button>
+                </td>
+              </ng-template>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <ng-template #noTestimonials>
+        <p>لا توجد شهادات</p>
+      </ng-template>
+    </div>
+  </div>
+</div>

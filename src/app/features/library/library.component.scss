@@ -1,0 +1,677 @@
+@use 'sass:math';
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap');
+
+$primary-color: #00adb5;
+$secondary-color: #007a8c;
+$accent-color: #ff914d;
+$neutral-color: #4a4a4a;
+$dark-color: #1a1a1a;
+$light-gray: #f9fafb;
+$white: #ffffff;
+$black: #000;
+$shadow-color: rgba($black, 0.12);
+$font-family: 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+$border-radius: 10px;
+$spacing-unit: 8px;
+
+// Academic level-specific colors
+$academic-level-colors: (
+  'elementary': #e63946, // الابتدائية: Red
+  'intermediate': #f4a261, // المتوسطة: Yellow
+  'secondary': #2a9d8f // الثانوية: Green
+);
+$default-level-color: $neutral-color;
+
+.container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: $spacing-unit * 3 $spacing-unit * 2;
+  min-height: 100vh;
+  margin-top: 90px;
+  font-family: $font-family;
+  background-color: $light-gray;
+  direction: rtl;
+}
+
+h2 {
+  color: $dark-color;
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 $spacing-unit * 3;
+  text-align: center;
+  letter-spacing: -0.015em;
+}
+
+.message {
+  padding: $spacing-unit * 1.5 $spacing-unit * 2;
+  border-radius: 6px;
+  margin-bottom: $spacing-unit * 3;
+  font-size: 0.95rem;
+  text-align: center;
+  font-family: $font-family;
+  transition: opacity 0.3s ease;
+}
+
+.message.success {
+  background-color: rgba($primary-color, 0.15);
+  color: $primary-color;
+  border: 1px solid rgba($primary-color, 0.3);
+}
+
+.message.error {
+  background-color: rgba($accent-color, 0.15);
+  color: $dark-color;
+  border: 1px solid rgba($accent-color, 0.3);
+}
+
+.no-results {
+  text-align: center;
+  color: $neutral-color;
+  font-size: 1.1rem;
+  padding: $spacing-unit * 2;
+  background: linear-gradient(135deg, $light-gray, rgba($primary-color, 0.05));
+  border-radius: 8px;
+  border: 2px dashed rgba($primary-color, 0.2);
+}
+
+.search-filter-container {
+  display: flex;
+  gap: $spacing-unit;
+  margin-bottom: $spacing-unit * 3;
+  align-items: center;
+  background-color: $white;
+  padding: $spacing-unit * 1.2;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px $shadow-color;
+}
+
+.search-bar {
+  position: relative;
+  flex: 2;
+  min-width: 200px;
+}
+
+.clear-btn {
+  position: absolute;
+  left: $spacing-unit * 0.8;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: transparent;
+  color: $accent-color;
+  border: 1px solid $accent-color;
+  padding: $spacing-unit * 0.6 $spacing-unit * 1.2;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: math.div($spacing-unit, 2);
+  z-index: 2;
+  transition: all 0.2s ease;
+
+  i {
+    margin-right: math.div($spacing-unit, 2);
+  }
+
+  &:hover {
+    background-color: $accent-color;
+    color: $white;
+    transform: translateY(-50%) scale(1.02);
+  }
+}
+
+.search-bar input {
+  width: 100%;
+  padding: $spacing-unit * 1.2 $spacing-unit * 1.5 $spacing-unit * 1.2 ($spacing-unit * 4.5);
+  border: 1px solid lighten($neutral-color, 45%);
+  border-radius: 5px;
+  font-size: 0.95rem;
+  font-family: $font-family;
+  background-color: $white;
+  transition: all 0.2s ease;
+
+  &:focus {
+    outline: none;
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.15);
+  }
+}
+
+.filter-options {
+  display: flex;
+  gap: $spacing-unit;
+  flex: 1;
+
+  select {
+    padding: $spacing-unit;
+    border: 1px solid lighten($neutral-color, 45%);
+    border-radius: 5px;
+    font-size: 0.95rem;
+    font-family: $font-family;
+    background-color: $white;
+    color: $dark-color;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"><path fill="%234a4a4a" d="M7 10l5 5 5-5z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: left 1rem center;
+    padding-left: 2.5rem;
+
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+      box-shadow: 0 0 0 3px rgba($primary-color, 0.15);
+    }
+  }
+}
+
+.pdf-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-unit * 2;
+}
+
+.pdf-card {
+  background-color: $white;
+  border: 2px solid lighten($neutral-color, 50%);
+  border-radius: $border-radius;
+  overflow: hidden;
+  box-shadow: 0 4px 12px $shadow-color;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: stretch;
+  min-height: 140px;
+  flex-direction: row;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 16px rgba($black, 0.18);
+  }
+
+  &:active {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba($black, 0.12);
+  }
+
+  // Academic level-specific styles for card, title, and icon
+  @each $level, $color in $academic-level-colors {
+    &.level-#{$level} {
+      border-color: $color;
+      background-color: rgba($color, 0.05);
+      .pdf-header h3 {
+        color: $color;
+      }
+      .pdf-icon {
+        color: $color;
+      }
+    }
+  }
+
+  // Specific academic level styles for Arabic levels
+  &.level-أول {
+    border-color: #FFE4E1;
+    .pdf-header h3 {
+      color: darken(#FFE4E1, 40%);
+    }
+    .pdf-icon {
+      color: darken(#FFE4E1, 40%);
+    }
+  }
+  &.level-ثاني {
+    border-color: #E6E6FA;
+    .pdf-header h3 {
+      color: darken(#E6E6FA, 40%);
+    }
+    .pdf-icon {
+      color: darken(#E6E6FA, 40%);
+    }
+  }
+  &.level-ثالث {
+    .pdf-header h3 {
+      color: darken(#F0FFF0, 40%);
+    }
+    .pdf-icon {
+      color: darken(#F0FFF0, 40%);
+    }
+  }
+  &.level-رابع {
+    border-color: #FFFACD;
+    .pdf-header h3 {
+      color: darken(#FFFACD, 40%);
+    }
+    .pdf-icon {
+      color: darken(#FFFACD, 40%);
+    }
+  }
+  &.level-خامس {
+    border-color: #E0FFFF;
+    .pdf-header h3 {
+      color: darken(#E0FFFF, 40%);
+    }
+    .pdf-icon {
+      color: darken(#E0FFFF, 40%);
+    }
+  }
+  &.level-سادس {
+    border-color: #F5F5DC;
+    .pdf-header h3 {
+      color: darken(#F5F5DC, 40%);
+    }
+    .pdf-icon {
+      color: darken(#F5F5DC, 40%);
+    }
+  }
+  &.level-سابع {
+    border-color: #D3D3D3;
+    .pdf-header h3 {
+      color: darken(#D3D3D3, 40%);
+    }
+    .pdf-icon {
+      color: darken(#D3D3D3, 40%);
+    }
+  }
+  &.level-ثامن {
+    border-color: #F0F8FF;
+    .pdf-header h3 {
+      color: darken(#F0F8FF, 40%);
+    }
+    .pdf-icon {
+      color: darken(#F0F8FF, 40%);
+    }
+  }
+  &.level-تاسع {
+    border-color: #FFF5EE;
+    .pdf-header h3 {
+      color: darken(#FFF5EE, 40%);
+    }
+    .pdf-icon {
+      color: darken(#FFF5EE, 40%);
+    }
+  }
+  &.level-عاشر {
+    border-color: #F5FFFA;
+    .pdf-header h3 {
+      color: darken(#F5FFFA, 40%);
+    }
+    .pdf-icon {
+      color: darken(#F5FFFA, 40%);
+    }
+  }
+  &.level-أول-ثانوي {
+    border-color: #FAFAD2;
+    .pdf-header h3 {
+      color: darken(#FAFAD2, 40%);
+    }
+    .pdf-icon {
+      color: darken(#FAFAD2, 40%);
+    }
+  }
+  &.level-ثانوي-توجيهي {
+    border-color: #EEDD82;
+    .pdf-header h3 {
+      color: darken(#EEDD82, 40%);
+    }
+    .pdf-icon {
+      color: darken(#EEDD82, 40%);
+    }
+  }
+
+  &.level-default {
+    background-color: $white;
+    .pdf-header h3 {
+      color: $dark-color;
+    }
+    .pdf-icon {
+      color: $dark-color;
+    }
+  }
+}
+
+.pdf-icon-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 80px;
+  padding: $spacing-unit * 1.5;
+  position: relative;
+  overflow: hidden;
+  background: $white;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba($black, 0.05) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .pdf-card:hover &::before {
+    opacity: 1;
+  }
+}
+
+.pdf-icon {
+  font-size: 2rem;
+  z-index: 1;
+  transition: transform 0.2s ease;
+
+  .pdf-card:hover & {
+    transform: scale(1.05);
+  }
+}
+
+.pdf-main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: $spacing-unit * 1.5;
+}
+
+.pdf-header {
+  margin-bottom: $spacing-unit;
+
+  h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0 0 $spacing-unit * 0.3 0;
+    line-height: 1.3;
+    font-family: $font-family;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.pdf-description {
+  color: lighten($neutral-color, 15%);
+  font-size: 0.8rem;
+  line-height: 1.4;
+  margin-bottom: $spacing-unit;
+  font-family: $font-family;
+  max-height: 2.2em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+}
+
+.pdf-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-unit;
+  margin-bottom: $spacing-unit;
+}
+
+.detail {
+  display: flex;
+  align-items: center;
+  font-size: 0.75rem;
+  gap: $spacing-unit * 0.5;
+
+  .label {
+    color: $neutral-color;
+    font-weight: 600;
+    font-family: $font-family;
+  }
+
+  span:not(.label) {
+    color: $dark-color;
+    font-family: $font-family;
+  }
+}
+
+.special-tags {
+  display: flex;
+  gap: $spacing-unit * 0.8;
+  margin-bottom: $spacing-unit;
+  flex-wrap: wrap;
+
+  .subject-tag, .creator-tag, .academicLevel-tag {
+    display: flex;
+    align-items: center;
+    gap: $spacing-unit * 0.5;
+    padding: $spacing-unit * 0.4 $spacing-unit * 1.2;
+    border-radius: 16px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    font-family: $font-family;
+    transition: all 0.2s ease;
+  }
+
+  .subject-tag {
+    background: linear-gradient(90deg, rgba($primary-color, 0.25), rgba($primary-color, 0.15));
+    color: darken($primary-color, 10%);
+    border: 1px solid rgba($primary-color, 0.35);
+
+    i {
+      font-size: 0.75rem;
+    }
+
+    &:hover {
+      background: linear-gradient(90deg, rgba($primary-color, 0.35), rgba($primary-color, 0.25));
+      transform: translateY(-1px);
+    }
+  }
+
+  .creator-tag {
+    background: linear-gradient(90deg, rgba($secondary-color, 0.25), rgba($secondary-color, 0.15));
+    color: darken($secondary-color, 10%);
+    border: 1px solid rgba($secondary-color, 0.35);
+
+    i {
+      font-size: 0.75rem;
+    }
+
+    &:hover {
+      background: linear-gradient(90deg, rgba($secondary-color, 0.35), rgba($secondary-color, 0.25));
+      transform: translateY(-1px);
+    }
+  }
+
+  .academicLevel-tag {
+    background: linear-gradient(90deg, rgba($secondary-color, 0.25), rgba($secondary-color, 0.15));
+    color: darken($secondary-color, 10%);
+    border: 1px solid rgba($secondary-color, 0.35);
+
+    i {
+      font-size: 0.75rem;
+    }
+
+    &:hover {
+      background: linear-gradient(90deg, rgba($secondary-color, 0.35), rgba($secondary-color, 0.25));
+      transform: translateY(-1px);
+    }
+
+    &.level-أول {
+      background: linear-gradient(90deg, rgba(#FFE4E1, 0.9), rgba(#FFE4E1, 0.7));
+      color: darken(#FFE4E1, 40%);
+      border: 1px solid rgba(#FFE4E1, 0.8);
+    }
+    &.level-ثاني {
+      background: linear-gradient(90deg, rgba(#E6E6FA, 0.9), rgba(#E6E6FA, 0.7));
+      color: darken(#E6E6FA, 40%);
+      border: 1px solid rgba(#E6E6FA, 0.8);
+    }
+    &.level-ثالث {
+      background: linear-gradient(90deg, rgba(#F0FFF0, 0.9), rgba(#F0FFF0, 0.7));
+      color: darken(#F0FFF0, 40%);
+      border: 1px solid rgba(#F0FFF0, 0.8);
+    }
+    &.level-رابع {
+      background: linear-gradient(90deg, rgba(#FFFACD, 0.9), rgba(#FFFACD, 0.7));
+      color: darken(#FFFACD, 40%);
+      border: 1px solid rgba(#FFFACD, 0.8);
+    }
+    &.level-خامس {
+      background: linear-gradient(90deg, rgba(#E0FFFF, 0.9), rgba(#E0FFFF, 0.7));
+      color: darken(#E0FFFF, 40%);
+      border: 1px solid rgba(#E0FFFF, 0.8);
+    }
+    &.level-سادس {
+      background: linear-gradient(90deg, rgba(#F5F5DC, 0.9), rgba(#F5F5DC, 0.7));
+      color: darken(#F5F5DC, 40%);
+      border: 1px solid rgba(#F5F5DC, 0.8);
+    }
+    &.level-سابع {
+      background: linear-gradient(90deg, rgba(#D3D3D3, 0.9), rgba(#D3D3D3, 0.7));
+      color: darken(#D3D3D3, 40%);
+      border: 1px solid rgba(#D3D3D3, 0.8);
+    }
+    &.level-ثامن {
+      background: linear-gradient(90deg, rgba(#F0F8FF, 0.9), rgba(#F0F8FF, 0.7));
+      color: darken(#F0F8FF, 40%);
+      border: 1px solid rgba(#F0F8FF, 0.8);
+    }
+    &.level-تاسع {
+      background: linear-gradient(90deg, rgba(#FFF5EE, 0.9), rgba(#FFF5EE, 0.7));
+      color: darken(#FFF5EE, 40%);
+      border: 1px solid rgba(#FFF5EE, 0.8);
+    }
+    &.level-عاشر {
+      background: linear-gradient(90deg, rgba(#F5FFFA, 0.9), rgba(#F5FFFA, 0.7));
+      color: darken(#F5FFFA, 40%);
+      border: 1px solid rgba(#F5FFFA, 0.8);
+    }
+    &.level-أول-ثانوي {
+      background: linear-gradient(90deg, rgba(#FAFAD2, 0.9), rgba(#FAFAD2, 0.7));
+      color: darken(#FAFAD2, 40%);
+      border: 1px solid rgba(#FAFAD2, 0.8);
+    }
+    &.level-ثانوي-توجيهي {
+      background: linear-gradient(90deg, rgba(#EEDD82, 0.9), rgba(#EEDD82, 0.7));
+      color: darken(#EEDD82, 40%);
+      border: 1px solid rgba(#EEDD82, 0.8);
+    }
+  }
+}
+
+.actions {
+  display: flex;
+  gap: $spacing-unit * 0.8;
+  margin-top: auto;
+
+  .download-btn, .share-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-unit * 0.5;
+    background: linear-gradient(90deg, $primary-color, lighten($primary-color, 8%));
+    color: $white;
+    border: none;
+    padding: $spacing-unit * 0.8 $spacing-unit * 1.5;
+    border-radius: 5px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 90px;
+    font-family: $font-family;
+    box-shadow: 0 2px 4px rgba($black, 0.1);
+
+    &:hover {
+      background: linear-gradient(90deg, darken($primary-color, 5%), $primary-color);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba($black, 0.15);
+    }
+  }
+
+  .share-btn {
+    background: linear-gradient(90deg, $secondary-color, lighten($secondary-color, 8%));
+
+    &:hover {
+      background: linear-gradient(90deg, darken($secondary-color, 5%), $secondary-color);
+    }
+  }
+
+  .download-btn i, .share-btn i {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 1200px) {
+  .pdf-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .container {
+    padding: $spacing-unit * 2 $spacing-unit;
+  }
+
+  h2 {
+    font-size: 1.75rem;
+  }
+
+  .pdf-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .pdf-card {
+    min-height: 120px;
+  }
+
+  .pdf-icon-section {
+    min-width: 70px;
+  }
+
+  .pdf-icon {
+    font-size: 1.8rem;
+  }
+}
+
+@media (max-width: 600px) {
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  .pdf-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pdf-card {
+    flex-direction: column;
+    min-height: auto;
+  }
+
+  .pdf-icon-section {
+    min-width: auto;
+    min-height: 70px;
+    border-left: none;
+    border-bottom: 1px solid lighten($neutral-color, 50%);
+  }
+
+  .search-filter-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-options {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .filter-options select {
+    width: 100%;
+  }
+
+  .pdf-details {
+    flex-direction: column;
+    gap: $spacing-unit;
+  }
+
+  .special-tags {
+    flex-direction: column;
+    gap: $spacing-unit;
+  }
+
+  .actions {
+    flex-direction: column;
+    gap: $spacing-unit;
+  }
+}

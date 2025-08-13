@@ -1,0 +1,215 @@
+<section class="login-section" dir="rtl">
+  <div class="container-fluid h-100">
+    <div class="row h-100 g-0">
+
+      <!-- Welcome Side -->
+      <div class="col-lg-6 d-none d-lg-flex welcome-side">
+        <div class="welcome-content d-flex flex-column justify-content-center align-items-center text-center p-5" @slideInLeft>
+          <div class="welcome-logo mb-4" @scaleIn>
+            <div class="logo-circle">
+              <i class="fas fa-graduation-cap"></i>
+            </div>
+          </div>
+
+          <h1 class="welcome-title mb-4" @fadeInUp>
+            مرحباً بكم في المبادرة التعليمية
+          </h1>
+
+          <p class="welcome-description mb-5" @fadeInUp>
+            انضموا إلى رحلتنا التعليمية لبناء مستقبل أفضل من خلال نشر العلم والمعرفة
+          </p>
+
+          <div class="features-grid">
+            <div class="feature-card" @fadeInUp>
+              <div class="feature-icon">
+                <i class="fas fa-book-open"></i>
+              </div>
+              <h4>برامج تعليمية متنوعة</h4>
+              <p>مجموعة واسعة من الدورات والبرامج التعليمية</p>
+            </div>
+
+            <div class="feature-card" @fadeInUp>
+              <div class="feature-icon">
+                <i class="fas fa-users"></i>
+              </div>
+              <h4>مجتمع تعليمي</h4>
+              <p>انضم إلى مجتمع من المتعلمين والمعلمين</p>
+            </div>
+
+            <div class="feature-card" @fadeInUp>
+              <div class="feature-icon">
+                <i class="fas fa-certificate"></i>
+              </div>
+              <h4>شهادات معتمدة</h4>
+              <p>احصل على شهادات معتمدة عند إتمام البرامج</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Login Form Side -->
+      <div class="col-lg-6 col-12 login-form-side d-flex align-items-center justify-content-center">
+        <div class="login-container p-4">
+
+          <!-- Mobile Welcome Header -->
+          <div class="mobile-welcome d-lg-none text-center mb-4" @fadeInUp>
+            <div class="mobile-logo mb-3">
+              <i class="fas fa-graduation-cap"></i>
+            </div>
+            <h2 class="mobile-title">المبادرة التعليمية</h2>
+            <p class="mobile-subtitle">تسجيل الدخول إلى حسابك</p>
+          </div>
+
+          <div class="login-card glass-card" @slideInRight>
+            <div class="login-header text-center mb-4">
+              <h2 class="login-title">تسجيل الدخول</h2>
+              <p class="login-subtitle">أدخل بياناتك للوصول إلى حسابك</p>
+            </div>
+
+            <!-- Divider -->
+            <div class="divider mb-4"></div>
+
+            <!-- Login Form -->
+            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+
+              <!-- Email Field -->
+              <div class="form-group mb-3">
+                <label for="email" class="form-label">
+                  <i class="fas fa-envelope me-2"></i>
+                  البريد الإلكتروني
+                </label>
+                <div class="input-group">
+                  <input
+                    type="email"
+                    [class]="getFieldClasses('email')"
+                    id="email"
+                    formControlName="email"
+                    placeholder="أدخل بريدك الإلكتروني"
+                    (focus)="onFieldFocus('email')"
+                    autocomplete="email"
+                  >
+                </div>
+                <div *ngIf="isFieldInvalid('email')" class="invalid-feedback">
+                  <i class="fas fa-exclamation-circle me-1"></i>
+                  {{ getFieldErrorMessage('email') }}
+                </div>
+                <div *ngIf="isFieldValid('email')" class="valid-feedback">
+                  <i class="fas fa-check-circle me-1"></i>
+                  البريد الإلكتروني صحيح
+                </div>
+              </div>
+
+              <!-- Password Field -->
+              <div class="form-group mb-3">
+                <label for="password" class="form-label">
+                  <i class="fas fa-lock me-2"></i>
+                  كلمة المرور
+                </label>
+                <div class="input-group">
+                  <input
+                    [type]="showPassword ? 'text' : 'password'"
+                    [class]="getFieldClasses('password')"
+                    id="password"
+                    formControlName="password"
+                    placeholder="أدخل كلمة المرور"
+                    (focus)="onFieldFocus('password')"
+                    autocomplete="current-password"
+                  >
+                  <button
+                    type="button"
+                    class="password-toggle"
+                    (click)="togglePasswordVisibility()"
+                    [disabled]="isLoading"
+                  >
+                    <i [class]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+                  </button>
+                </div>
+                <div *ngIf="isFieldInvalid('password')" class="invalid-feedback">
+                  <i class="fas fa-exclamation-circle me-1"></i>
+                  {{ getFieldErrorMessage('password') }}
+                </div>
+                <div *ngIf="isFieldValid('password')" class="valid-feedback">
+                  <i class="fas fa-check-circle me-1"></i>
+                  كلمة المرور قوية
+                </div>
+              </div>
+
+              <!-- Links Container -->
+              <div class="links-container mb-4">
+                <a
+                  href="#"
+                  class="auth-link join-link"
+                  (click)="goToForgotojoinus(); $event.preventDefault()"
+                >
+                  لست عضو؟ انضم إلينا الآن
+                </a>
+                <a
+                  href="#"
+                  class="auth-link forgot-link"
+                  (click)="goToForgotPassword(); $event.preventDefault()"
+                >
+                  نسيت كلمة المرور؟
+                </a>
+              </div>
+
+              <!-- Submit Button -->
+              <button
+                type="submit"
+                class="btn btn-primary login-btn w-100 mb-3"
+                [disabled]="isLoading || loginForm.invalid"
+              >
+                <span *ngIf="!isLoading">
+                  <i class="fas fa-sign-in-alt me-2"></i>
+                  تسجيل الدخول
+                </span>
+                <span *ngIf="isLoading">
+                  <i class="fas fa-spinner fa-spin me-2"></i>
+                  جاري تسجيل الدخول...
+                </span>
+              </button>
+
+              <!-- Error/Success Messages -->
+              <div
+                *ngIf="loginError"
+                class="alert alert-danger mb-3"
+                @fadeInUp
+              >
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                {{ loginError }}
+              </div>
+
+              <div
+                *ngIf="loginSuccess"
+                class="alert alert-success mb-3"
+                @fadeInUp
+              >
+                <i class="fas fa-check-circle me-2"></i>
+                {{ loginSuccess }}
+              </div>
+
+            </form>
+
+            <!-- Home Button -->
+            <a
+              href="#"
+              class="btn btn-success home-btn w-100 mt-3"
+              (click)="goToHome(); $event.preventDefault()"
+            >
+              <i class="fas fa-home me-2"></i>
+              العودة إلى الصفحة الرئيسية
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" *ngIf="isLoading" @fadeInUp>
+  <div class="loading-content">
+    <div class="loading-spinner"></div>
+    <p class="loading-text">جاري تسجيل الدخول...</p>
+  </div>
+</div>

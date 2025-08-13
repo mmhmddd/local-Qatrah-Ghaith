@@ -1,0 +1,245 @@
+<div class="container">
+  <!-- Sidebar -->
+  <app-sidebar></app-sidebar>
+
+  <div class="content">
+    <!-- Upload Form -->
+    <div class="upload-section">
+      <h2>رفع ملف PDF</h2>
+
+      <!-- Success/Error Messages -->
+      <div *ngIf="successMessage" class="success-message">
+        {{ successMessage }}
+      </div>
+      <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+
+      <!-- Form -->
+      <form (ngSubmit)="uploadPdf()" class="upload-form" #uploadForm="ngForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="pdfFile">اختر ملف PDF:</label>
+            <input
+              type="file"
+              id="pdfFile"
+              accept="application/pdf"
+              (change)="onFileSelected($event)"
+              required
+            />
+            <span class="error-text" *ngIf="!selectedFile && uploadForm.submitted">
+              يرجى اختيار ملف PDF
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label for="title">العنوان:</label>
+            <input
+              type="text"
+              id="title"
+              [(ngModel)]="title"
+              name="title"
+              placeholder="أدخل عنوان الملف"
+              required
+              #titleInput="ngModel"
+            />
+            <span class="error-text" *ngIf="titleInput.touched && titleInput.invalid">
+              العنوان مطلوب
+            </span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="description">الوصف:</label>
+            <select
+              id="description"
+              [(ngModel)]="description"
+              name="description"
+              required
+              #descriptionInput="ngModel"
+            >
+              <option value="" disabled selected>اختر الوصف</option>
+              <option value="كتاب">كتاب</option>
+              <option value="واجابات">واجابات</option>
+              <option value="امتحان">امتحان</option>
+              <option value="مراجعات">مراجعات</option>
+              <option value="أخرى">أخرى</option>
+            </select>
+            <span class="error-text" *ngIf="descriptionInput.touched && descriptionInput.invalid">
+              الوصف مطلوب
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label for="creatorName">اسم المنشئ:</label>
+            <input
+              type="text"
+              id="creatorName"
+              [(ngModel)]="creatorName"
+              name="creatorName"
+              placeholder="أدخل اسم المنشئ"
+              required
+              #creatorInput="ngModel"
+            />
+            <span class="error-text" *ngIf="creatorInput.touched && creatorInput.invalid">
+              اسم المنشئ مطلوب
+            </span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="subject">المادة:</label>
+            <div class="searchable-dropdown">
+              <select
+                id="subject"
+                [(ngModel)]="subject"
+                name="subject"
+                required
+                #subjectInput="ngModel"
+                (click)="onSubjectDropdownClick($event)"
+              >
+                <option value="" disabled selected>اختر المادة</option>
+                <option class="search-option" disabled>
+                  <input
+                    type="text"
+                    [(ngModel)]="subjectSearch"
+                    name="subjectSearch"
+                    placeholder="ابحث عن المادة"
+                    (input)="filterSubjects()"
+                    (click)="$event.stopPropagation()"
+                    autocomplete="off"
+                  />
+                </option>
+                <option *ngFor="let subject of filteredSubjects" [value]="subject">{{ subject }}</option>
+              </select>
+              <span class="error-text" *ngIf="subjectInput.touched && subjectInput.invalid">
+                المادة مطلوبة
+              </span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="country">الدولة:</label>
+            <select
+              id="country"
+              [(ngModel)]="country"
+              name="country"
+              required
+              #countryInput="ngModel"
+            >
+              <option value="" disabled selected>اختر الدولة</option>
+              <option value="الأردن">الأردن</option>
+              <option value="مصر">فلسطين</option>
+            </select>
+            <span class="error-text" *ngIf="countryInput.touched && countryInput.invalid">
+              الدولة مطلوبة
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label for="semester">الفصل الدراسي:</label>
+            <select
+              id="semester"
+              [(ngModel)]="semester"
+              name="semester"
+              required
+              #semesterInput="ngModel"
+            >
+              <option value="" disabled selected>اختر الفصل الدراسي</option>
+              <option value="الفصل الأول">الفصل الأول</option>
+              <option value="الفصل الثاني">الفصل الثاني</option>
+            </select>
+            <span class="error-text" *ngIf="semesterInput.touched && semesterInput.invalid">
+              الفصل الدراسي مطلوب
+            </span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="academicLevel">المرحلة الدراسية:</label>
+          <select
+            id="academicLevel"
+            [(ngModel)]="academicLevel"
+            name="academicLevel"
+            required
+            #academicLevelInput="ngModel"
+          >
+            <option value="" disabled selected>اختر المرحلة الدراسية</option>
+            <option *ngFor="let level of academicLevels" [value]="level.value" [style.background]="level.color">
+              {{ level.value }}
+            </option>
+          </select>
+          <span class="error-text" *ngIf="academicLevelInput.touched && academicLevelInput.invalid">
+            المرحلة الدراسية مطلوبة
+          </span>
+        </div>
+
+        <button
+          type="submit"
+          [disabled]="!uploadForm.form.valid || !selectedFile"
+        >
+          رفع الملف
+        </button>
+      </form>
+    </div>
+
+    <!-- PDF List -->
+    <div class="pdf-list-section">
+      <h2>قائمة ملفات PDF</h2>
+
+      <div *ngIf="pdfs.length > 0; else noPdfs" class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>العنوان</th>
+              <th>الوصف</th>
+              <th>المنشئ</th>
+              <th>المادة</th>
+              <th>الدولة</th>
+              <th>الفصل الدراسي</th>
+              <th>المرحلة الدراسية</th>
+              <th>اسم الملف</th>
+              <th>تاريخ الرفع</th>
+              <th>الإجراءات</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let pdf of pdfs; trackBy: trackByPdfId">
+              <td>{{ pdf.title }}</td>
+              <td>{{ pdf.description }}</td>
+              <td>{{ pdf.creatorName }}</td>
+              <td>{{ pdf.subject }}</td>
+              <td>{{ pdf.country }}</td>
+              <td>{{ pdf.semester }}</td>
+              <td>{{ pdf.academicLevel }}</td>
+              <td>{{ pdf.fileName }}</td>
+              <td>{{ pdf.createdAt | date:'short':'ar' }}</td>
+              <td>
+                <button
+                  class="view-btn"
+                  (click)="viewPdf(pdf.id)"
+                  type="button"
+                >
+                  عرض
+                </button>
+                <button
+                  class="delete-btn"
+                  (click)="deletePdf(pdf.id)"
+                  type="button"
+                >
+                  حذف
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <ng-template #noPdfs>
+        <p>لا توجد ملفات PDF لعرضها</p>
+      </ng-template>
+    </div>
+  </div>
+</div>

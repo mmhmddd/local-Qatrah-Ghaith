@@ -1,0 +1,188 @@
+<div class="join-container" style="margin-top: 90px;">
+  <div class="container py-5">
+    <!-- Welcome Section -->
+    <section class="welcome-section text-center mb-5">
+      <h1 class="display-4 welcome-title">أهلاً بكم!</h1>
+      <p class="lead welcome-subtitle">
+        انضم إلينا والى المؤسسة وكن جزءًا من مبادراتنا. نحن هنا لنبني مستقبلاً مشرقاً معاً!
+      </p>
+    </section>
+
+    <!-- Join Form -->
+    <section class="form-section">
+      <div class="form-card">
+        <h2 class="form-title text-center mb-4">طلب الانضمام</h2>
+
+        <!-- Error Alert Container -->
+        <div id="error-container">
+          <!-- Email Exists Error -->
+          <div *ngIf="emailExistsError" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            البريد الإلكتروني مستخدم بالفعل. يرجى استخدام بريد إلكتروني آخر.
+            <button type="button" class="btn-close" (click)="dismissEmailError()" aria-label="Close"></button>
+          </div>
+
+          <!-- General Error Alert -->
+          <div *ngIf="generalError" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            {{ generalError }}
+            <button type="button" class="btn-close" (click)="dismissGeneralError()" aria-label="Close"></button>
+          </div>
+        </div>
+
+        <form [formGroup]="joinForm" (ngSubmit)="onSubmit()" novalidate>
+          <!-- Name and Email Row -->
+          <div class="form-row">
+            <!-- Name Field -->
+            <div class="form-group col-md-6">
+              <label for="name" class="form-label">
+                <i class="fas fa-user me-2"></i>الاسم
+                <span class="required-asterisk">*</span>
+              </label>
+              <input
+                type="text"
+                id="name"
+                formControlName="name"
+                class="form-control"
+                [class.is-invalid]="isFieldInvalid('name')"
+                [class.is-valid]="isFieldValid('name')"
+                placeholder="أدخل اسمك الكامل">
+              <div *ngIf="isFieldInvalid('name')" class="invalid-feedback">
+                <div *ngIf="joinForm.get('name')?.errors?.['required']">
+                  <i class="fas fa-times-circle me-1"></i>الاسم مطلوب.
+                </div>
+                <div *ngIf="joinForm.get('name')?.errors?.['minlength']">
+                  <i class="fas fa-times-circle me-1"></i>الاسم يجب أن يحتوي على حرفين على الأقل.
+                </div>
+                <div *ngIf="joinForm.get('name')?.errors?.['pattern']">
+                  <i class="fas fa-times-circle me-1"></i>الاسم يجب أن يحتوي على أحرف فقط.
+                </div>
+              </div>
+            </div>
+
+            <!-- Email Field -->
+            <div class="form-group col-md-6">
+              <label for="email" class="form-label">
+                <i class="fas fa-envelope me-2"></i>البريد الإلكتروني
+                <span class="required-asterisk">*</span>
+              </label>
+              <input
+                type="email"
+                id="email"
+                formControlName="email"
+                class="form-control"
+                [class.is-invalid]="isFieldInvalid('email')"
+                [class.is-valid]="isFieldValid('email')"
+                placeholder="example@domain.com">
+              <div *ngIf="isFieldInvalid('email')" class="invalid-feedback">
+                <div *ngIf="joinForm.get('email')?.errors?.['required']">
+                  <i class="fas fa-times-circle me-1"></i>البريد الإلكتروني مطلوب.
+                </div>
+                <div *ngIf="joinForm.get('email')?.errors?.['email']">
+                  <i class="fas fa-times-circle me-1"></i>البريد الإلكتروني غير صالح.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Phone and Academic Specialization Row -->
+          <div class="form-row">
+            <!-- Phone Number Field -->
+            <div class="form-group col-md-6">
+              <label for="number" class="form-label">
+                <i class="fas fa-phone me-2"></i>رقم الهاتف
+                <span class="required-asterisk">*</span>
+              </label>
+              <input
+                type="tel"
+                id="number"
+                formControlName="number"
+                class="form-control"
+                [class.is-invalid]="isFieldInvalid('number')"
+                [class.is-valid]="isFieldValid('number')"
+                placeholder="07xxxxxxxx">
+              <div *ngIf="isFieldInvalid('number')" class="invalid-feedback">
+                <div *ngIf="joinForm.get('number')?.errors?.['required']">
+                  <i class="fas fa-times-circle me-1"></i>رقم الهاتف مطلوب.
+                </div>
+                <div *ngIf="joinForm.get('number')?.errors?.['pattern']">
+                  <i class="fas fa-times-circle me-1"></i>رقم الهاتف يجب أن يحتوي على 9-10 أرقام.
+                </div>
+              </div>
+            </div>
+
+            <!-- Academic Specialization Field -->
+            <div class="form-group col-md-6">
+              <label for="academicSpecialization" class="form-label">
+                <i class="fas fa-graduation-cap me-2"></i>التخصص الجامعي
+                <span class="required-asterisk">*</span>
+              </label>
+              <input
+                type="text"
+                id="academicSpecialization"
+                formControlName="academicSpecialization"
+                class="form-control"
+                [class.is-invalid]="isFieldInvalid('academicSpecialization')"
+                [class.is-valid]="isFieldValid('academicSpecialization')"
+                placeholder="مثال: هندسة الحاسوب">
+              <div *ngIf="isFieldInvalid('academicSpecialization')" class="invalid-feedback">
+                <div *ngIf="joinForm.get('academicSpecialization')?.errors?.['required']">
+                  <i class="fas fa-times-circle me-1"></i>التخصص الجامعي مطلوب.
+                </div>
+                <div *ngIf="joinForm.get('academicSpecialization')?.errors?.['minlength']">
+                  <i class="fas fa-times-circle me-1"></i>التخصص يجب أن يحتوي على حرفين على الأقل.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Address Field -->
+          <div class="form-group mb-4">
+            <label for="address" class="form-label">
+              <i class="fas fa-map-marker-alt me-2"></i>العنوان
+              <span class="required-asterisk">*</span>
+            </label>
+            <textarea
+              id="address"
+              formControlName="address"
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('address')"
+              [class.is-valid]="isFieldValid('address')"
+              rows="3"
+              placeholder="أدخل عنوانك الكامل"></textarea>
+            <div *ngIf="isFieldInvalid('address')" class="invalid-feedback">
+              <div *ngIf="joinForm.get('address')?.errors?.['required']">
+                <i class="fas fa-times-circle me-1"></i>العنوان مطلوب.
+              </div>
+              <div *ngIf="joinForm.get('address')?.errors?.['minlength']">
+                <i class="fas fa-times-circle me-1"></i>العنوان يجب أن يحتوي على 5 أحرف على الأقل.
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <button
+            type="submit"
+            class="btn btn-primary btn-submit w-100 d-flex align-items-center justify-content-center"
+            [disabled]="joinForm.invalid || isSubmitting">
+            <span *ngIf="!isSubmitting" class="d-flex align-items-center">
+              <i class="fas fa-paper-plane me-2"></i>
+              إرسال الطلب
+            </span>
+            <span *ngIf="isSubmitting" class="d-flex align-items-center">
+              <div class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></div>
+              جاري الإرسال...
+            </span>
+          </button>
+        </form>
+
+        <!-- Success Messages -->
+        <div *ngIf="isPending" class="alert alert-info mt-4 text-center fade-in" role="alert">
+          <i class="fas fa-clock me-2"></i>
+          <strong>تم إرسال طلبك بنجاح!</strong><br>
+          طلبك قيد المراجعة وسنتواصل معك خلال 48 ساعة.
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

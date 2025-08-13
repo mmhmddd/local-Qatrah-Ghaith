@@ -1,0 +1,9 @@
+<div class="app-container">
+  <app-navbar *ngIf="!isDashboardRoute"></app-navbar>
+  <router-outlet></router-outlet>
+  <!-- WhatsApp Floating Button -->
+  <a *ngIf="!isDashboardRoute" href="https://wa.me/201234567890" target="_blank" class="whatsapp-float" aria-label="Chat on WhatsApp">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+  <app-footer *ngIf="!isDashboardRoute"></app-footer>
+</div>

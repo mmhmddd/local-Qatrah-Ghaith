@@ -1,0 +1,834 @@
+$primary-color: #00adb5;
+$secondary-color: #0097b2;
+$accent-color: #ff914d;
+$neutral-color: #545454;
+$dark-color: #1a1a1a;
+$light-gray: #f8f9fa;
+$white: #ffffff;
+$black: #000;
+$primary-color: #00adb5;
+$secondary-color: #0097b2;
+$accent-color: #ff914d;
+$neutral-color: #545454;
+$dark-color: #1a1a1a;
+$light-gray: #f8f9fa;
+$white: #ffffff;
+$black: #000;
+
+// Container Layout
+.container {
+  display: flex;
+  min-height: 100vh;
+  background-color: $light-gray;
+  direction: rtl;
+}
+
+// Main Content Area
+.content {
+  flex: 1;
+  padding: 1.5rem;
+  margin-right: 150px;
+  background-color: $white;
+  border-radius: 12px;
+
+  @media (max-width: 768px) {
+    margin-right: 0;
+    margin: 0.5rem;
+    padding: 1rem;
+  }
+}
+
+// Gallery Section
+.gallery-section {
+  background: $white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba($primary-color, 0.15);
+
+  h2 {
+    color: $dark-color;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    text-align: center;
+
+    &::after {
+      content: '';
+      display: block;
+      width: 50px;
+      height: 3px;
+      background: linear-gradient(90deg, $primary-color, $secondary-color);
+      margin: 0.5rem auto;
+      border-radius: 2px;
+    }
+  }
+}
+
+// Loader
+.loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: rgba($primary-color, 0.05);
+  border-radius: 8px;
+  margin: 1rem 0;
+
+  p {
+    margin-top: 1rem;
+    color: $neutral-color;
+    font-weight: 500;
+  }
+
+  .spinner {
+    border: 4px solid rgba($primary-color, 0.2);
+    border-top: 4px solid $primary-color;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// Add/Edit Form
+.add-form {
+  h3 {
+    color: $dark-color;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    text-align: center;
+
+    &::after {
+      content: '';
+      display: block;
+      width: 40px;
+      height: 2px;
+      background: linear-gradient(90deg, $primary-color, $secondary-color);
+      margin: 0.5rem auto;
+      border-radius: 2px;
+    }
+  }
+
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .form-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+    }
+  }
+
+  .form-group {
+    flex: 1;
+    min-width: 250px;
+    margin-bottom: 1rem;
+
+    label {
+      font-weight: 600;
+      color: $dark-color;
+      margin-bottom: 0.4rem;
+      font-size: 0.95rem;
+      display: block;
+    }
+
+    input[type="text"],
+    textarea,
+    input[type="file"] {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+      background-color: $white;
+
+      &:focus {
+        outline: none;
+        border-color: $primary-color;
+        background-color: rgba($primary-color, 0.05);
+      }
+
+      &::placeholder {
+        color: #6c757d;
+        opacity: 0.7;
+      }
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    input[type="file"] {
+      padding: 0.4rem;
+      cursor: pointer;
+
+      &::file-selector-button {
+        background: linear-gradient(135deg, $primary-color, $secondary-color);
+        color: $white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: linear-gradient(135deg, darken($primary-color, 10%), darken($secondary-color, 10%));
+        }
+      }
+    }
+  }
+
+  .preview-section {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .preview-image {
+    max-width: 200px;
+    height: auto;
+    border-radius: 6px;
+    border: 1px solid rgba($primary-color, 0.2);
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+  }
+
+  button.primary,
+  button.secondary {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  button.primary {
+    background: linear-gradient(135deg, $primary-color, $secondary-color);
+    color: $white;
+
+    &:hover {
+      background: linear-gradient(135deg, darken($primary-color, 10%), darken($secondary-color, 10%));
+      transform: translateY(-2px);
+    }
+
+    &:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+  }
+
+  button.secondary {
+    background: linear-gradient(135deg, $neutral-color, darken($neutral-color, 10%));
+    color: $white;
+
+    &:hover {
+      background: linear-gradient(135deg, darken($neutral-color, 15%), darken($neutral-color, 20%));
+      transform: translateY(-2px);
+    }
+  }
+}
+
+// Messages
+.success-message,
+.error-message {
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  font-weight: 500;
+  text-align: center;
+  animation: slideIn 0.4s ease-out;
+}
+
+.success-message {
+  background: #e6f4ea;
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
+}
+
+.error-message {
+  background: #ffe6e6;
+  color: #d32f2f;
+  border: 1px solid #ffcdd2;
+}
+
+// Image Grid
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+
+  .image-card {
+    background: $white;
+    border: 1px solid rgba($primary-color, 0.1);
+    border-radius: 12px;
+    padding: 1rem;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: rgba($primary-color, 0.05);
+      transform: translateX(-2px);
+    }
+  }
+
+  .image {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid rgba($primary-color, 0.2);
+    margin-bottom: 0.5rem;
+  }
+
+  .image-details {
+    h4 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: $dark-color;
+      margin-bottom: 0.5rem;
+    }
+
+    p {
+      font-size: 0.9rem;
+      color: $neutral-color;
+      margin-bottom: 0.5rem;
+    }
+
+    .meta {
+      font-size: 0.8rem;
+      color: lighten($neutral-color, 20%);
+    }
+  }
+
+  .actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+  }
+
+  .view-btn,
+  .delete-btn {
+    padding: 0.4rem 0.75rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-1px);
+    }
+  }
+
+  .view-btn {
+    background: linear-gradient(135deg, $primary-color, $secondary-color);
+    color: $white;
+
+    &:hover {
+      background: linear-gradient(135deg, darken($primary-color, 10%), darken($secondary-color, 10%));
+    }
+  }
+
+  .delete-btn {
+    background: linear-gradient(135deg, #d32f2f, #b71c1c);
+    color: $white;
+
+    &:hover {
+      background: linear-gradient(135deg, darken(#d32f2f, 10%), darken(#b71c1c, 10%));
+    }
+  }
+
+  .no-images {
+    text-align: center;
+    color: $neutral-color;
+    font-size: 1rem;
+    padding: 1.5rem;
+    background: rgba($primary-color, 0.05);
+    border-radius: 8px;
+    border: 1px dashed rgba($primary-color, 0.2);
+  }
+}
+
+// Animations
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes dropdownOpen {
+  from {
+    opacity: 0;
+    transform: scaleY(0.95) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1) translateY(0);
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .content {
+    margin-right: 0;
+    padding: 1rem;
+  }
+
+  .gallery-section {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .image-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+
+  .view-btn,
+  .delete-btn {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .add-form {
+    button.primary,
+    button.secondary {
+      font-size: 0.9rem;
+      padding: 0.6rem 1rem;
+    }
+  }
+
+  .image-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Container Layout
+.container {
+  display: flex;
+  min-height: 100vh;
+  background-color: $light-gray;
+  direction: rtl;
+}
+
+// Main Content Area
+.content {
+  flex: 1;
+  padding: 1.5rem;
+  margin-right: 150px;
+  background-color: $white;
+  border-radius: 12px;
+
+  @media (max-width: 768px) {
+    margin-right: 0;
+    margin: 0.5rem;
+    padding: 1rem;
+  }
+}
+
+// Gallery Section
+.gallery-section {
+  background: $white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba($primary-color, 0.15);
+
+  h2 {
+    color: $dark-color;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    text-align: center;
+
+    &::after {
+      content: '';
+      display: block;
+      width: 50px;
+      height: 3px;
+      background: linear-gradient(90deg, $primary-color, $secondary-color);
+      margin: 0.5rem auto;
+      border-radius: 2px;
+    }
+  }
+}
+
+// Add/Edit Form
+.add-form {
+  h3 {
+    color: $dark-color;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    text-align: center;
+
+    &::after {
+      content: '';
+      display: block;
+      width: 40px;
+      height: 2px;
+      background: linear-gradient(90deg, $primary-color, $secondary-color);
+      margin: 0.5rem auto;
+      border-radius: 2px;
+    }
+  }
+
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .form-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+    }
+  }
+
+  .form-group {
+    flex: 1;
+    min-width: 250px;
+    margin-bottom: 1rem;
+
+    label {
+      font-weight: 600;
+      color: $dark-color;
+      margin-bottom: 0.4rem;
+      font-size: 0.95rem;
+      display: block;
+    }
+
+    input[type="text"],
+    textarea,
+    input[type="file"] {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+      background-color: $white;
+
+      &:focus {
+        outline: none;
+        border-color: $primary-color;
+        background-color: rgba($primary-color, 0.05);
+      }
+
+      &::placeholder {
+        color: #6c757d;
+        opacity: 0.7;
+      }
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    input[type="file"] {
+      padding: 0.4rem;
+      cursor: pointer;
+
+      &::file-selector-button {
+        background: linear-gradient(135deg, $primary-color, $secondary-color);
+        color: $white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: linear-gradient(135deg, darken($primary-color, 10%), darken($secondary-color, 10%));
+        }
+      }
+    }
+  }
+
+  .preview-section {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .preview-image {
+    max-width: 200px;
+    height: auto;
+    border-radius: 6px;
+    border: 1px solid rgba($primary-color, 0.2);
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+  }
+
+  button.primary,
+  button.secondary {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  button.primary {
+    background: linear-gradient(135deg, $primary-color, $secondary-color);
+    color: $white;
+
+    &:hover {
+      background: linear-gradient(135deg, darken($primary-color, 10%), darken($secondary-color, 10%));
+      transform: translateY(-2px);
+    }
+
+    &:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+  }
+
+  button.secondary {
+    background: linear-gradient(135deg, $neutral-color, darken($neutral-color, 10%));
+    color: $white;
+
+    &:hover {
+      background: linear-gradient(135deg, darken($neutral-color, 15%), darken($neutral-color, 20%));
+      transform: translateY(-2px);
+    }
+  }
+}
+
+// Messages
+.success-message,
+.error-message {
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  font-weight: 500;
+  text-align: center;
+  animation: slideIn 0.4s ease-out;
+}
+
+.success-message {
+  background: #e6f4ea;
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
+}
+
+.error-message {
+  background: #ffe6e6;
+  color: #d32f2f;
+  border: 1px solid #ffcdd2;
+}
+
+// Image Grid
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+
+  .image-card {
+    background: $white;
+    border: 1px solid rgba($primary-color, 0.1);
+    border-radius: 12px;
+    padding: 1rem;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: rgba($primary-color, 0.05);
+      transform: translateX(-2px);
+    }
+  }
+
+  .image {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid rgba($primary-color, 0.2);
+    margin-bottom: 0.5rem;
+  }
+
+  .image-details {
+    h4 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: $dark-color;
+      margin-bottom: 0.5rem;
+    }
+
+    p {
+      font-size: 0.9rem;
+      color: $neutral-color;
+      margin-bottom: 0.5rem;
+    }
+
+    .meta {
+      font-size: 0.8rem;
+      color: lighten($neutral-color, 20%);
+    }
+  }
+
+  .actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+  }
+
+  .view-btn,
+  .delete-btn {
+    padding: 0.4rem 0.75rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-1px);
+    }
+  }
+
+  .view-btn {
+    background: linear-gradient(135deg, $primary-color, $secondary-color);
+    color: $white;
+
+    &:hover {
+      background: linear-gradient(135deg, darken($primary-color, 10%), darken($secondary-color, 10%));
+    }
+  }
+
+  .delete-btn {
+    background: linear-gradient(135deg, #d32f2f, #b71c1c);
+    color: $white;
+
+    &:hover {
+      background: linear-gradient(135deg, darken(#d32f2f, 10%), darken(#b71c1c, 10%));
+    }
+  }
+
+  .no-images {
+    text-align: center;
+    color: $neutral-color;
+    font-size: 1rem;
+    padding: 1.5rem;
+    background: rgba($primary-color, 0.05);
+    border-radius: 8px;
+    border: 1px dashed rgba($primary-color, 0.2);
+  }
+}
+
+// Animations
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes dropdownOpen {
+  from {
+    opacity: 0;
+    transform: scaleY(0.95) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1) translateY(0);
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .content {
+    margin-right: 0;
+    padding: 1rem;
+  }
+
+  .gallery-section {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .image-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+
+  .view-btn,
+  .delete-btn {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .add-form {
+    button.primary,
+    button.secondary {
+      font-size: 0.9rem;
+      padding: 0.6rem 1rem;
+    }
+  }
+
+  .image-grid {
+    grid-template-columns: 1fr;
+  }
+}

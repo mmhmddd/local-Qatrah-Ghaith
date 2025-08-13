@@ -1,0 +1,87 @@
+<div class="container">
+  <!-- Sidebar -->
+  <app-sidebar></app-sidebar>
+
+  <div class="content">
+    <!-- Gallery Section -->
+    <div class="gallery-section">
+      <h2>إدارة معرض الصور</h2>
+
+      <!-- Success and Error Messages -->
+      <div *ngIf="message && isSuccess" class="success-message">{{ message }}</div>
+      <div *ngIf="message && !isSuccess" class="error-message">{{ message }}</div>
+
+      <!-- Loader -->
+      <div *ngIf="isLoading" class="loader">
+        <div class="spinner"></div>
+        <p>جاري رفع الصورة...</p>
+      </div>
+
+      <!-- Add/Edit Image Form -->
+      <div *ngIf="isLoggedIn && !isLoading" class="add-form" #addForm>
+        <h3>{{ newImage.id ? 'تعديل الصورة' : 'إضافة صورة جديدة' }}</h3>
+        <form (ngSubmit)="newImage.id ? updateImage() : addImage()" class="form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="addTitle">العنوان:</label>
+              <input
+                id="addTitle"
+                type="text"
+                [(ngModel)]="newImage.title"
+                name="title"
+                placeholder="أدخل العنوان"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="addImage">اختر صورة: {{ newImage.id ? '(اختياري لتغيير الصورة)' : '' }}</label>
+              <input
+                id="addImage"
+                type="file"
+                (change)="onFileChange($event)"
+                accept="image/jpeg,image/png,image/jpg"
+                [required]="!newImage.id"
+              />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="addDescription">الوصف:</label>
+            <textarea
+              id="addDescription"
+              [(ngModel)]="newImage.description"
+              name="description"
+              placeholder="أدخل الوصف (اختياري)"
+              rows="4"
+            ></textarea>
+          </div>
+          <!-- Image Preview Section -->
+          <div *ngIf="newImage.previewUrl" class="preview-section">
+            <img [src]="newImage.previewUrl" alt="معاينة الصورة" class="preview-image" />
+          </div>
+          <div class="form-actions">
+            <button type="button" (click)="cancelEdit()" class="btn secondary" *ngIf="newImage.id">إلغاء</button>
+            <button type="submit" class="btn primary" [disabled]="!newImage.title || (!newImage.id && !newImage.file)">{{ newImage.id ? 'حفظ' : 'إضافة' }}</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Image Grid -->
+      <div class="image-grid" *ngIf="!isLoading">
+        <div *ngFor="let image of images" class="image-card">
+          <img [src]="getImageUrl(image.imagePath)" [alt]="image.title" class="image" />
+          <div class="image-details">
+            <h4>{{ image.title }}</h4>
+            <p>{{ image.description || 'لا يوجد وصف' }}</p>
+            <p class="meta">تم الرفع بواسطة: {{ image.uploadedBy }}</p>
+            <p class="meta">تاريخ الرفع: {{ image.createdAt | date:'short':'ar' }}</p>
+            <div *ngIf="isLoggedIn" class="actions">
+              <button class="view-btn" (click)="openEditForm(image)">تعديل</button>
+              <button class="delete-btn" (click)="deleteImage(image.id)">حذف</button>
+            </div>
+          </div>
+        </div>
+        <p *ngIf="!images.length" class="no-images">لا توجد صور في المعرض</p>
+      </div>
+    </div>
+  </div>
+</div>

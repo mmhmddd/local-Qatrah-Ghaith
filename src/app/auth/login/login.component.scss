@@ -1,0 +1,625 @@
+$primary-color: #00adb5;
+$secondary-color: #0097b2;
+$accent-color: #ff914d;
+$neutral-color: #545454;
+$dark-color: #1a1a1a;
+$light-gray: #f8f9fa;
+$white: #ffffff;
+$black: #000000;
+$success-color: #28a745;
+$warning-color: #ffc107;
+$danger-color: #dc3545;
+
+.login-section {
+  min-height: 100vh;
+  background: linear-gradient(135deg,
+    rgba($primary-color, 0.1) 0%,
+    rgba($secondary-color, 0.15) 50%,
+    rgba($accent-color, 0.1) 100%),
+    url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="%23ffffff" fill-opacity="0.03"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+  position: relative;
+  overflow: hidden;
+
+  .floating-particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: rgba($primary-color, 0.3);
+    border-radius: 50%;
+    animation: floatUp 5s linear infinite;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  @keyframes floatUp {
+    0% {
+      transform: translateY(100vh) rotate(0deg);
+      opacity: 0;
+    }
+    10% {
+      opacity: 1;
+    }
+    90% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(-100px) rotate(360deg);
+      opacity: 0;
+    }
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background:
+      radial-gradient(circle at 20% 80%, rgba($primary-color, 0.1) 2px, transparent 2px),
+      radial-gradient(circle at 80% 20%, rgba($secondary-color, 0.1) 2px, transparent 2px),
+      radial-gradient(circle at 40% 40%, rgba($accent-color, 0.1) 1px, transparent 1px);
+    background-size: 120px 120px, 180px 180px, 100px 100px;
+    animation: backgroundShift 30s linear infinite;
+    z-index: 1;
+  }
+
+  @keyframes backgroundShift {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(-50px, -50px); }
+  }
+}
+
+.welcome-side {
+  background: linear-gradient(135deg, $primary-color 0%, $secondary-color 100%);
+  position: relative;
+}
+
+.welcome-content {
+  color: $white;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.welcome-logo {
+  .logo-circle {
+    width: 100px;
+    height: 100px;
+    background: rgba($white, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    transition: transform 0.3s ease;
+
+    i {
+      font-size: 2.5rem;
+      color: $white;
+    }
+
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+}
+
+.welcome-title {
+  font-family: 'Amiri', serif;
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+}
+
+.welcome-description {
+  font-family: 'Amiri', serif;
+  font-size: 1.2rem;
+  line-height: 1.7;
+  opacity: 0.9;
+}
+
+.features-grid {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 1rem;
+  max-width: 100%;
+  justify-content: center;
+}
+
+.feature-card {
+  background: rgba($white, 0.1);
+  border: 1px solid rgba($white, 0.2);
+  border-radius: 15px;
+  padding: 1rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  flex: 1;
+  min-width: 150px;
+  max-width: 200px;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba($black, 0.2);
+  }
+
+  .feature-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba($white, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 0.5rem;
+
+    i {
+      font-size: 1.2rem;
+      color: $white;
+    }
+  }
+
+  h4 {
+    font-family: 'Amiri', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+    color: $white;
+  }
+
+  p {
+    font-family: 'Amiri', serif;
+    font-size: 0.85rem;
+    opacity: 0.8;
+    margin: 0;
+    line-height: 1.4;
+  }
+}
+
+.login-form-side {
+  position: relative;
+  z-index: 2;
+  padding: 2rem 1rem;
+  min-height: 100vh;
+
+  @media (max-width: 991px) {
+    background: linear-gradient(135deg,
+      rgba($white, 0.95) 0%,
+      rgba($light-gray, 0.98) 100%);
+    backdrop-filter: blur(10px);
+  }
+}
+
+.login-container {
+  width: 100%;
+  max-width: 450px;
+  margin: 0 auto;
+}
+
+.login-card {
+  background: rgba($white, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba($primary-color, 0.1);
+  border-radius: 25px;
+  box-shadow: 0 15px 50px rgba($black, 0.1);
+  padding: 2.5rem;
+  transition: all 0.4s ease;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg,
+      rgba($primary-color, 0.02) 0%,
+      rgba($secondary-color, 0.02) 50%,
+      rgba($accent-color, 0.02) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 60px rgba($black, 0.15);
+
+    &::before {
+      opacity: 1;
+    }
+  }
+
+  &.shake-animation {
+    animation: shake 0.6s ease-in-out;
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0) translateY(-5px); }
+    25% { transform: translateX(-10px) translateY(-5px); }
+    75% { transform: translateX(10px) translateY(-5px); }
+  }
+}
+
+.login-header {
+  position: relative;
+  z-index: 2;
+
+  .login-title {
+    font-family: 'Amiri', serif;
+    font-size: 2rem;
+    font-weight: 800;
+    color: $dark-color;
+    margin-bottom: 0.5rem;
+  }
+
+  .login-subtitle {
+    font-family: 'Amiri', serif;
+    color: $neutral-color;
+    font-size: 1rem;
+    margin: 0;
+  }
+}
+
+.divider {
+  position: relative;
+  text-align: center;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg,
+      transparent,
+      rgba($neutral-color, 0.3) 20%,
+      rgba($neutral-color, 0.3) 80%,
+      transparent);
+  }
+
+  .divider-text {
+    background: rgba($white, 0.95);
+    padding: 0 1rem;
+    color: $neutral-color;
+    font-family: 'Amiri', serif;
+    font-size: 0.9rem;
+    position: relative;
+    z-index: 1;
+  }
+}
+
+.form-group {
+  position: relative;
+  margin-bottom: 1.2rem;
+}
+
+.form-label {
+  font-family: 'Amiri', serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: $dark-color;
+  margin-bottom: 0.4rem;
+  display: block;
+}
+
+.form-control {
+  font-family: 'Amiri', serif;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba($neutral-color, 0.3);
+  background: $white;
+  padding: 0.75rem 1rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+
+  &:focus {
+    border-color: $primary-color;
+    box-shadow: 0 0 0 2px rgba($primary-color, 0.2);
+    outline: none;
+  }
+
+  &.is-invalid {
+    border-color: $danger-color;
+    background: rgba($danger-color, 0.03);
+  }
+
+  &.is-valid {
+    border-color: $success-color;
+    background: rgba($success-color, 0.03);
+  }
+}
+
+.input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  .form-control {
+    padding-right: 3rem;
+    padding-left: 1rem;
+  }
+
+  .password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: $neutral-color;
+    cursor: pointer;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    z-index: 10;
+
+    &:hover:not(:disabled) {
+      background-color: transparent;
+      color: $primary-color;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    i {
+      font-size: 1rem;
+    }
+  }
+}
+
+.login-btn {
+  background: $primary-color;
+  color: $white;
+  font-family: 'Amiri', serif;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 0.9rem 1.5rem;
+  border-radius: 12px;
+  border: none;
+  width: 100%;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: $secondary-color;
+    transform: translateY(-2px);
+  }
+
+  &:disabled {
+    background: $neutral-color;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+.alert {
+  border: none;
+  border-radius: 12px;
+  font-family: 'Amiri', serif;
+  font-weight: 600;
+  position: relative;
+  z-index: 2;
+
+  &.alert-success {
+    background: rgba($success-color, 0.1);
+    color: darken($success-color, 10%);
+    border-left: 4px solid $success-color;
+  }
+
+  &.alert-danger {
+    background: rgba($danger-color, 0.1);
+    color: darken($danger-color, 10%);
+    border-left: 4px solid $danger-color;
+  }
+}
+
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba($black, 0.8);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+
+  .loading-content {
+    text-align: center;
+    color: $white;
+
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid rgba($white, 0.3);
+      border-top: 4px solid $primary-color;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1rem;
+    }
+
+    .loading-text {
+      font-family: 'Amiri', serif;
+      font-size: 1.1rem;
+      margin: 0;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  }
+}
+
+/* New Styles for Links and Home Button */
+.links-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.auth-link {
+  font-family: 'Amiri', serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+
+  &.join-link {
+    color: $primary-color;
+
+    &:hover {
+      transform: translateY(-1px);
+    }
+  }
+
+  &.forgot-link {
+    color: $danger-color;
+
+    &:hover {
+      transform: translateY(-1px);
+    }
+  }
+}
+
+.home-btn {
+  background: $success-color;
+  color: $white;
+  font-family: 'Amiri', serif;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 0.9rem 1.5rem;
+  border-radius: 12px;
+  border: none;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+
+  &:hover {
+    background: darken($success-color, 10%);
+    transform: translateY(-2px);
+  }
+}
+
+@media (max-width: 1200px) {
+  .welcome-title {
+    font-size: 2.2rem;
+  }
+
+  .features-grid {
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 992px) {
+  .login-section {
+    min-height: auto;
+  }
+
+  .login-form-side {
+    min-height: 100vh;
+    padding: 1rem;
+  }
+
+  .login-card {
+    padding: 2rem;
+  }
+
+  .mobile-welcome {
+    .mobile-title {
+      font-size: 1.6rem;
+    }
+  }
+
+  .links-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .login-card {
+    padding: 1.5rem;
+    border-radius: 20px;
+  }
+
+  .login-header {
+    .login-title {
+      font-size: 1.8rem;
+    }
+  }
+
+  .auth-link {
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  .login-btn,
+  .home-btn {
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .login-form-side {
+    padding: 0.5rem;
+  }
+
+  .login-card {
+    padding: 1.25rem;
+    border-radius: 15px;
+  }
+
+  .mobile-welcome {
+    .mobile-title {
+      font-size: 1.4rem;
+    }
+
+    .mobile-logo i {
+      font-size: 2.5rem;
+    }
+  }
+
+  .auth-link {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.8rem;
+  }
+}
+
+.animate-in {
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

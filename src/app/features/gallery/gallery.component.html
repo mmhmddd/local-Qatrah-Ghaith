@@ -1,0 +1,125 @@
+<div style="margin-top:3rem;">
+  <app-new-section ></app-new-section>
+</div>
+
+<div class="gallery-container" dir="rtl" id="gallerysection">
+  <header class="gallery-header">
+    <h1 class="gallery-title">معرض الصور</h1>
+    <p class="gallery-subtitle">صور مُلهمة من مبادرتنا التعليمية والخيرية، لتدّريس وتقديم أنشطة تعليمية لكُل طالب عِلم، من خلال مشاركة متطوعين مختصين بالتعليم وبالدعم النفسي والإداري.</p>
+  </header>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+  <!-- Hero Slider Section -->
+  <section class="hero-section">
+    <h2 class="section-title">أنشطة مميزة</h2>
+    <swiper-container class="hero-swiper"
+                     slides-per-view="3"
+                     space-between="20"
+                     loop="true"
+                     autoplay='{"delay": 2500, "disableOnInteraction": false}'
+                     speed="800"
+                     navigation="true"
+                     pagination='{"clickable": true}'
+                     touch-events-target="container"
+                     touch-ratio="1"
+                     touch-angle="45"
+                     simulate-touch="true"
+                     grab-cursor="true"
+                     breakpoints='{
+                       "320": {
+                         "slidesPerView": 1,
+                         "spaceBetween": 10
+                       },
+                       "768": {
+                         "slidesPerView": 2,
+                         "spaceBetween": 15
+                       },
+                       "992": {
+                         "slidesPerView": 3,
+                         "spaceBetween": 20
+                       }
+                     }'>
+      <swiper-slide *ngFor="let image of featuredImages">
+        <div class="hero-slide">
+          <img [src]="getImageUrl(image.imagePath)" [alt]="image.title" class="hero-image" loading="lazy">
+          <div class="hero-caption">
+            <h3>{{ image.title }}</h3>
+            <p>{{ image.description }}</p>
+          </div>
+        </div>
+      </swiper-slide>
+    </swiper-container>
+  </section>
+
+  <!-- Latest Images Section -->
+  <section class="gallery-section">
+    <h2 class="section-title">أحدث الفعاليات</h2>
+    <p class="section-description">  انشطه تعليمية وتحفيزية مع طُلابنا في جمعية نماء الخيرية و لقطات حية من دروس الدعم المجانية، والأنشطة الترفيهية والتعليمية    .</p>
+    <div class="gallery-grid">
+      <div *ngFor="let image of latestImages" class="gallery-card">
+        <div class="image-wrapper">
+          <img [src]="getImageUrl(image.imagePath)" [alt]="image.title" class="gallery-image" loading="lazy">
+          <div class="image-overlay">
+            <h3 class="image-title">{{ image.title }}</h3>
+            <p class="image-description">{{ image.description }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Popular Images Section -->
+  <section class="gallery-section popular-section">
+    <h2 class="section-title">الأنشطة المؤثرة</h2>
+    <p class="section-description">لقطات من أكثر الفعاليات تأثيراً، والتي أبرزت أهمية التعليم والدعم النفسي  .</p>
+    <div class="row">
+      <div class="col-md-6">
+        <swiper-container class="vertical-swiper"
+                         slides-per-view="1"
+                         loop="true"
+                         autoplay='{"delay": 4000, "disableOnInteraction": false}'
+                         direction="vertical"
+                         navigation="true"
+                         touch-events-target="container"
+                         touch-ratio="1"
+                         touch-angle="45"
+                         simulate-touch="true"
+                         grab-cursor="true">
+          <swiper-slide *ngFor="let image of popularImages">
+            <img [src]="getImageUrl(image.imagePath)" [alt]="image.title" class="popular-image" loading="lazy">
+            <div class="popular-caption">
+              <h3>{{ image.title }}</h3>
+              <p>{{ image.description }}</p>
+            </div>
+          </swiper-slide>
+        </swiper-container>
+      </div>
+      <div class="col-md-6">
+        <div class="popular-text">
+          <h3>رسالة إنسانية وتعليمية</h3>
+          <p>تُظهر هذه الصور جهود مبادرتنا التطوعية التعليمية في توفير بيئة تعليمية آمنة ومحفزة لطلبتنا من خلال معلمين ومتطوعين وإداريين مختصين يقدمون الوقت والجهد من أجل مستقبل أفضل</p>
+          <p>كل صورة تروي قصة أمل، وتعكس قوة العمل الجماعي وروح العطاء في سبيل مساعدة الآخرين.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- All Images Section -->
+  <section class="gallery-section">
+    <h2 class="section-title">جميع الصور</h2>
+    <p class="section-description">هُنا مجموعتنا الشاملة من الصور التي توثق رحلتنا في دعم التعليم لكُل طالب عِلم.</p>
+    <div class="gallery-grid">
+      <div *ngFor="let image of allImages" class="gallery-card">
+        <div class="image-wrapper">
+          <img [src]="getImageUrl(image.imagePath)" [alt]="image.title" class="gallery-image" loading="lazy">
+          <div class="image-overlay">
+            <h3 class="image-title">{{ image.title }}</h3>
+            <p class="image-description">{{ image.description }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

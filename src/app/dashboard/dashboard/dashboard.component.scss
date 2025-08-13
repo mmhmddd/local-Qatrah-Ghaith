@@ -1,0 +1,282 @@
+$primary-color: #00adb5;
+$secondary-color: #0097b2;
+$accent-color: #ff914d;
+$neutral-color: #545454;
+$dark-color: #1a1a1a;
+$light-gray: #f8f9fa;
+$white: #ffffff;
+$black: #000;
+$red-color: #D32F2F;
+
+.dashboard-wrapper {
+  display: flex;
+  min-height: 100vh;
+  font-family: 'Noto Kufi Arabic', sans-serif;
+  direction: rtl;
+}
+
+.main-content {
+  flex: 1;
+  margin-right: 220px;
+  background: $light-gray;
+  padding: 1.5rem;
+
+  .dashboard-header {
+    margin-bottom: 1.5rem;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    h1 {
+      font-size: clamp(1.4rem, 4vw, 1.8rem);
+      color: $dark-color;
+      text-align: center;
+    }
+
+    .notification-area {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      z-index: 100;
+      transform: translateY(-50%);
+
+      .notification-icon {
+        position: relative;
+        cursor: pointer;
+        font-size: clamp(1.2rem, 3vw, 1.5rem);
+        color: $neutral-color;
+
+        .badge {
+          position: absolute;
+          top: -8px;
+          right: -8px;
+          background: $accent-color;
+          color: $white;
+          border-radius: 50%;
+          padding: 0.2rem 0.5rem;
+          font-size: 0.8rem;
+          font-weight: 600;
+        }
+      }
+
+      .notifications-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background: $white;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba($black, 0.15);
+        width: 300px;
+        max-height: 400px;
+        overflow-y: auto;
+        z-index: 1000;
+        padding: 1rem;
+
+        .notifications-header {
+          font-size: 1.2rem;
+          font-weight: 600;
+          color: $dark-color;
+          padding-bottom: 0.5rem;
+          border-bottom: 1px solid rgba($black, 0.1);
+          margin-bottom: 0.5rem;
+        }
+
+        .no-notifications {
+          color: $neutral-color;
+          text-align: center;
+          padding: 1rem;
+        }
+
+        .notification-item {
+          padding: 0.75rem;
+          border-bottom: 1px solid rgba($black, 0.05);
+          &:last-child {
+            border-bottom: none;
+          }
+
+          &.unread {
+            background: #f0f8ff;
+          }
+
+          p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: $dark-color;
+          }
+
+          small {
+            color: $neutral-color;
+            font-size: 0.8rem;
+          }
+        }
+      }
+    }
+  }
+
+  .counters-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+  }
+
+  .counters {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+    background: $white;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba($black, 0.1);
+
+    .counter {
+      font-size: clamp(1rem, 3vw, 1rem);
+      color: $dark-color;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+
+      i {
+        color: $primary-color;
+        font-size: clamp(1.3rem, 3.5vw, 1.6rem);
+        margin-left: 0.5rem;
+      }
+    }
+  }
+
+  .content-area {
+    min-height: calc(100vh - 100px);
+  }
+
+  .dashboard-card {
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+
+    &.card-members {
+      background: #E6F7FA;
+      .card-body i { color: #007A87; }
+      .card-title, .card-text { color: $dark-color; }
+    }
+
+    &.card-requests {
+      background: #E6F0FA;
+      .card-body i { color: #005B99; }
+      .card-title, .card-text { color: $dark-color; }
+    }
+
+    &.card-book {
+      background: #E8F5E9;
+      .card-body i { color: #2E7D32; }
+      .card-title, .card-text { color: $dark-color; }
+    }
+
+    &.card-opinion {
+      background: #F3E5F5;
+      .card-body i { color: #6A1B9A; }
+      .card-title, .card-text { color: $dark-color; }
+    }
+
+    &.card-leaderboard {
+      background: #FFE6E6;
+      .card-body i { color: #C62828; }
+      .card-title, .card-text { color: $dark-color; }
+    }
+
+    &.card-gallery {
+      background: #FFF3E0;
+      .card-body i { color: #FF6F00; }
+      .card-title, .card-text { color: $dark-color; }
+    }
+
+    &.card-low-lecture-members {
+      background: #FFCDD2;
+      .card-body i { color: $red-color; }
+      .card-title, .card-text { color: $dark-color; }
+    }
+
+    &:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 6px 12px rgba($black, 0.15);
+    }
+
+    .card-body {
+      padding: clamp(1rem, 3vw, 1.5rem);
+      transition: background-color 0.3s ease;
+
+      .card-title {
+        font-size: clamp(1rem, 2.5vw, 1.2rem);
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+      }
+
+      .card-text {
+        font-size: clamp(0.8rem, 2vw, 0.9rem);
+      }
+
+      i {
+        transition: color 0.3s ease;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    margin-right: 0;
+    padding: 1rem;
+
+    .dashboard-header {
+      h1 {
+        font-size: clamp(1.2rem, 3.5vw, 1.4rem);
+      }
+
+      .notification-area {
+        left: 0.5rem;
+
+        .notifications-dropdown {
+          width: 100%;
+          max-width: 250px;
+        }
+      }
+    }
+
+    .counters {
+      flex-direction: column;
+      gap: 1rem;
+      padding: 1rem;
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .dashboard-card {
+    .card-body {
+      padding: 0.8rem;
+
+      i {
+        font-size: clamp(2rem, 6vw, 2.5rem);
+      }
+
+      .card-title {
+        font-size: clamp(0.9rem, 2.5vw, 1rem);
+      }
+
+      .card-text {
+        font-size: clamp(0.75rem, 2vw, 0.85rem);
+      }
+    }
+  }
+
+  .counters {
+    .counter {
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+
+      i {
+        font-size: clamp(1.1rem, 3vw, 1.3rem);
+      }
+    }
+  }
+}

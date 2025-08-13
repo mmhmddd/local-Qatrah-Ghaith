@@ -1,0 +1,97 @@
+<div class="container">
+  <h2>مكتبة ملفات PDF</h2>
+
+  <!-- Search and Filter Section -->
+  <div class="search-filter-container">
+    <div class="search-bar">
+      <button class="clear-btn" (click)="clearSearch()" *ngIf="searchTerm">
+        <i class="fas fa-times"></i> حذف البحث
+      </button>
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="searchPdfs()"
+        placeholder="ابحث في العناوين..."
+      >
+    </div>
+
+    <div class="filter-options">
+      <select [(ngModel)]="filters.subject" (ngModelChange)="filterPdfs()">
+        <option value="">كل المواد</option>
+        <option *ngFor="let subject of subjects" [value]="subject">{{ subject }}</option>
+      </select>
+      <select [(ngModel)]="filters.creatorName" (ngModelChange)="filterPdfs()">
+        <option value="">كل المنشئين</option>
+        <option *ngFor="let creator of creators" [value]="creator">{{ creator }}</option>
+      </select>
+      <select [(ngModel)]="filters.academicLevel" (ngModelChange)="filterPdfs()">
+        <option value="">كل السنوات الدراسية</option>
+        <option *ngFor="let level of academicLevels" [value]="level">{{ level }}</option>
+      </select>
+      <select [(ngModel)]="filters.country" (ngModelChange)="filterPdfs()">
+        <option value="">كل الدول</option>
+        <option *ngFor="let country of countries" [value]="country">{{ country }}</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="message success" *ngIf="successMessage">{{ successMessage }}</div>
+  <div class="message error" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+  <div class="pdf-grid">
+    <div *ngFor="let pdf of filteredPdfs; trackBy: trackByPdfId" class="pdf-card" [ngClass]="getAcademicLevelClass(pdf.academicLevel)">
+      <!-- Icon section - left side -->
+      <div class="pdf-icon-section">
+        <i class="fas fa-file-pdf pdf-icon"></i>
+      </div>
+
+      <!-- Main content area -->
+      <div class="pdf-main-content">
+        <div class="pdf-header">
+          <h3>{{ pdf.title }}</h3>
+          <div class="pdf-description">{{ pdf.description }}</div>
+        </div>
+
+        <!-- Special styling for subject, creator, academic level, and country -->
+        <div class="special-tags">
+          <div class="subject-tag">
+            <i class="fas fa-book"></i> {{ pdf.subject }}
+          </div>
+          <div class="creator-tag">
+            <i class="fas fa-user"></i> {{ pdf.creatorName }}
+          </div>
+          <div class="academicLevel-tag" [ngClass]="getAcademicLevelClass(pdf.academicLevel)">
+            <i class="fas fa-graduation-cap"></i> {{ pdf.academicLevel }}
+          </div>
+          <div class="country-tag">
+            <i class="fas fa-globe"></i> {{ pdf.country }}
+          </div>
+        </div>
+
+        <div class="pdf-details">
+          <div class="detail">
+            <span class="label">اسم الملف:</span>
+            <span>{{ pdf.fileName }}</span>
+          </div>
+          <div class="detail">
+            <span class="label">تاريخ الرفع:</span>
+            <span>{{ pdf.createdAt | date:'short':'ar' }}</span>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="download-btn" (click)="openPdf(pdf.id)">
+            <i class="fas fa-file-pdf"></i> فتح الملف
+          </button>
+          <button class="share-btn" (click)="sharePdf(pdf.id)">
+            <i class="fas fa-share-alt"></i> مشاركة
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="filteredPdfs.length === 0 && !errorMessage" class="no-results">
+    لا توجد ملفات PDF لعرضها
+  </div>
+</div>

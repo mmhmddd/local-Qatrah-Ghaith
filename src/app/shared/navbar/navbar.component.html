@@ -1,0 +1,75 @@
+<nav class="navbar navbar-expand-lg" [ngClass]="{'scrolled': scrolled}">
+  <div class="container-fluid">
+    <!-- Logo (Left) -->
+    <a class="navbar-brand" routerLink="/">
+      <img src="../../../assets/images/home/scalewhitelogo.png" alt="Logo" />
+    </a>
+
+    <!-- Toggle button for mobile -->
+    <button
+      class="navbar-toggler"
+      type="button"
+      (click)="toggleNavbar()"
+      [attr.aria-expanded]="isNavbarExpanded"
+      aria-controls="navbarNav"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Navbar items (Center) and Buttons (Right) -->
+    <div
+      class="collapse navbar-collapse"
+      [class.show]="isNavbarExpanded"
+      id="navbarNav"
+    >
+      <ul class="navbar-nav mx-auto">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeNavbar()">الرئيسية</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/about" routerLinkActive="active" (click)="closeNavbar()">من نحن</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/testimonials" routerLinkActive="active" (click)="closeNavbar()">الآراء</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/library" routerLinkActive="active" (click)="closeNavbar()">المكتبة</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/last-news" routerLinkActive="active" (click)="closeNavbar()">اخر الاخبار</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/join-us" routerLinkActive="active" (click)="closeNavbar()">انضم إلينا</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/leaderboards" routerLinkActive="active" (click)="closeNavbar()">المتصدرون</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/contact" routerLinkActive="active" (click)="closeNavbar()">تواصل معنا</a>
+        </li>
+      </ul>
+      <div class="buttons-container d-flex flex-column flex-lg-row align-items-end align-items-lg-center gap-2">
+        <button *ngIf="isAdmin()" class="btn btn-dashboard" (click)="navigateToDashboard()" title="لوحة التحكم">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
+            <rect x="3" y="3" width="7" height="9"></rect>
+            <rect x="14" y="3" width="7" height="5"></rect>
+            <rect x="14" y="12" width="7" height="9"></rect>
+            <rect x="3" y="16" width="7" height="5"></rect>
+          </svg>
+          <span>لوحة التحكم</span>
+        </button>
+        <button *ngIf="isLoggedIn()" class="btn btn-profile" (click)="navigateToProfile()" title="الملف الشخصي">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          <span>الملف الشخصي</span>
+        </button>
+        <button class="btn" [ngClass]="isLoggedIn() ? 'btn-danger' : 'btn-primary'" (click)="handleAuthAction()">
+          {{ isLoggedIn() ? 'تسجيل الخروج' : 'تسجيل الدخول' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>

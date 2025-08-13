@@ -1,0 +1,224 @@
+// Enhanced Variables
+$primary-color: #00adb5;
+$secondary-color: #0097b2;
+$accent-color: #ff914d;
+$neutral-color: #545454;
+$dark-color: #1a1a1a;
+$light-gray: #f8f9fa;
+$white: #ffffff;
+$black: #000000;
+
+// Modern gradient mixins
+@mixin gradient-primary {
+  background: linear-gradient(135deg, $primary-color 0%, $secondary-color 100%);
+}
+
+@mixin gradient-accent {
+  background: linear-gradient(135deg, $accent-color 0%, #ff6b35 100%);
+}
+
+@mixin glass-effect {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.latest-news-container {
+  position: relative;
+  overflow: hidden;
+  padding: 50px;
+  background: linear-gradient(135deg, $light-gray 0%, rgba($primary-color, 0.2) 100%);
+  animation: fadeInUp 1s ease-out;
+
+  .left-section {
+    .news-preview {
+      position: relative;
+      padding: 20px;
+      @include glass-effect;
+      border-radius: 12px;
+
+      .latest-news-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: $dark-color;
+        margin-bottom: 15px;
+        letter-spacing: 2px;
+        text-shadow: 1px 1px 3px rgba($black, 0.1);
+        animation: slideIn 1s ease-out;
+
+        .highlight {
+          color: $accent-color;
+        }
+      }
+
+      .news-description {
+        color: $neutral-color;
+        font-size: 1.1rem;
+        margin-bottom: 25px;
+        line-height: 1.6;
+        letter-spacing: 1px;
+        animation: fadeIn 1.5s ease-out;
+      }
+
+      .additional-info {
+        color: $neutral-color;
+        font-size: 0.9rem;
+        margin-top: 10px;
+        animation: fadeIn 2s ease-out;
+
+        p {
+          margin: 5px 0;
+        }
+      }
+    }
+  }
+
+  .right-section {
+    .news-card {
+      background: $white;
+      border: 1px solid rgba($primary-color, 0.1);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      position: relative;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      animation: cardPop 1s ease-out;
+
+      &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba($accent-color, 0.1);
+      }
+
+      .category {
+        color: $accent-color;
+        font-size: 0.9rem;
+        margin-right: 20px;
+        letter-spacing: 5px;
+        margin-right: 10px;
+      }
+
+      .date {
+        color: $neutral-color;
+        font-size: 0.9rem;
+        margin-left: 10px;
+        letter-spacing: 1px;
+      }
+
+      .card-text {
+        color: $neutral-color;
+        font-size: 1.1rem;
+        margin: 15px 0;
+        line-height: 1.5;
+        letter-spacing: 1px;
+      }
+
+      .read-more {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        color: $accent-color;
+        font-size: 1.2rem;
+        text-decoration: none;
+        transition: color 0.3s ease;
+
+        &:hover {
+          color: darken($accent-color, 10%);
+        }
+      }
+    }
+  }
+}
+
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes cardPop {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (max-width: 768px) {
+  .latest-news-container {
+    padding: 30px;
+    margin-top: 30px;
+
+    .left-section {
+      margin-bottom: 20px;
+
+      .news-preview {
+        .latest-news-title {
+          font-size: 2rem;
+        }
+        .news-description {
+          font-size: 1rem;
+        }
+      }
+    }
+
+    .right-section {
+      .news-card {
+        padding: 15px;
+      }
+    }
+  }
+}
+ .section-actions {
+    text-align: center;
+    margin-top: 30px;
+
+    .hero-btn {
+      padding: 12px 30px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 30px;
+      text-decoration: none;
+      transition: transform 0.3s ease;
+      width: auto;
+      min-width: 200px;
+
+      &.btn-primary {
+        @include gradient-accent;
+        color: $white;
+        border: none;
+
+        &:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 10px 20px rgba($accent-color, 0.3);
+        }
+      }
+    }
+  }

@@ -1,0 +1,380 @@
+<!-- Hero Section -->
+<section class="hero-section" dir="rtl" aria-label="مبادرة التعليم - تواصلوا معنا">
+  <!-- Map Content -->
+  <div class="map-container">
+    <iframe
+      src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3384.916644078917!2d35.930358999999996!3d31.963158000000004!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zMzHCsDU3JzQ3LjQiTiAzNcKwNTUnNDkuMyJF!5e0!3m2!1sen!2seg!4v1754238407960!5m2!1sen!2seg" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"      style="border:0; border-radius: 0; width: 100%; height: 100vh;"
+      allowfullscreen=""
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade"
+      title="موقع المبادرة التعليمية على خرائط Google"
+    ></iframe>
+
+<iframe src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3384.916644078917!2d35.930358999999996!3d31.963158000000004!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zMzHCsDU3JzQ3LjQiTiAzNcKwNTUnNDkuMyJF!5e0!3m2!1sen!2seg!4v1754238407960!5m2!1sen!2seg" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+
+  </div>
+  <!-- Text Content -->
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-12 hero-content text-center">
+      <h1 class="hero-title fade-in-up">مرحبًا بكم في مبادرتنا التعليمية</h1>
+      <p class="hero-description fade-in-up" data-delay="0.2s">
+        اكتشف موقعنا في عمان، الأردن، وانضم إلينا لدعم التعليم والتطوع. تواصلوا معنا اليوم لمعرفة المزيد عن برامجنا وفعالياتنا!
+      </p>
+      <div class="hero-actions fade-in-up" data-delay="0.4s">
+        <a href="#contact-form" class="hero-button btn btn-submit" role="button" aria-label="تواصلوا معنا عبر النموذج">
+          <i class="fas fa-paper-plane me-2"></i>
+          تواصلوا معنا الآن
+        </a>
+        <a style="margin-right: 14px;" href="https://api.whatsapp.com/send?phone=962795686452" target="_blank" rel="noopener noreferrer" class="hero-button btn btn-whatsapp ms-3" role="button" aria-label="تواصلوا عبر واتساب">
+          <i class="fab fa-whatsapp me-2"></i>
+          تواصلوا عبر واتساب
+        </a>
+        <a style="margin-right: 14px;" href="https://www.google.com/maps?q=31.963158,35.930359" target="_blank" rel="noopener noreferrer" class="btn btn-outline-dark ms-3" role="button" aria-label="افتح في خرائط Google">
+          <i class="fas fa-external-link-alt me-2"></i>
+          افتح في خرائط Google
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- Contact Details Section -->
+<!-- Contact Details Section -->
+<section class="contact-details" dir="rtl">
+  <div class="container">
+    <h2 class="section-title text-center mb-4">معلومات التواصل التفصيلية</h2>
+    <div class="row g-4 justify-content-center equal-height-row">
+      <div class="col-md-4 col-sm-6">
+        <div class="card glass-card p-4 text-center hover-scale">
+          <div class="icon-title-row">
+            <i class="fas fa-map-marker-alt"></i>
+            <h4>عنوان المكتب</h4>
+          </div>
+          <p>عمان - الأردن<br>
+             شارع الملكة رانيا العبدالله<br>
+             المبنى رقم 15 - الطابق الثالث</p>
+        </div>
+      </div>
+      <div class="col-md-4 col-sm-6">
+        <div class="card glass-card p-4 text-center hover-scale">
+          <div class="icon-title-row">
+            <i class="fas fa-phone"></i>
+            <h4>أرقام الهواتف</h4>
+          </div>
+          <p><a href="tel:+96261234567" style="direction: ltr; unicode-bidi: embed;">+962 7 9568 6452</a></p>
+        </div>
+      </div>
+      <div class="col-md-4 col-sm-6">
+        <div class="card glass-card p-4 text-center hover-scale">
+          <div class="icon-title-row">
+            <i class="fas fa-envelope"></i>
+            <h4>البريد الإلكتروني</h4>
+          </div>
+          <p><a href="mailto:info@educational-initiative.org">Contact&#64;qatrah-ghaith.com
+          </a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="faq-section py-5" dir="rtl">
+  <div class="container">
+    <h2 class="section-title text-center mb-4">الأسئلة الشائعة</h2>
+    <div class="faq-container">
+      <div class="faq-item glass-card mb-3" *ngFor="let faq of faqData; let i = index" @fadeInUp>
+        <div
+          class="faq-question"
+          (click)="toggleFaq(i)"
+          [ngClass]="{'active': activeFaq === i}"
+          role="button"
+          [attr.aria-expanded]="activeFaq === i"
+          [attr.aria-controls]="'faq-answer-' + i"
+        >
+          <h4>{{ faq.question }}</h4>
+          <i class="fas fa-chevron-down" [@iconRotate]="getIconState(i)"></i>
+        </div>
+        <div
+          #faqAnswer
+          class="faq-answer"
+          [id]="'faq-answer-' + i"
+          [@slideInOut]="getFaqState(i)"
+          [attr.aria-hidden]="activeFaq !== i"
+        >
+          <p>{{ faq.answer }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Contact Form Section -->
+<section class="contact-form py-5" dir="rtl" id="contact-form">
+  <div class="container">
+    <h2 class="section-title text-center mb-4">أرسل لنا رسالة</h2>
+    <div class="form-container glass-form">
+      <form [formGroup]="contactForm" (ngSubmit)="onSubmit()" class="needs-validation" novalidate>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="name" class="form-label">الاسم الكامل *</label>
+            <input
+              type="text"
+              [class]="getFieldClasses('name')"
+              id="name"
+              formControlName="name"
+              placeholder="أدخل اسمك الكامل"
+              (focus)="onFieldFocus('name')"
+              autocomplete="name"
+            >
+            <div *ngIf="isFieldInvalid('name')" class="invalid-feedback">
+              {{ getFieldErrorMessage('name') }}
+            </div>
+            <div *ngIf="isFieldValid('name')" class="valid-feedback">
+              ممتاز! الاسم صحيح
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <label for="email" class="form-label">البريد الإلكتروني *</label>
+            <input
+              type="email"
+              [class]="getFieldClasses('email')"
+              id="email"
+              formControlName="email"
+              placeholder="أدخل بريدك الإلكتروني"
+              (focus)="onFieldFocus('email')"
+              autocomplete="email"
+            >
+            <div *ngIf="isFieldInvalid('email')" class="invalid-feedback">
+              {{ getFieldErrorMessage('email') }}
+            </div>
+            <div *ngIf="isFieldValid('email')" class="valid-feedback">
+              عنوان البريد الإلكتروني صحيح
+            </div>
+          </div>
+
+          <div class="col-12">
+            <label for="phone" class="form-label">رقم الهاتف *</label>
+            <input
+              type="tel"
+              [class]="getFieldClasses('phone')"
+              id="phone"
+              formControlName="phone"
+              placeholder="مثال: 0791234567"
+              (focus)="onFieldFocus('phone')"
+              autocomplete="tel"
+            >
+            <div *ngIf="isFieldInvalid('phone')" class="invalid-feedback">
+              {{ getFieldErrorMessage('phone') }}
+            </div>
+            <div *ngIf="isFieldValid('phone')" class="valid-feedback">
+              رقم الهاتف صحيح
+            </div>
+          </div>
+
+          <div class="col-12" style="border: none;">
+            <label for="service" class="form-label">الخدمة المطلوبة *</label>
+            <select
+            style="color: white; background-color: white; border: none;"
+
+              [class]="getFieldClasses('service')"
+              id="service"
+              formControlName="service"
+              (focus)="onFieldFocus('service')"
+            >
+              <option value="">اختر الخدمة المطلوبة</option>
+              <option value="educational-programs">البرامج التعليمية</option>
+              <option value="volunteering">فرص التطوع</option>
+              <option value="support">الدعم والمساعدة</option>
+              <option value="partnership">الشراكات والتعاون</option>
+              <option value="donation">التبرعات</option>
+              <option value="other">أخرى</option>
+            </select>
+            <div *ngIf="isFieldInvalid('service')" class="invalid-feedback">
+              {{ getFieldErrorMessage('service') }}
+            </div>
+            <div *ngIf="isFieldValid('service')" class="valid-feedback">
+              تم اختيار الخدمة بنجاح
+            </div>
+          </div>
+
+          <div class="col-12">
+            <label for="message" class="form-label">الرسالة *</label>
+            <textarea
+              [class]="getFieldClasses('message')"
+              id="message"
+              formControlName="message"
+              rows="5"
+              placeholder="اكتب رسالتك هنا... (10-1000 حرف)"
+              (focus)="onFieldFocus('message')"
+              maxlength="1000"
+            ></textarea>
+            <div class="form-text">
+              عدد الأحرف: {{ contactForm.get('message')?.value?.length || 0 }}/1000
+            </div>
+            <div *ngIf="isFieldInvalid('message')" class="invalid-feedback">
+              {{ getFieldErrorMessage('message') }}
+            </div>
+            <div *ngIf="isFieldValid('message')" class="valid-feedback">
+              الرسالة مكتوبة بشكل جيد
+            </div>
+          </div>
+
+          <div class="col-12 text-center">
+            <button
+              type="submit"
+              class="btn btn-submit me-3"
+              [disabled]="isFormSubmitting"
+            >
+              <span *ngIf="!isFormSubmitting">
+                <i class="fas fa-paper-plane me-2"></i>
+                إرسال الرسالة
+              </span>
+              <span *ngIf="isFormSubmitting">
+                <i class="fas fa-spinner fa-spin me-2"></i>
+                جاري الإرسال...
+              </span>
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              (click)="clearForm()"
+              [disabled]="isFormSubmitting"
+              style="margin: 7px;"
+            >
+              <i class="fas fa-eraser me-2" ></i>
+              مسح النموذج
+            </button>
+
+            <div
+              *ngIf="formSubmissionMessage"
+              class="mt-3 p-3 rounded"
+              [ngClass]="{
+                'alert alert-success': formSubmissionMessage.includes('بنجاح'),
+                'alert alert-danger': !formSubmissionMessage.includes('بنجاح') && formSubmissionMessage.includes('خطأ'),
+                'alert alert-warning': !formSubmissionMessage.includes('بنجاح') && !formSubmissionMessage.includes('خطأ')
+              }"
+              @fadeInUp
+            >
+              <i class="fas fa-info-circle me-2"></i>
+              {{ formSubmissionMessage }}
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+
+<!-- Social Media Section -->
+<section class="social-media-section py-5" dir="rtl" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+  <div class="container">
+    <h2 class="section-title text-center mb-4" style="color: #1a1a1a;">تابعونا على وسائل التواصل الاجتماعي</h2>
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="d-flex justify-content-center flex-wrap gap-3">
+          <a href="https://www.facebook.com/share/g/1Ax7bwGL6E/?mibextid=wwXIfr" class="btn btn-lg social-btn" target="_blank" style="background-color: #1a1a1a; color: #3b5998;">
+            <i class="fab fa-facebook-f"></i>
+            <span>Facebook</span>
+          </a>
+          <a href="https://x.com/QatrahGhaith" class="btn btn-lg social-btn" target="_blank" style="background-color: #1a1a1a; color:#00adb5 ">
+            <i class="fab fa-twitter"></i>
+            <span>x</span>
+          </a>
+          <a href="https://www.instagram.com/qatrah_ghaith?igsh=OGNvNDU1MGxpMWNs" class="btn btn-lg social-btn" target="_blank" style="background-color: #1a1a1a; color: rgb(206, 52, 111);">
+            <i class="fab fa-instagram"></i>
+            <span>Instagram</span>
+          </a>
+          <a href="https://www.linkedin.com/company/qatrah-ghaith/" class="btn btn-outline-dark btn-lg social-btn" target="_blank" style="background-color: #1a1a1a; color: white;">
+            <i class="fab fa-linkedin-in"></i>
+            <span>LinkedIn</span>
+          </a>
+          <a href="https://youtube.com/@qatrahghaith?si=6fKPV0raILl1L0pN" class="btn btn-lg social-btn" target="_blank" style="background-color: #1a1a1a; color: red;">
+            <i class="fab fa-youtube"></i>
+            <span>YouTube</span>
+          </a>
+        </div>
+        <p class="text-center mt-4 text-muted">
+          كونوا أول من يعلم بأحدث البرامج والفعاليات التعليمية
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+.social-btn {
+  border-radius: 50px;
+  padding: 0.75rem 1.5rem;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 140px;
+  justify-content: center;
+}
+
+.social-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.social-btn i {
+  font-size: 1.2rem;
+}
+
+.valid-feedback {
+  display: block;
+  color: #28a745;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.form-text {
+  font-size: 0.875rem;
+  color: #6c757d;
+  margin-top: 0.25rem;
+}
+
+.alert {
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.alert-success {
+  background-color: rgba(40, 167, 69, 0.1);
+  color: #155724;
+  border-left: 4px solid #28a745;
+}
+
+.alert-danger {
+  background-color: rgba(220, 53, 69, 0.1);
+  color: #721c24;
+  border-left: 4px solid #dc3545;
+}
+
+.alert-warning {
+  background-color: rgba(255, 193, 7, 0.1);
+  color: #856404;
+  border-left: 4px solid #ffc107;
+}
+
+@media (max-width: 768px) {
+  .social-btn {
+    min-width: 120px;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+  }
+
+  .social-btn i {
+    font-size: 1rem;
+  }
+}
+</style>

@@ -1,0 +1,137 @@
+<div class="page-wrapper" [ngClass]="{'sidebar-hidden': !isSidebarVisible, 'sidebar-visible': isSidebarVisible}">
+  <!-- Sidebar Toggle Button for Mobile -->
+  <button
+    class="sidebar-toggle"
+    (click)="toggleSidebar()"
+    [class.active]="isSidebarVisible"
+    aria-label="Toggle Sidebar">
+    <span class="hamburger-line"></span>
+    <span class="hamburger-line"></span>
+    <span class="hamburger-line"></span>
+  </button>
+
+  <!-- Sidebar Overlay for Mobile -->
+  <div
+    class="sidebar-overlay"
+    [class.visible]="isSidebarVisible"
+    (click)="toggleSidebar()"></div>
+
+  <app-sidebar [class.visible]="isSidebarVisible"></app-sidebar>
+
+  <main>
+    <div class="container">
+      <!-- Header Section -->
+      <div class="page-header">
+        <h2>الأعضاء المعتمدون</h2>
+        <div class="page-actions">
+          <button
+            class="refresh-btn"
+            (click)="retryFetch()"
+            [disabled]="isLoading"
+            title="تحديث القائمة">
+            <span class="refresh-icon" [class.spinning]="isLoading">🔄</span>
+            تحديث
+          </button>
+        </div>
+      </div>
+
+      <!-- Success Message -->
+      <div *ngIf="successMessage && !isLoading" class="success-message">
+        <span class="success-icon">✅</span>
+        <span>{{ successMessage }}</span>
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="isLoading" class="loading-message">
+        <div class="spinner"></div>
+        <span>جاري تحميل الأعضاء...</span>
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="errorMessage && !isLoading" class="error-message">
+        <span class="error-icon">⚠️</span>
+        <span>{{ errorMessage }}</span>
+        <button class="retry-btn" (click)="retryFetch()">إعادة المحاولة</button>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="filteredMembers.length === 0 && !errorMessage && !isLoading" class="no-members">
+        <span class="no-members-icon">👥</span>
+        <div>
+          <h3>لا يوجد أعضاء معتمدون حاليًا</h3>
+          <p>سيظهر الأعضاء هنا بعد اعتماد طلبات الانضمام</p>
+        </div>
+      </div>
+
+      <!-- Members Table -->
+      <div class="table-wrapper" *ngIf="filteredMembers.length > 0 && !isLoading">
+        <div class="table-header">
+          <input
+            type="text"
+            class="search-input"
+            placeholder="ابحث بالاسم أو البريد الإلكتروني"
+            [(ngModel)]="searchTerm"
+            (input)="filterMembers()"
+            aria-label="Search members by name or email">
+          <h3>قائمة الأعضاء ({{ filteredMembers.length }})</h3>
+        </div>
+
+        <div class="table-container">
+          <table class="members-table">
+            <thead>
+              <tr>
+                <th>الاسم</th>
+                <th>البريد الإلكتروني</th>
+                <th>رقم الهاتف</th>
+                <th>التخصص الجامعي</th>
+                <th>ساعات التطوع</th>
+                <th>عدد المحاضرات</th>
+                <th>الإجراءات</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="let member of filteredMembers; trackBy: trackByMemberId"
+                [routerLink]="['/member', member.id]"
+                class="member-row">
+                <td class="member-name">
+                  <div class="name-cell">
+                    <div class="avatar">{{ member.name ? member.name.charAt(0) : 'ع' }}</div>
+                    <span>{{ member.name || 'غير محدد' }}</span>
+                  </div>
+                </td>
+                <td class="member-email">{{ member.email || 'غير محدد' }}</td>
+                <td class="member-phone">{{ member.phone || 'غير محدد' }}</td>
+                <td class="member-specialization">{{ member.academicSpecialization || 'غير محدد' }}</td>
+                <td class="member-hours">
+                  <span class="hours-badge">{{ member.volunteerHours || 0 }} ساعة</span>
+                </td>
+                <td class="member-lectures">{{ member.lectureCount || 0 }}</td>
+                <td class="member-actions">
+                  <button
+                    class="delete-btn"
+                    (click)="confirmDelete(member.id, $event)"
+                    title="حذف العضو">
+                    🗑️ حذف
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Confirmation Dialog -->
+      <div *ngIf="showConfirmDialog" class="confirm-dialog">
+        <div class="dialog-content">
+          <h3>تأكيد الحذف</h3>
+          <p>هل أنت متأكد أنك تريد حذف هذا العضو؟ هذا الإجراء لا يمكن التراجع عنه.</p>
+          <div class="dialog-actions">
+            <button class="confirm-btn" (click)="deleteMember()">تأكيد</button>
+            <button class="cancel-btn" (click)="cancelDelete()">إلغاء</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

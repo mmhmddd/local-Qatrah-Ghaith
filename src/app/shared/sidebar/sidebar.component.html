@@ -1,0 +1,35 @@
+<aside class="sidebar" [class.collapsed]="isSidebarCollapsed">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">
+      <i class="fas fa-graduation-cap"></i>
+      <h3>المبادرة التعليمية</h3>
+    </div>
+    <button class="sidebar-toggle" (click)="toggleSidebar()">
+      <i class="fas fa-bars"></i>
+    </button>
+  </div>
+  <nav class="sidebar-nav">
+    <ul>
+      <li class="nav-item" *ngFor="let item of navItems; let i = index">
+        <a [routerLink]="item.link" class="nav-link" [class.active]="activeNavIndex === i" (click)="setActiveNav(i)">
+          <i class="{{item.icon}}"></i>
+          <span>{{item.label}}</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="sidebar-btn home-btn" (click)="goHome()">
+      <i class="fas fa-home"></i>
+      <span>الرئيسية</span>
+    </button>
+    <button class="sidebar-btn back-btn" (click)="goBack()">
+      <i class="fas fa-arrow-right"></i>
+      <span>رجوع</span>
+    </button>
+    <button class="sidebar-btn logout-btn" (click)="logout()">
+      <i class="fas fa-sign-out-alt"></i>
+      <span>تسجيل الخروج</span>
+    </button>
+  </div>
+</aside>

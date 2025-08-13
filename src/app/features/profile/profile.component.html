@@ -1,0 +1,291 @@
+<div class="container-fluid p-0">
+  <main class="main-content container">
+    <!-- Profile Header -->
+    <div class="profile-header text-center">
+      <img *ngIf="profile?.profileImage" [src]="profile.profileImage" alt="صورة الملف الشخصي" class="profile-image">
+      <img *ngIf="!profile?.profileImage" src="/assets/default-profile.png" alt="صورة افتراضية" class="profile-image">
+      <h2 class="profile-name">{{ profile?.name || 'اسم المستخدم' }}</h2>
+      <button class="btn btn-outline-primary change-image-btn" (click)="changeImage()">تغيير الصورة</button>
+      <div *ngIf="showUploadField" class="upload-section mt-3">
+        <input type="file" id="profileImageInput" class="form-control mb-2" accept="image/jpeg,image/png,image/gif,image/webp" (change)="onFileSelected($event)">
+        <button [disabled]="isUploading" class="btn btn-primary" (click)="uploadProfileImage()">
+          {{ isUploading ? 'جاري الرفع...' : 'رفع الصورة' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="nav-tabs">
+      <button class="nav-tab" [ngClass]="{'active': activeSection === 'profile'}" (click)="setActiveSection('profile')">الملف الشخصي</button>
+      <button class="nav-tab" [ngClass]="{'active': activeSection === 'students'}" (click)="setActiveSection('students')">الطلاب</button>
+      <button class="nav-tab" [ngClass]="{'active': activeSection === 'meetings'}" (click)="setActiveSection('meetings')">المواعيد</button>
+      <button class="nav-tab" [ngClass]="{'active': activeSection === 'notifications'}" (click)="setActiveSection('notifications')">
+        الإشعارات
+        <span *ngIf="unreadNotificationsCount > 0" class="badge">{{ unreadNotificationsCount }}</span>
+      </button>
+      <button class="nav-tab" (click)="openPasswordModal()">تغيير كلمة المرور</button>
+    </div>
+
+    <!-- Error and Success Alerts -->
+    <div *ngIf="error" class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+      {{ error }}
+      <button type="button" class="btn-close" (click)="error = null"></button>
+    </div>
+    <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+      {{ successMessage }}
+      <button type="button" class="btn-close" (click)="successMessage = null"></button>
+    </div>
+
+    <!-- Profile Section -->
+    <div id="profile" *ngIf="activeSection === 'profile' && profile" class="card shadow-sm mt-4">
+      <div class="card-header">
+        <h3 class="mb-0">الملف الشخصي</h3>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <dl class="row">
+              <dt class="col-sm-4">الاسم:</dt>
+              <dd class="col-sm-8">{{ profile.name }}</dd>
+              <dt class="col-sm-4">البريد الإلكتروني:</dt>
+              <dd class="col-sm-8">{{ profile.email }}</dd>
+              <dt class="col-sm-4">الهاتف:</dt>
+              <dd class="col-sm-8">{{ profile.phone }}</dd>
+              <dt class="col-sm-4">العنوان:</dt>
+              <dd class="col-sm-8">{{ profile.address }}</dd>
+            </dl>
+          </div>
+          <div class="col-md-6">
+            <dl class="row">
+              <dt class="col-sm-4">التخصص الأكاديمي:</dt>
+              <dd class="col-sm-8">{{ profile.academicSpecialization }}</dd>
+              <dt class="col-sm-4">ساعات التطوع:</dt>
+              <dd class="col-sm-8">{{ profile.volunteerHours }}</dd>
+              <dt class="col-sm-4">عدد الطلاب:</dt>
+              <dd class="col-sm-8">{{ profile.numberOfStudents }}</dd>
+              <dt class="col-sm-4">المواد:</dt>
+              <dd class="col-sm-8">{{ profile.subjects.join(', ') }}</dd>
+              <dt class="col-sm-4">عدد المحاضرات:</dt>
+              <dd class="col-sm-8">{{ profile.lectureCount }}</dd>
+            </dl>
+          </div>
+        </div>
+        <!-- Add Lecture Section -->
+        <div class="upload-section mt-4">
+          <h4>إضافة محاضرة</h4>
+          <form [formGroup]="lectureForm" (ngSubmit)="uploadLecture()">
+            <div class="form-group">
+              <label for="lectureLink" class="form-label">رابط المحاضرة</label>
+              <input
+                id="lectureLink"
+                formControlName="link"
+                type="text"
+                class="form-control mb-2"
+                placeholder="أدخل رابط المحاضرة (مثال: https://example.com)"
+                [class.is-invalid]="lectureForm.get('link')?.invalid && lectureForm.get('link')?.touched"
+              />
+              <div *ngIf="lectureForm.get('link')?.invalid && lectureForm.get('link')?.touched" class="invalid-feedback">
+                <span *ngIf="lectureForm.get('link')?.errors?.['required']">رابط المحاضرة مطلوب</span>
+                <span *ngIf="lectureForm.get('link')?.errors?.['pattern']">يرجى إدخال رابط صالح</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="lectureName" class="form-label">اسم المحاضرة</label>
+              <input
+                id="lectureName"
+                formControlName="name"
+                type="text"
+                class="form-control mb-2"
+                placeholder="أدخل اسم المحاضرة"
+                [class.is-invalid]="lectureForm.get('name')?.invalid && lectureForm.get('name')?.touched"
+              />
+              <div *ngIf="lectureForm.get('name')?.invalid && lectureForm.get('name')?.touched" class="invalid-feedback">
+                <span *ngIf="lectureForm.get('name')?.errors?.['required']">اسم المحاضرة مطلوب</span>
+                <span *ngIf="lectureForm.get('name')?.errors?.['minlength']">اسم المحاضرة قصير جدًا</span>
+                <span *ngIf="lectureForm.get('name')?.errors?.['maxlength']">اسم المحاضرة طويل جدًا (الحد الأقصى 100 حرف)</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="lectureSubject" class="form-label">المادة</label>
+              <select
+                id="lectureSubject"
+                formControlName="subject"
+                class="form-control mb-2"
+                [class.is-invalid]="lectureForm.get('subject')?.invalid && lectureForm.get('subject')?.touched"
+              >
+                <option value="" disabled selected>اختر المادة</option>
+                <option *ngFor="let subject of profile?.subjects" [value]="subject">{{ subject }}</option>
+              </select>
+              <div *ngIf="lectureForm.get('subject')?.invalid && lectureForm.get('subject')?.touched" class="invalid-feedback">
+                <span *ngIf="lectureForm.get('subject')?.errors?.['required']">اسم المادة مطلوب</span>
+              </div>
+            </div>
+            <button
+              type="submit"
+              class="btn btn-success"
+              [disabled]="isUploadingLecture || lectureForm.invalid"
+            >
+              {{ isUploadingLecture ? 'جاري الرفع...' : 'رفع المحاضرة' }}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notifications Section -->
+    <div id="notifications" *ngIf="activeSection === 'notifications'" class="card shadow-sm mt-4">
+      <div class="card-header">
+        <h3 class="mb-0">الإشعارات</h3>
+      </div>
+      <div class="card-body">
+        <div *ngIf="notifications.length === 0" class="alert alert-info">
+          لا توجد إشعارات جديدة.
+        </div>
+        <div *ngIf="notifications.length > 0" class="notification-list">
+          <div *ngFor="let notification of notifications" class="alert alert-warning alert-dismissible fade show d-flex align-items-center justify-content-between">
+            <div>
+              {{ notification.message }}
+              <small>({{ notification.createdAt | date:'short' }})</small>
+            </div>
+            <div>
+              <button class="btn btn-danger btn-sm me-2" (click)="deleteNotification(notification._id)">حذف</button>
+            </div>
+          </div>
+          <button class="btn btn-success mt-2" (click)="markNotificationsRead()">تحديد الكل كمقروء</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Students Section -->
+    <div id="students" *ngIf="activeSection === 'students'" class="card shadow-sm mt-4">
+      <div class="card-header">
+        <h3 class="mb-0">الطلاب</h3>
+      </div>
+      <div class="card-body">
+        <div *ngIf="profile.numberOfStudents > 0 && profile.students.length === 0" class="alert alert-warning">
+          يوجد {{ profile.numberOfStudents }} طالب/طلاب مسجلين، لكن تفاصيل الطلاب غير متوفرة حاليًا. يرجى التواصل مع الإدارة.
+        </div>
+        <div *ngIf="profile.numberOfStudents === 0 && profile.students.length === 0" class="alert alert-info">
+          لا يوجد طلاب مسجلين.
+        </div>
+        <div class="table-responsive" *ngIf="profile.students.length > 0">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>الاسم</th>
+                <th>البريد الإلكتروني</th>
+                <th>الهاتف</th>
+                <th>الصف</th>
+                <th>المادة</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let student of profile.students">
+                <td>{{ student.name || 'غير متوفر' }}</td>
+                <td>{{ student.email || 'غير متوفر' }}</td>
+                <td>{{ student.phone || 'غير متوفر' }}</td>
+                <td>{{ student.grade || 'غير محدد' }}</td>
+                <td>{{ student.subject || 'غير محدد' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Meetings Section -->
+    <div id="meetings" *ngIf="activeSection === 'meetings'" class="card shadow-sm mt-4 mb-4">
+      <div class="card-header">
+        <h3 class="mb-0">المواعيد</h3>
+      </div>
+      <div class="card-body">
+        <button class="btn btn-success mb-3" (click)="openMeetingModal()">إضافة موعد</button>
+        <div *ngIf="profile?.meetings.length === 0" class="alert alert-info">لا يوجد مواعيد مسجلة.</div>
+        <div class="table-responsive" *ngIf="profile?.meetings.length > 0">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>العنوان</th>
+                <th>التاريخ</th>
+                <th>وقت البدء</th>
+                <th>وقت الانتهاء</th>
+                <th>الإجراءات</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let meeting of profile.meetings">
+                <td>{{ meeting.title }}</td>
+                <td>{{ meeting.date }}</td>
+                <td>{{ meeting.startTime }}</td>
+                <td>{{ meeting.endTime }}</td>
+                <td>
+                  <button class="btn btn-danger btn-sm" (click)="deleteMeeting(meeting.id)">حذف</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Password Change Modal -->
+    <div class="modal fade" [ngClass]="{'show d-block': showPasswordModal}" tabindex="-1" role="dialog" aria-labelledby="passwordModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="passwordModalLabel">تغيير كلمة المرور</h5>
+            <button type="button" class="btn-close" (click)="closePasswordModal()" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="currentPassword" class="form-label">كلمة المرور الحالية</label>
+              <input type="password" class="form-control" id="currentPassword" [(ngModel)]="currentPassword">
+            </div>
+            <div class="mb-3">
+              <label for="newPassword" class="form-label">كلمة المرور الجديدة</label>
+              <input type="password" class="form-control" id="newPassword" [(ngModel)]="newPassword">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="closePasswordModal()">إغلاق</button>
+            <button type="button" class="btn btn-primary" (click)="changePassword()">حفظ التغييرات</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Meeting Modal -->
+    <div class="modal fade" [ngClass]="{'show d-block': showMeetingModal}" tabindex="-1" role="dialog" aria-labelledby="meetingModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="meetingModalLabel">إضافة موعد</h5>
+            <button type="button" class="btn-close" (click)="closeMeetingModal()" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="meetingTitle" class="form-label">العنوان</label>
+              <input type="text" class="form-control" id="meetingTitle" [(ngModel)]="meeting.title">
+            </div>
+            <div class="mb-3">
+              <label for="meetingDate" class="form-label">التاريخ</label>
+              <input type="date" class="form-control" id="meetingDate" [(ngModel)]="meeting.date">
+            </div>
+            <div class="mb-3">
+              <label for="startTime" class="form-label">وقت البدء</label>
+              <input type="time" class="form-control" id="startTime" [(ngModel)]="meeting.startTime">
+            </div>
+            <div class="mb-3">
+              <label for="endTime" class="form-label">وقت الانتهاء</label>
+              <input type="time" class="form-control" id="endTime" [(ngModel)]="meeting.endTime">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="closeMeetingModal()">إغلاق</button>
+            <button type="button" class="btn btn-primary" (click)="addMeeting()">حفظ الموعد</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

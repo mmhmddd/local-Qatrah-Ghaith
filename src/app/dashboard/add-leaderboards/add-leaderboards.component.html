@@ -1,0 +1,255 @@
+<div class="container">
+  <!-- Sidebar -->
+  <app-sidebar></app-sidebar>
+
+  <div class="content">
+    <!-- Leaderboard Section -->
+    <div class="leaderboard-section">
+      <h2>لوحة الصدارة</h2>
+
+      <!-- Toast Notification -->
+      <div *ngIf="toastMessage" class="toast" [ngClass]="{'toast-success': toastMessage.type === 'success', 'toast-error': toastMessage.type === 'error'}">
+        {{ toastMessage.message }}
+      </div>
+
+      <!-- Loading Overlay -->
+      <div class="loading-overlay" *ngIf="isLoading">
+        <div class="loading-content">
+          <div class="loading-spinner"></div>
+          <p>جاري التحميل...</p>
+        </div>
+      </div>
+
+      <!-- Add User Form -->
+      <div class="add-user-form">
+        <h3>إضافة متصدر</h3>
+        <!-- Image Preview -->
+        <div class="form-group" *ngIf="newUser.imagePreview && newUser.type === 'قاده'">
+          <label>معاينة الصورة</label>
+          <img [src]="newUser.imagePreview" alt="معاينة الصورة" class="user-image" />
+        </div>
+        <form (ngSubmit)="addUser()" #addUserForm="ngForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="email">البريد الإلكتروني</label>
+              <input
+                id="email"
+                type="email"
+                [(ngModel)]="newUser.email"
+                name="email"
+                placeholder="أدخل البريد الإلكتروني"
+                required
+                #email="ngModel"
+                [ngClass]="{'invalid': email.invalid && (email.dirty || email.touched)}"
+              />
+              <div *ngIf="email.invalid && (email.dirty || email.touched)" class="error-text">
+                البريد الإلكتروني مطلوب ويجب أن يكون صالحًا
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="type">الدور</label>
+              <select
+                id="type"
+                [(ngModel)]="newUser.type"
+                name="type"
+                required
+                #type="ngModel"
+                [ngClass]="{'invalid': type.invalid && (type.dirty || type.touched)}"
+              >
+                <option value="" disabled selected>اختر الدور</option>
+                <option value="متطوع">متطوع</option>
+                <option value="قاده">قاده</option>
+              </select>
+              <div *ngIf="type.invalid && (type.dirty || type.touched)" class="error-text">
+                الدور مطلوب
+              </div>
+            </div>
+          </div>
+          <div class="form-row" *ngIf="newUser.type === 'قاده'">
+            <div class="form-group">
+              <label for="name">الاسم</label>
+              <input
+                id="name"
+                type="text"
+                [(ngModel)]="newUser.name"
+                name="name"
+                placeholder="أدخل الاسم"
+                required
+                #name="ngModel"
+                [ngClass]="{'invalid': name.invalid && (name.dirty || name.touched)}"
+              />
+              <div *ngIf="name.invalid && (name.dirty || name.touched)" class="error-text">
+                الاسم مطلوب
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="rank">الرتبة</label>
+              <select
+                id="rank"
+                [(ngModel)]="newUser.rank"
+                name="rank"
+                required
+                #rank="ngModel"
+                [ngClass]="{'invalid': rank.invalid && (rank.dirty || rank.touched)}"
+              >
+                <option value="" disabled selected>اختر الرتبة</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+              </select>
+              <div *ngIf="rank.invalid && (rank.dirty || rank.touched)" class="error-text">
+                الرتبة مطلوبة
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="image">الصورة</label>
+              <input
+                id="image"
+                type="file"
+                (change)="onImageSelected($event)"
+                name="image"
+                accept="image/jpeg,image/jpg,image/png"
+                required
+                [ngClass]="{'invalid': imageError || (newUser.type === 'قاده' && !newUser.image && addUserForm.submitted)}"
+              />
+              <div *ngIf="imageError || (newUser.type === 'قاده' && !newUser.image && addUserForm.submitted)" class="error-text">
+                {{ imageError || 'الصورة مطلوبة للقادة' }}
+              </div>
+            </div>
+          </div>
+          <button type="submit" class="btn primary" [disabled]="addUserForm.invalid || isLoading || (newUser.type === 'قاده' && !newUser.image)">إضافة إلى لوحة الصدارة</button>
+        </form>
+      </div>
+
+      <!-- Leaderboard Table -->
+      <div class="leaderboard-table" *ngIf="leaderboard.length; else noUsers">
+        <h3>قائمة المتصدرين</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>الرتبة</th>
+              <th>الصورة</th>
+              <th>الاسم</th>
+              <th>البريد الإلكتروني</th>
+              <th>الدور</th>
+              <th>الرتبة الثابتة</th>
+              <th>ساعات التطوع</th>
+              <th>عدد الطلاب</th>
+              <th>المواد</th>
+              <th>الدرجة</th>
+              <th>الإجراءات</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of leaderboard">
+              <ng-container *ngIf="editingUser?.email === user.email; else showUser">
+                <!-- Edit Form -->
+                <td>{{ user.rank }}</td>
+                <td>
+                  <img *ngIf="editImagePreview" [src]="editImagePreview" alt="معاينة الصورة" class="user-image" />
+                  <img *ngIf="!editImagePreview && user.image" [src]="getImageUrl(user.image)" alt="صورة المستخدم" class="user-image" />
+                  <span *ngIf="!editImagePreview && !user.image">لا توجد صورة</span>
+                </td>
+                <td>
+                  <input
+                    type="text"
+                    [(ngModel)]="editName"
+                    name="editName"
+                    required
+                    [ngClass]="{'invalid': !editName.trim()}"
+                  />
+                </td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.type }}</td>
+                <td>
+                  <select
+                    *ngIf="user.type === 'قاده'"
+                    [(ngModel)]="editRank"
+                    name="editRank"
+                    required
+                    [ngClass]="{'invalid': !editRank}"
+                  >
+                    <option value="" disabled>اختر الرتبة</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                  </select>
+                </td>
+                <td>
+                  <input
+                    type="number"
+                    [(ngModel)]="editVolunteerHours"
+                    name="editVolunteerHours"
+                    min="0"
+                    required
+                    [ngClass]="{'invalid': editVolunteerHours < 0}"
+                  />
+                </td>
+                <td>
+                  <input
+                    type="number"
+                    [(ngModel)]="editNumberOfStudents"
+                    name="editNumberOfStudents"
+                    min="0"
+                    required
+                    [ngClass]="{'invalid': editNumberOfStudents < 0}"
+                  />
+                </td>
+                <td>
+                  <input
+                    type="text"
+                    [(ngModel)]="editSubjects"
+                    name="editSubjects"
+                    placeholder="المواد (مفصولة بفواصل)"
+                  />
+                </td>
+                <td>{{ user.score }}</td>
+                <td>
+                  <div *ngIf="user.type === 'قاده'" class="form-group">
+                    <label for="editImage">تغيير الصورة</label>
+                    <input
+                      id="editImage"
+                      type="file"
+                      (change)="onEditImageSelected($event)"
+                      name="editImage"
+                      accept="image/jpeg,image/jpg,image/png"
+                      [ngClass]="{'invalid': imageError}"
+                    />
+                    <div *ngIf="imageError" class="error-text">
+                      {{ imageError }}
+                    </div>
+                  </div>
+                  <button class="btn success" (click)="saveEdit()" [disabled]="isLoading">حفظ</button>
+                  <button class="btn danger" (click)="cancelEdit()">إلغاء</button>
+                </td>
+              </ng-container>
+              <ng-template #showUser>
+                <td>{{ user.rank }}</td>
+                <td>
+                  <img *ngIf="user.image" [src]="getImageUrl(user.image)" alt="صورة المستخدم" class="user-image" />
+                  <span *ngIf="!user.image">لا توجد صورة</span>
+                </td>
+                <td>{{ user.name || 'غير محدد' }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.type }}</td>
+                <td>{{ user.rank || 'غير محدد' }}</td>
+                <td>{{ user.volunteerHours }}</td>
+                <td>{{ user.numberOfStudents }}</td>
+                <td>{{ user.subjects.join(', ') || 'لا توجد مواد' }}</td>
+                <td>{{ user.score }}</td>
+                <td>
+                  <button class="view-btn" (click)="startEdit(user)" [disabled]="isLoading">تعديل</button>
+                  <button class="delete-btn" (click)="deleteUser(user.email)" [disabled]="isLoading">حذف</button>
+                </td>
+              </ng-template>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <ng-template #noUsers>
+        <p>لا يوجد مستخدمين في لوحة الصدارة</p>
+      </ng-template>
+    </div>
+  </div>
+</div>

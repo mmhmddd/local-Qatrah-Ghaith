@@ -1,0 +1,62 @@
+<app-sidebar></app-sidebar>
+<main>
+  <div class="join-requests-container">
+    <h2>جميع طلبات الانضمام</h2>
+    <div class="filter-container">
+      <label for="statusFilter">تصفية حسب الحالة: </label>
+      <select id="statusFilter" [(ngModel)]="selectedStatus" (change)="filterRequests()">
+        <option value="">الكل</option>
+        <option value="Pending">معلق</option>
+        <option value="Approved">موافق عليه</option>
+        <option value="Rejected">مرفوض</option>
+      </select>
+    </div>
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th *ngFor="let header of headers">{{ header.label }}</th>
+            <th>الإجراءات</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let request of filteredRequests">
+            <td *ngFor="let header of headers">
+              <span *ngIf="header.key === 'status'" [ngClass]="getStatusClass(request.status)">
+                {{ request.status | statusTranslate }}
+              </span>
+              <span *ngIf="header.key === 'email'" style="text-decoration: none">
+                <a [href]="'mailto:' + request.email" class="text-primary" target="_blank" style="text-decoration: none">
+                  {{ request.email || 'غير متوفر' }}
+                </a>
+              </span>
+              <span *ngIf="header.key !== 'status' && header.key !== 'email'">
+                {{ request[header.key] || 'غير متوفر' }}
+              </span>
+            </td>
+            <td>
+              <button class="btn btn-success" (click)="confirmApproveRequest(request.id)" [disabled]="request.status !== 'Pending' || isLoading || !request.id">
+                <i class="fas fa-check"></i> موافقة
+              </button>
+              <button class="btn btn-danger" (click)="confirmRejectRequest(request.id)" [disabled]="request.status !== 'Pending' || isLoading || !request.id">
+                <i class="fas fa-times"></i> رفض
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="filteredRequests.length === 0">
+            <td [attr.colspan]="headers.length + 1" class="text-center">لا توجد طلبات انضمام</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="loading-overlay" *ngIf="isLoading">
+      <div class="loading-content">
+        <div class="loading-spinner"></div>
+        <p>جاري التحميل...</p>
+      </div>
+    </div>
+    <div *ngIf="toastMessage" class="toast" [ngClass]="{'toast-success': toastMessage.type === 'success', 'toast-error': toastMessage.type === 'error'}">
+      {{ toastMessage.message }}
+    </div>
+  </div>
+</main>

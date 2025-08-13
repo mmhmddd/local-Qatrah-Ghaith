@@ -1,0 +1,41 @@
+<div class="container-fluid p-0">
+  <main class="main-content container">
+    <h2 class="text-center mb-4">الأعضاء الذين لديهم أقل من محاضرتين أسبوعيًا</h2>
+
+    <div *ngIf="error" class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+      <strong>خطأ:</strong> {{ error }}
+      <button type="button" class="btn-close" (click)="error = null"></button>
+    </div>
+    <div *ngIf="successMessage && members.length > 0" class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+      {{ successMessage }}
+      <button type="button" class="btn-close" (click)="successMessage = null"></button>
+    </div>
+
+    <div *ngIf="members.length === 0 && !error" class="alert alert-info">
+      لا يوجد أعضاء لديهم أقل من محاضرتين أسبوعيًا.
+    </div>
+
+    <div class="table-responsive" *ngIf="members.length > 0">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>الاسم</th>
+            <th>البريد الإلكتروني</th>
+            <th>المواد التي لم تحقق الهدف</th>
+            <th>الإجراءات</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let member of members" (click)="viewMember(member._id)" style="cursor: pointer;">
+            <td>{{ member.name }}</td>
+            <td>{{ member.email }}</td>
+            <td>{{ member.underTargetSubjects.join(', ') }}</td>
+            <td>
+              <button class="btn btn-primary btn-sm" (click)="viewMember(member._id); $event.stopPropagation()">عرض التفاصيل</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
