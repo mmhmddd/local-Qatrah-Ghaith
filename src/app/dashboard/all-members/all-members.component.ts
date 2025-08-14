@@ -6,6 +6,8 @@ import { Subject, takeUntil } from 'rxjs';
 import { JoinRequest, JoinRequestService } from '../../core/services/join-request.service';
 import { SidebarComponent } from "../../shared/sidebar/sidebar.component";
 import { FormsModule } from '@angular/forms';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 @Component({
   selector: 'app-all-members',
@@ -142,5 +144,46 @@ export class AllMembersComponent implements OnInit, OnDestroy {
           console.error('Error deleting member:', error);
         }
       });
+  }
+
+  exportToExcel(): void {
+    // Prepare data for Excel
+    const exportData = this.filteredMembers.map(member => ({
+      'الاسم': member.name || 'غير محدد',
+      'البريد الإلكتروني': member.email || 'غير محدد',
+      'رقم الهاتف': member.phone || 'غير محدد',
+      'التخصص الجامعي': member.academicSpecialization || 'غير محدد',
+      'ساعات التطوع': member.volunteerHours || 0,
+      'عدد المحاضرات': member.lectureCount || 0,
+      'عدد المواد': member.subjectsCount || 0, // Added subjectsCount
+      'المواد': member.subjects.join(', ') || 'غير محدد',
+      'عدد الطلاب': member.numberOfStudents || 0
+    }));
+
+    // Create worksheet
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(exportData);
+
+    // Define column headers in Arabic
+    const headers = {
+      'الاسم': 'الاسم',
+      'البريد الإلكتروني': 'البريد الإلكتروني',
+      'رقم الهاتف': 'رقم الهاتف',
+      'التخصص الجامعي': 'التخصص الجامعي',
+      'ساعات التطوع': 'ساعات التطوع',
+      'عدد المحاضرات': 'عدد المحاضرات',
+      'عدد المواد': 'عدد المواد', // Added subjectsCount
+      'المواد': 'المواد',
+      'عدد الطلاب': 'عدد الطلاب'
+    };
+    XLSX.utils.sheet_add_aoa(worksheet, [Object.values(headers)], { origin: 'A1' });
+
+    // Create workbook and add the worksheet
+    const workbook: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'الأعضاء المعتمدون');
+
+    // Generate Excel file and trigger download
+    const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const data: Blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+    saveAs(data, `approved_members_${new Date().toISOString().split('T')[0]}.xlsx`);
   }
 }

@@ -102,7 +102,7 @@ main {
 }
 
 .container {
-  max-width: 1200px;
+  max-width: 1400px; /* Increased max-width for wider table */
   margin: 0 auto;
 }
 
@@ -123,7 +123,7 @@ main {
   align-items: center;
   gap: 10px;
 
-  .refresh-btn {
+  .refresh-btn, .export-btn {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -147,6 +147,14 @@ main {
 
     .refresh-icon.spinning {
       animation: spin 1s linear infinite;
+    }
+  }
+
+  .export-btn {
+    background: $accent-color;
+
+    &:hover {
+      background: darken($accent-color, 10%);
     }
   }
 }
@@ -292,12 +300,14 @@ main {
     padding: 12px;
     text-align: right;
     font-weight: 600;
+    white-space: nowrap; /* Prevent header text wrapping */
   }
 
   td {
     padding: 12px;
     border-bottom: 1px solid #eee;
     color: $neutral-color;
+    text-align: right;
   }
 
   .member-row {
@@ -337,7 +347,7 @@ main {
     font-size: 12px;
   }
 
-  .member-lectures {
+  .member-students, .member-subjects, .member-lectures {
     text-align: center;
   }
 

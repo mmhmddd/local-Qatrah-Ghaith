@@ -32,6 +32,14 @@
             <span class="refresh-icon" [class.spinning]="isLoading">🔄</span>
             تحديث
           </button>
+          <button
+            class="export-btn"
+            (click)="exportToExcel()"
+            [disabled]="isLoading || filteredMembers.length === 0"
+            title="تصدير إلى Excel">
+            <span class="export-icon">📊</span>
+            تصدير إلى Excel
+          </button>
         </div>
       </div>
 
@@ -84,6 +92,8 @@
                 <th>البريد الإلكتروني</th>
                 <th>رقم الهاتف</th>
                 <th>التخصص الجامعي</th>
+                <th>عدد الطلاب</th>
+                <th>عدد المواد</th>
                 <th>ساعات التطوع</th>
                 <th>عدد المحاضرات</th>
                 <th>الإجراءات</th>
@@ -103,6 +113,8 @@
                 <td class="member-email">{{ member.email || 'غير محدد' }}</td>
                 <td class="member-phone">{{ member.phone || 'غير محدد' }}</td>
                 <td class="member-specialization">{{ member.academicSpecialization || 'غير محدد' }}</td>
+                <td class="member-students">{{ member.numberOfStudents || 0 }}</td>
+                <td class="member-subjects">{{ member.subjectsCount || 0 }}</td>
                 <td class="member-hours">
                   <span class="hours-badge">{{ member.volunteerHours || 0 }} ساعة</span>
                 </td>

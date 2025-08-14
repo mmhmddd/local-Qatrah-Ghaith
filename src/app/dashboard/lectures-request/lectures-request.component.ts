@@ -6,6 +6,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { LectureRequestService, PendingLectureRequest } from '../../core/services/lecture-request.service';
 import { ApiEndpoints } from '../../core/constants/api-endpoints';
+import { SidebarComponent } from "../../shared/sidebar/sidebar.component";
 
 interface FilteredRequest extends PendingLectureRequest {
   expanded?: boolean;
@@ -14,7 +15,7 @@ interface FilteredRequest extends PendingLectureRequest {
 @Component({
   selector: 'app-lectures-request',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, SidebarComponent],
   templateUrl: './lectures-request.component.html',
   styleUrls: ['./lectures-request.component.scss']
 })

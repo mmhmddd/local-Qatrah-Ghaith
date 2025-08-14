@@ -24,6 +24,7 @@ export interface JoinRequest {
   volunteerHours: number;
   numberOfStudents: number;
   subjects: string[];
+  subjectsCount: number; // Added subjectsCount
   students: { name: string; email: string; phone: string; grade?: string; subjects: string[] }[];
   lectures: { _id: string; link: string; name: string; subject: string; createdAt: string; hasNewLecture: boolean }[];
   lectureCount: number;
@@ -140,6 +141,10 @@ export class JoinRequestService {
 
   getApprovedMembers(): Observable<JoinRequest[]> {
     return this.http.get<JoinRequest[]>(ApiEndpoints.joinRequests.getApproved).pipe(
+      map(members => members.map(member => ({
+        ...member,
+        subjectsCount: member.subjects?.length || 0
+      }))),
       catchError(error => {
         console.error('خطأ في جلب الأعضاء المعتمدين:', error);
         return throwError(() => ({
@@ -173,6 +178,7 @@ export class JoinRequestService {
           volunteerHours: response.volunteerHours || 0,
           numberOfStudents: response.numberOfStudents || 0,
           subjects: response.subjects || [],
+          subjectsCount: response.subjects?.length || 0, // Add subjectsCount
           students: response.students || [],
           lectures: (response.lectures || []).map(lecture => ({
             ...lecture,
@@ -237,6 +243,7 @@ export class JoinRequestService {
             subjects: student.subjects || []
           })),
           subjects: response.subjects || [],
+          subjectsCount: response.subjects?.length || 0,
           lectures: (response.lectures || []).map(lecture => ({
             ...lecture,
             hasNewLecture: lecture.hasNewLecture ?? false
@@ -300,7 +307,8 @@ export class JoinRequestService {
             ...student,
             subjects: student.subjects || []
           })),
-          subjects: response.subjects || []
+          subjects: response.subjects || [],
+          subjectsCount: response.subjects?.length || 0 // Add subjectsCount
         }
       })),
       catchError(error => {

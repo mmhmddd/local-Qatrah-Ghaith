@@ -196,6 +196,11 @@ $red-color: #D32F2F;
       .card-body i { color: $red-color; }
       .card-title, .card-text { color: $dark-color; }
     }
+    &.card-request-pdf{
+      background: #e0e5ff;
+      .card-body i { color: #0033ff; }
+      .card-title, .card-text { color: $dark-color; }
+    }
 
     &:hover {
       transform: translateY(-8px);
