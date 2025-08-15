@@ -161,6 +161,13 @@ $black: #000000;
     display: flex;
     justify-content: flex-end;
     flex-shrink: 0;
+
+    .mobile-auth-buttons {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      gap: 0.5rem;
+    }
   }
 
   .btn {
@@ -172,10 +179,8 @@ $black: #000000;
     transition: all 0.3s ease;
     width: 100%;
     text-align: center;
-        padding: 0.3rem 0.8rem;
-              height: 30px !important;
-
-
+    padding: 0.3rem 0.8rem;
+    height: 30px !important;
 
     &.btn-primary {
       background-color: $accent-color;
@@ -264,40 +269,40 @@ $black: #000000;
   }
 }
 
-// Enhanced mobile responsiveness
-@media (max-width: 991.98px) {
+
+
+@media (max-width: 996px) {
   .navbar {
-    height: 80px;
-    padding: 0.5rem 0.75rem;
+    padding: 0.4rem 0.5rem;
+    height: 70px;
 
     .container-fluid {
       flex-direction: row;
       justify-content: space-between;
       align-items: center;
       position: relative;
+      height: 100%;
+      margin-top: -95px;
     }
 
     .navbar-brand {
-      display: flex !important;
-      align-items: center;
-      order: 2;
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      margin: 0;
-
       img {
-        height: 50px;
-        width: 120px;
+        height: 150px;
+        width: 140px;
         object-fit: contain;
-        padding: 0.25rem;
       }
     }
 
     .navbar-toggler {
-      order: 1;
-      margin: 0;
-      z-index: 1001;
+      padding: 0.3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      .navbar-toggler-icon {
+        width: 22px;
+        height: 22px;
+      }
     }
 
     &.scrolled {
@@ -305,155 +310,8 @@ $black: #000000;
 
       .navbar-brand {
         img {
-          height: 45px;
-          width: 110px;
-        }
-      }
-    }
-
-    .navbar-collapse {
-      order: 3;
-      width: 100%;
-      flex-direction: column;
-      align-items: center;
-      position: absolute;
-      top: 100%;
-      left: 0;
-      right: 0;
-
-      &.show {
-        display: flex;
-        padding: 1rem;
-        background-color: rgba($primary-color, 0.98);
-        backdrop-filter: blur(10px);
-        border-radius: 0 0 15px 15px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-        max-height: calc(100vh - 80px);
-        overflow-y: auto;
-        animation: slideDown 0.3s ease-out;
-      }
-
-      .navbar-nav {
-        flex-direction: column;
-        align-items: center;
-        gap: 0.75rem;
-        width: 100%;
-        margin-bottom: 1rem;
-
-        .nav-link {
-          text-align: center;
-          width: 100%;
-          max-width: 300px;
-          padding: 12px 20px;
-          font-size: 0.95rem;
-          border-radius: 12px;
-          transition: all 0.3s ease;
-
-          &:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            transform: translateY(-2px);
-          }
-
-          &.active {
-            background-color: rgba(255, 255, 255, 0.95);
-            transform: translateY(-2px);
-
-            &::after {
-              width: 0;
-            }
-          }
-        }
-      }
-
-      .buttons-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 0.75rem;
-        width: 100%;
-        max-width: 300px;
-        margin: 0 auto;
-
-        .btn {
-          width: 100%;
-          max-width: 280px;
-          padding: 0.6rem 1.2rem;
-          font-size: 0.95rem;
-          text-align: center;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          border-radius: 12px;
-          transition: all 0.3s ease;
-
-          &:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-          }
-
-          &.btn-profile,
-          &.btn-dashboard {
-            justify-content: center;
-            background-color: rgba(255, 255, 255, 0.1);
-            color: white;
-
-            svg {
-              margin-left: 0.5rem;
-            }
-
-            &:hover {
-              background-color: rgba(255, 255, 255, 0.2);
-              color: white;
-
-              svg,
-              span {
-                color: $accent-color;
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-}
-
-@media (max-width: 576px) {
-  .navbar {
-    padding: 0.4rem 0.5rem;
-    height: 70px;
-
-    .container-fluid {
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .navbar-brand {
-      img {
-        height: 140px;
-        width: 140px;
-        object-fit: contain;
-        margin-right: 21rem;
-      }
-    }
-
-    .navbar-toggler {
-      padding: 0.3rem;
-
-      .navbar-toggler-icon {
-        width: 31px;
-        height: 22px;
-        margin-right: 25px;
-      }
-    }
-
-    &.scrolled {
-      height: 55px;
-
-      .navbar-brand {
-        img {
-          height: 115px;
-          width: 155px;
+          height: 140px;
+          width: 120px;
         }
       }
     }
@@ -479,6 +337,10 @@ $black: #000000;
         gap: 0.6rem;
         max-width: 280px;
 
+        .mobile-auth-buttons {
+          max-width: 260px;
+        }
+
         .btn {
           max-width: 260px;
           padding: 0.5rem 1rem;
@@ -495,14 +357,22 @@ $black: #000000;
     padding: 0.3rem 0.4rem;
 
     .navbar-brand {
+      display: flex;
+      align-items: center;
+
       img {
-        height: 38px;
-        width: 85px;
+        height: 150px;
+        width: 110px;
+        object-fit: contain;
+        padding: 0;
       }
     }
 
     .navbar-toggler {
       padding: 0.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
       .navbar-toggler-icon {
         width: 20px;
@@ -515,8 +385,8 @@ $black: #000000;
 
       .navbar-brand {
         img {
-          height: 35px;
-          width: 80px;
+          height: 140px;
+          width: 100px;
         }
       }
     }
@@ -541,6 +411,10 @@ $black: #000000;
       .buttons-container {
         max-width: 250px;
         gap: 0.5rem;
+
+        .mobile-auth-buttons {
+          max-width: 230px;
+        }
 
         .btn {
           max-width: 230px;

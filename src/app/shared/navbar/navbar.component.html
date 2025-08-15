@@ -5,8 +5,20 @@
       <img src="../../../assets/images/home/scalewhitelogo.png" alt="Logo" />
     </a>
 
-    <!-- Language Toggle and Mobile Toggle -->
-    <div class="d-flex flex-column align-items-end gap-2 order-lg-3">
+    <!-- Toggle button for mobile - moved to be direct sibling -->
+    <button
+      class="navbar-toggler d-lg-none"
+      type="button"
+      (click)="toggleNavbar()"
+      [attr.aria-expanded]="isNavbarExpanded"
+      aria-controls="navbarNav"
+      [attr.aria-label]="'nav.toggleNavigation' | translate"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Language Toggle and Login/Logout - Desktop only -->
+    <div class="d-none d-lg-flex flex-column align-items-end gap-2 order-lg-3">
       <!-- Language Toggle Button -->
       <button
         class="btn btn-language-toggle"
@@ -24,18 +36,6 @@
       <!-- Login/Logout Button -->
       <button class="btn" [ngClass]="isLoggedIn() ? 'btn-danger' : 'btn-primary'" (click)="handleAuthAction()">
         {{ isLoggedIn() ? ('nav.logout' | translate) : ('nav.login' | translate) }}
-      </button>
-
-      <!-- Toggle button for mobile -->
-      <button
-        class="navbar-toggler"
-        type="button"
-        (click)="toggleNavbar()"
-        [attr.aria-expanded]="isNavbarExpanded"
-        aria-controls="navbarNav"
-        [attr.aria-label]="'nav.toggleNavigation' | translate"
-      >
-        <span class="navbar-toggler-icon"></span>
       </button>
     </div>
 
@@ -89,6 +89,26 @@
       </ul>
 
       <div class="buttons-container d-flex flex-column flex-lg-row align-items-end align-items-lg-center gap-2">
+        <!-- Language Toggle and Login/Logout for Mobile - shown in collapsed menu -->
+        <div class="d-lg-none mobile-auth-buttons">
+          <button
+            class="btn btn-language-toggle mb-2"
+            (click)="toggleLanguage()"
+            [title]="currentLanguage === 'ar' ? 'Switch to English' : 'التبديل إلى العربية'"
+            type="button">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" class="me-1">
+              <path d="M8 1a7 7 0 0 0-7 7 7 7 0 0 0 7 7 7 7 0 0 0 7-7 7 7 0 0 0-7-7zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/>
+              <path d="M4 8h8"/>
+              <path d="M8 4v8"/>
+            </svg>
+            <span>{{ getLanguageButtonText() }}</span>
+          </button>
+
+          <button class="btn mb-2" [ngClass]="isLoggedIn() ? 'btn-danger' : 'btn-primary'" (click)="handleAuthAction()">
+            {{ isLoggedIn() ? ('nav.logout' | translate) : ('nav.login' | translate) }}
+          </button>
+        </div>
+
         <button *ngIf="isAdmin()" class="btn btn-dashboard" (click)="navigateToDashboard()" [title]="'nav.dashboard' | translate">
           <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" [class.me-1]="!isRtl()" [class.ms-1]="isRtl()">
             <rect x="3" y="3" width="7" height="9"></rect>
