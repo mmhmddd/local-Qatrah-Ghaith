@@ -3,26 +3,37 @@ import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { TranslationService } from '../../core/services/translation.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, TranslatePipe],
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss']
 })
 export class NavbarComponent {
   isNavbarExpanded = false;
   scrolled = false;
+  currentLanguage = 'ar';
 
   constructor(
     private router: Router,
     private authService: AuthService,
+    private translationService: TranslationService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd && isPlatformBrowser(this.platformId)) {
         window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    });
+
+    this.translationService.currentLanguage$.subscribe(lang => {
+      this.currentLanguage = lang;
+      if (isPlatformBrowser(this.platformId)) {
+        document.documentElement.setAttribute('dir', this.isRtl() ? 'rtl' : 'ltr');
       }
     });
   }
@@ -67,5 +78,21 @@ export class NavbarComponent {
   navigateToDashboard() {
     this.router.navigate(['/dashboard']);
     this.closeNavbar();
+  }
+
+  toggleLanguage() {
+    const newLanguage = this.currentLanguage === 'ar' ? 'en' : 'ar';
+    this.translationService.setLanguage(newLanguage);
+    if (isPlatformBrowser(this.platformId)) {
+      window.location.reload();
+    }
+  }
+
+  getLanguageButtonText(): string {
+    return this.currentLanguage === 'ar' ? 'English' : 'العربية';
+  }
+
+  isRtl(): boolean {
+    return this.translationService.isRtl();
   }
 }

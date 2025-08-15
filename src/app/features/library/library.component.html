@@ -1,35 +1,35 @@
-<div class="container">
-  <h2>مكتبة ملفات PDF</h2>
+<div class="container" [attr.dir]="translationService.isRtl() ? 'rtl' : 'ltr'">
+  <h2>{{ 'library.title' | translate }}</h2>
 
   <!-- Search and Filter Section -->
   <div class="search-filter-container">
     <div class="search-bar">
       <button class="clear-btn" (click)="clearSearch()" *ngIf="searchTerm">
-        <i class="fas fa-times"></i> حذف البحث
+        <i class="fas fa-times"></i> {{ 'library.clearSearch' | translate }}
       </button>
       <input
         type="text"
         [(ngModel)]="searchTerm"
         (ngModelChange)="searchPdfs()"
-        placeholder="ابحث في العناوين..."
+        [placeholder]="'library.searchPlaceholder' | translate"
       >
     </div>
 
     <div class="filter-options">
       <select [(ngModel)]="filters.subject" (ngModelChange)="filterPdfs()">
-        <option value="">كل المواد</option>
+        <option value="">{{ 'library.allSubjects' | translate }}</option>
         <option *ngFor="let subject of subjects" [value]="subject">{{ subject }}</option>
       </select>
       <select [(ngModel)]="filters.creatorName" (ngModelChange)="filterPdfs()">
-        <option value="">كل المنشئين</option>
+        <option value="">{{ 'library.allCreators' | translate }}</option>
         <option *ngFor="let creator of creators" [value]="creator">{{ creator }}</option>
       </select>
       <select [(ngModel)]="filters.academicLevel" (ngModelChange)="filterPdfs()">
-        <option value="">كل السنوات الدراسية</option>
+        <option value="">{{ 'library.allAcademicLevels' | translate }}</option>
         <option *ngFor="let level of academicLevels" [value]="level">{{ level }}</option>
       </select>
       <select [(ngModel)]="filters.country" (ngModelChange)="filterPdfs()">
-        <option value="">كل الدول</option>
+        <option value="">{{ 'library.allCountries' | translate }}</option>
         <option *ngFor="let country of countries" [value]="country">{{ country }}</option>
       </select>
     </div>
@@ -70,21 +70,21 @@
 
         <div class="pdf-details">
           <div class="detail">
-            <span class="label">اسم الملف:</span>
+            <span class="label">{{ 'library.fileNameLabel' | translate }}</span>
             <span>{{ pdf.fileName }}</span>
           </div>
           <div class="detail">
-            <span class="label">تاريخ الرفع:</span>
-            <span>{{ pdf.createdAt | date:'short':'ar' }}</span>
+            <span class="label">{{ 'library.createdAtLabel' | translate }}</span>
+            <span [attr.dir]="translationService.isRtl() ? 'rtl' : 'ltr'">{{ pdf.createdAt | date:'short':translationService.isRtl() ? 'ar' : 'en' }}</span>
           </div>
         </div>
 
         <div class="actions">
           <button class="download-btn" (click)="openPdf(pdf.id)">
-            <i class="fas fa-file-pdf"></i> فتح الملف
+            <i class="fas fa-file-pdf"></i> {{ 'library.openFile' | translate }}
           </button>
           <button class="share-btn" (click)="sharePdf(pdf.id)">
-            <i class="fas fa-share-alt"></i> مشاركة
+            <i class="fas fa-share-alt"></i> {{ 'library.share' | translate }}
           </button>
         </div>
       </div>
@@ -92,6 +92,6 @@
   </div>
 
   <div *ngIf="filteredPdfs.length === 0 && !errorMessage" class="no-results">
-    لا توجد ملفات PDF لعرضها
+    {{ 'library.noPdfs' | translate }}
   </div>
 </div>

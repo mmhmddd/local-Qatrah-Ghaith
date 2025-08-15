@@ -44,7 +44,7 @@
     <button class="carousel-control-prev custom-arrow" type="button" data-bs-target="#carouselExample" data-bs-slide="prev" aria-label="Previous slide">
       <span class="carousel-icon" aria-hidden="true">
         <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M20 24L12 16L20 8" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <path [attr.d]="isRtl() ? 'M12 24L20 16L12 8' : 'M20 24L12 16L20 8'" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </span>
       <span class="visually-hidden">Previous</span>
@@ -53,29 +53,29 @@
     <button class="carousel-control-next custom-arrow" type="button" data-bs-target="#carouselExample" data-bs-slide="next" aria-label="Next slide">
       <span class="carousel-icon" aria-hidden="true">
         <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 24L20 16L12 8" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <path [attr.d]="isRtl() ? 'M20 24L12 16L20 8' : 'M12 24L20 16L12 8'" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </span>
       <span class="visually-hidden">Next</span>
     </button>
 
-
     <!-- Hero Content -->
     <div class="hero-content">
       <div class="hero-text-wrapper">
         <h1 class="hero-title">
-          <span class="title-main">مبادرة التعليم الإلكتروني عن بعد</span>
-          <span class="title-subtitle">قطرة غيث</span>
+          <span class="title-main">{{ 'home.heroTitle' | translate }}</span>
+          <span class="title-subtitle">{{ 'home.heroSubtitle' | translate }}</span>
         </h1>
-        <p class="hero-description">نحو مستقبل تعليمي أفضل للجميع</p>
+        <p class="hero-description">{{ 'home.heroDescription' | translate }}</p>
         <div class="hero-actions">
-          <button class="btn btn-primary hero-btn" routerLink="/gallery">اكتشف المزيد عنا</button>
-          <button class="btn btn-outline-light hero-btn" routerLink="/join-us">تطوع معنا</button>
+          <button class="btn btn-primary hero-btn" routerLink="/gallery">{{ 'home.discoverMore' | translate }}</button>
+          <button class="btn btn-outline-light hero-btn" routerLink="/join-us">{{ 'home.volunteer' | translate }}</button>
         </div>
       </div>
     </div>
   </div>
 </section>
+
 <!-- Enhanced About Us Section -->
 <section class="about-us-section">
   <div class="container">
@@ -89,22 +89,19 @@
     </div>
 
     <div class="about-us-content" data-aos="fade-right" data-aos-delay="200">
-      <div class="section-badge">من نحن</div>
-      <h2 class="section-title">لمحة عننا</h2>
+      <div class="section-badge">{{ 'home.aboutUs' | translate }}</div>
+      <h2 class="section-title">{{ 'home.aboutTitle' | translate }}</h2>
 
       <div class="content-text">
         <p class="lead-text">
-          نحن مبادرة خيرية تعليمية تأسست عام 2020 هدفها مساعدة الطلاب الذين بحاجة لدراسة خاصة ولا تتوفر لهم
-          الإمكانيات، من خلال استقطاب طلاب جامعيين أو خريجين للقيام بالمهمة. توفر المبادرة بيئة
-          تعليمية عن بعد لدعم جميع الصفوف وبجميع المواد الدراسية، إلى جانب التأسيس لمن هو بحاجة.
-          يتم التعليم عن بعد عبر الإنترنت باستخدام تطبيقات مثل زووم وتيمز وغيرها، حيث تكون الحصص
-          مباشرة ويتم تسجيلها من قبل المتطوعين ومراجعتها من مختصين لضمان سير العملية التعليمية بنجاح.        </p>
+          {{ 'home.aboutDescription' | translate }}
+        </p>
 
-        <p class="description-text">
+        <p class="description-text" *ngIf="currentLanguage === 'ar'">
           حيث أنها توفر بيئه تعليمية عن بعد لمساعدة جميع الصفوف وبجميع المواد الدراسيه الى جانب التأسيس لمن هو بحاجة.
         </p>
 
-        <p class="description-text">
+        <p class="description-text" *ngIf="currentLanguage === 'ar'">
           والتعليم عن بعد يكون من خلال الأنترنت مثل تطبيقات الزوم والتيمز وغيرُهما حيث تكون الحصص مباشرة ويتم تسجيلها من قبل المتطوع ومراجعتها من مختصين لتأكيد سير عملية التعليم بنجاح.
         </p>
       </div>
@@ -117,7 +114,7 @@
               <path d="M12 11l8 4-8-4-8 4"></path>
             </svg>
           </div>
-          <span>تعليم متخصص</span>
+          <span>{{ currentLanguage === 'ar' ? 'تعليم متخصص' : 'Specialized Education' }}</span>
         </div>
         <div class="feature-item">
           <div class="feature-icon">
@@ -128,7 +125,7 @@
               <path d="M6 16h6"></path>
             </svg>
           </div>
-          <span>تعلم عن بعد</span>
+          <span>{{ currentLanguage === 'ar' ? 'تعلم عن بعد' : 'Remote Learning' }}</span>
         </div>
         <div class="feature-item">
           <div class="feature-icon">
@@ -139,19 +136,20 @@
               <circle cx="16" cy="7" r="4"></circle>
             </svg>
           </div>
-          <span>فريق متطوعين</span>
+          <span>{{ currentLanguage === 'ar' ? 'فريق متطوعين' : 'Volunteer Team' }}</span>
         </div>
       </div>
     </div>
   </div>
 </section>
+
 <!-- Achievements Section -->
 <section #achievementsSection class="achievements-section" id="achievements">
   <div class="container">
     <div class="section-header" data-aos="fade-up">
-      <div class="section-badge">إنجازاتنا</div>
-      <h2 class="section-title"> إنجازات</h2>
-      <p class="section-description">أرقام تتحدث عن رحلتنا في خدمة التعليم</p>
+      <div class="section-badge">{{ 'home.achievements' | translate }}</div>
+      <h2 class="section-title">{{ 'home.achievementsTitle' | translate }}</h2>
+      <p class="section-description">{{ 'home.achievementsDescription' | translate }}</p>
     </div>
 
     <div class="achievements-container">
@@ -163,36 +161,24 @@
         <div class="achievement-icon">
           <div class="icon-wrapper">
             <ng-container [ngSwitch]="i">
-              <svg *ngSwitchCase="0" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-label="سنة خبرة">
+              <svg *ngSwitchCase="0" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" [attr.aria-label]="achievement.label">
                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                 <line x1="16" y1="2" x2="16" y2="6"></line>
                 <line x1="8" y1="2" x2="8" y2="6"></line>
                 <line x1="3" y1="10" x2="21" y2="10"></line>
               </svg>
-              <svg *ngSwitchCase="1" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-label="نشاط وخدمة">
-                <svg *ngSwitchCase="1"
-                    width="20" height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    aria-label="نشاط وخدمة">
-                  <path d="M12 2l3.09 6.26L22 9.27l-5
-                          4.87L18.18 22 12 18.56 5.82 22
-                          7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                </svg>
+              <svg *ngSwitchCase="1" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" [attr.aria-label]="achievement.label">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14 2 9.27l6.91-1.01L12 2z"/>
               </svg>
-              <svg *ngSwitchCase="2" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-label="متطوع">
+              <svg *ngSwitchCase="2" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" [attr.aria-label]="achievement.label">
                 <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"></path>
                 <circle cx="10" cy="7" r="4"></circle>
               </svg>
-              <svg *ngSwitchCase="3" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-label="شريك وداعم">
-                <path d="M17 18a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2"></path>
-                <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+              <svg *ngSwitchCase="3" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" [attr.aria-label]="achievement.label">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1"></path>
               </svg>
-              <svg *ngSwitchCase="4" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-label="مستفيد">
+              <svg *ngSwitchCase="4" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" [attr.aria-label]="achievement.label">
                 <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"></path>
                 <circle cx="9" cy="7" r="4"></circle>
                 <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
@@ -208,7 +194,7 @@
           <span class="number-suffix">{{ achievement.suffix || '' }}</span>
         </div>
 
-        <div class="achievement-label">{{ achievement.label }}</div>
+        <div class="achievement-label">{{ achievement.label || (achievement.labelKey | translate) }}</div>
 
         <div class="progress-ring" aria-hidden="true">
           <svg class="progress-ring-svg" width="80" height="80">
@@ -231,92 +217,91 @@
     </div>
   </div>
 </section>
+
 <app-image-section></app-image-section>
 <app-new-section></app-new-section>
-
 
 <section class="help-section" data-aos="fade-up" data-aos-duration="800">
   <div class="container text-center">
     <div class="section-header">
-      <span class="section-badge" data-aos="fade-up" data-aos-delay="100">كيف تساعد</span>
-      <h2 class="section-title" data-aos="fade-up" data-aos-delay="200">انضم إلينا اليوم</h2>
-      <p class="section-description" data-aos="fade-up" data-aos-delay="300">ساهم في دعم مجتمعنا من خلال التبرع أو الانضمام إلى فريقنا.</p>
+      <span class="section-badge" data-aos="fade-up" data-aos-delay="100">{{ 'home.helpSection' | translate }}</span>
+      <h2 class="section-title" data-aos="fade-up" data-aos-delay="200">{{ 'home.joinToday' | translate }}</h2>
+      <p class="section-description" data-aos="fade-up" data-aos-delay="300">{{ 'home.helpDescription' | translate }}</p>
     </div>
     <div class="help-actions" data-aos="fade-up" data-aos-delay="400">
-    <a href="https://wa.me/962795686452?text=تواصل%20للتبرع1" class="help-btn btn-donate" data-aos="zoom-in" data-aos-delay="500" target="_blank">نواصل معنا للتبرع</a>
-    <a routerLink="/join-us" (click)="navigateToJoinUs($event)" class="help-btn btn-join" data-aos="zoom-in" data-aos-delay="600">الانضمام إلينا</a>
+      <a href="https://wa.me/962795686452?text=تواصل%20للتبرع1" class="help-btn btn-donate" data-aos="zoom-in" data-aos-delay="500" target="_blank">{{ 'home.donateContact' | translate }}</a>
+      <a routerLink="/join-us" (click)="navigateToJoinUs($event)" class="help-btn btn-join" data-aos="zoom-in" data-aos-delay="600">{{ 'home.joinUs' | translate }}</a>
     </div>
   </div>
 </section>
 
-
 <section class="contact-section" data-aos="fade-up" data-aos-duration="1200">
   <div class="container">
     <div class="section-header text-center">
-      <span class="section-badge" data-aos="fade-up" data-aos-delay="100">اتصل بنا</span>
-      <h2 class="section-title" data-aos="fade-up" data-aos-delay="200">تواصلوا معنا</h2>
+      <span class="section-badge" data-aos="fade-up" data-aos-delay="100">{{ 'home.contactUs' | translate }}</span>
+      <h2 class="section-title" data-aos="fade-up" data-aos-delay="200">{{ 'home.contactTitle' | translate }}</h2>
       <p class="section-description" data-aos="fade-up" data-aos-delay="300">
-        يسعدنا التواصل معكم لدعم مبادراتنا المجتمعية.
+        {{ 'home.contactDescription' | translate }}
       </p>
     </div>
 
-<div class="row">
-  <!-- Contact Form -->
-  <div class="col-md-6" data-aos="fade-left" data-aos-delay="400">
-    <form #contactForm="ngForm" (ngSubmit)="submitContactForm(contactForm)" class="form-container card-equal-height" aria-label="نموذج التواصل">
-      <div class="form-group">
-        <input type="text" id="name" name="name" placeholder="الاسم" class="form-control" [(ngModel)]="contactData.name" required aria-required="true">
+    <div class="row">
+      <!-- Contact Form -->
+      <div class="col-md-6" data-aos="fade-left" data-aos-delay="400">
+        <form #contactForm="ngForm" (ngSubmit)="submitContactForm(contactForm)" class="form-container card-equal-height" [attr.aria-label]="'home.contactTitle' | translate">
+          <div class="form-group">
+            <input type="text" id="name" name="name" [placeholder]="'home.name' | translate" class="form-control" [(ngModel)]="contactData.name" required aria-required="true">
+          </div>
+          <div class="form-group">
+            <input type="email" id="email" name="email" [placeholder]="'home.email' | translate" class="form-control" [(ngModel)]="contactData.email" required email aria-required="true">
+          </div>
+          <div class="form-group">
+            <textarea id="message" name="message" [placeholder]="'home.message' | translate" rows="5" class="form-control" [(ngModel)]="contactData.message" required aria-required="true"></textarea>
+          </div>
+          <button type="submit" class="btn-submit" [disabled]="!contactForm.valid" data-aos="zoom-in" data-aos-delay="500">
+            {{ 'home.send' | translate }}
+          </button>
+        </form>
       </div>
-      <div class="form-group">
-        <input type="email" id="email" name="email" placeholder="البريد الإلكتروني" class="form-control" [(ngModel)]="contactData.email" required email aria-required="true">
-      </div>
-      <div class="form-group">
-        <textarea id="message" name="message" placeholder="رسالتك" rows="5" class="form-control" [(ngModel)]="contactData.message" required aria-required="true"></textarea>
-      </div>
-      <button type="submit" class="btn-submit" [disabled]="!contactForm.valid" data-aos="zoom-in" data-aos-delay="500">
-        إرسال
-      </button>
-    </form>
-  </div>
 
-  <!-- Contact Info -->
-  <div class="col-md-6" data-aos="fade-right" data-aos-delay="400">
-    <div class="contact-info card-equal-height">
-      <h3 class="info-title">معلومات التواصل معنا</h3>
-      <p class="info-item" data-aos="fade-right" data-aos-delay="600">
-        <svg class="contact-icon" width="24" height="24" fill="none" stroke="#00adb5" stroke-width="2"><path d="M4 4h16v12H4z"/><polyline points="22,6 12,13 2,6"/></svg>
-        البريد: <a href="mailto:Contact@qatrah-ghaith.com">Contact&#64;qatrah-ghaith.com</a>
-      </p>
-      <p class="info-item" data-aos="fade-right" data-aos-delay="700">
-        <svg class="contact-icon" width="24" height="24" fill="none" stroke="#00adb5" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.18 6 2 2 0 014.11 2h3a2 2 0 012 1.72c.13.95.4 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.9.3 1.86.57 2.81.7A2 2 0 0122 16.92z"/></svg>
-        الهاتف: <a href="tel:+962795686452">{{ formatPhoneNumber('962795686452+') }}</a>
-      </p>
-      <p class="info-item" data-aos="fade-right" data-aos-delay="800">
-        <svg class="contact-icon" width="24" height="24" fill="none" stroke="#00adb5" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        العنوان: عمان
-      </p>
-      <p class="mt-3 text">نحن متاحون للرد على استفساراتكم من الساعة 8:00 ص إلى 4:00 م</p>
-      <div class="social-icons mt-4" data-aos="fade-right" data-aos-delay="900">
-        <a href="https://www.facebook.com/share/g/1Ax7bwGL6E/?mibextid=wwXIfr" target="_blank" class="social-icon" aria-label="فيسبوك">
-          <svg width="24" height="24" fill="none" stroke="#00adb5" stroke-width="2" viewBox="0 0 24 24">
-            <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"></path>
-          </svg>
-        </a>
-        <a href="https://twitter.com" target="_blank" class="social-icon" aria-label="تويتر">
-          <svg width="24" height="24" fill="none" stroke="#00adb5" stroke-width="2" viewBox="0 0 24 24">
-            <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"></path>
-          </svg>
-        </a>
-        <a href="https://www.instagram.com/qatrah_ghaith?igsh=OGNvNDU1MGxpMWNs" target="_blank" class="social-icon" aria-label="إنستغرام">
-          <svg width="24" height="24" fill="none" stroke="#00adb5" stroke-width="2" viewBox="0 0 24 24">
-            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-            <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"></path>
-            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-          </svg>
-        </a>
+      <!-- Contact Info -->
+      <div class="col-md-6" data-aos="fade-right" data-aos-delay="400">
+        <div class="contact-info card-equal-height">
+          <h3 class="info-title">{{ 'home.contactInfo' | translate }}</h3>
+          <p class="info-item" data-aos="fade-right" data-aos-delay="600">
+            <svg class="contact-icon" width="24" height="24" fill="none" stroke="#00adb5" stroke-width="2"><path d="M4 4h16v12H4z"/><polyline points="22,6 12,13 2,6"/></svg>
+            {{ currentLanguage === 'ar' ? 'البريد:' : 'Email:' }} <a href="mailto:Contact@qatrah-ghaith.com">Contact&#64;qatrah-ghaith.com</a>
+          </p>
+          <p class="info-item" data-aos="fade-right" data-aos-delay="700">
+            <svg class="contact-icon" width="24" height="24" fill="none" stroke="#00adb5" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.18 6 2 2 0 014.11 2h3a2 2 0 012 1.72c.13.95.4 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.9.3 1.86.57 2.81.7A2 2 0 0122 16.92z"/></svg>
+            {{ currentLanguage === 'ar' ? 'الهاتف:' : 'Phone:' }} <a href="tel:+962795686452">{{ formatPhoneNumber('962795686452+') }}</a>
+          </p>
+          <p class="info-item" data-aos="fade-right" data-aos-delay="800">
+            <svg class="contact-icon" width="24" height="24" fill="none" stroke="#00adb5" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            {{ currentLanguage === 'ar' ? 'العنوان:' : 'Address:' }} {{ 'home.address' | translate }}
+          </p>
+          <p class="mt-3 text">{{ 'home.workingHours' | translate }}</p>
+          <div class="social-icons mt-4" data-aos="fade-right" data-aos-delay="900">
+            <a href="https://www.facebook.com/share/g/1Ax7bwGL6E/?mibextid=wwXIfr" target="_blank" class="social-icon" aria-label="فيسبوك">
+              <svg width="24" height="24" fill="none" stroke="#00adb5" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"></path>
+              </svg>
+            </a>
+            <a href="https://twitter.com" target="_blank" class="social-icon" aria-label="تويتر">
+              <svg width="24" height="24" fill="none" stroke="#00adb5" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"></path>
+              </svg>
+            </a>
+            <a href="https://www.instagram.com/qatrah_ghaith?igsh=OGNvNDU1MGxpMWNs" target="_blank" class="social-icon" aria-label="إنستغرام">
+              <svg width="24" height="24" fill="none" stroke="#00adb5" stroke-width="2" viewBox="0 0 24 24">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"></path>
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+              </svg>
+            </a>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</div>
   </div>
 </section>

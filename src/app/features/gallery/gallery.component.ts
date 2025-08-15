@@ -2,14 +2,15 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { GalleryService, GalleryImage, GalleryResponse } from '../../core/services/gallery.service';
+import { TranslationService } from '../../core/services/translation.service';
 import { Observable } from 'rxjs';
 import { register } from 'swiper/element/bundle';
-import { NewSectionComponent } from "../../shared/new-section/new-section.component";
-
+import { NewSectionComponent } from '../../shared/new-section/new-section.component';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 @Component({
   selector: 'app-gallery',
   standalone: true,
-  imports: [CommonModule, NewSectionComponent],
+  imports: [CommonModule, NewSectionComponent, TranslatePipe],
   templateUrl: './gallery.component.html',
   styleUrls: ['./gallery.component.scss'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -22,7 +23,10 @@ export class GalleryComponent implements OnInit {
   featuredImages: GalleryImage[] = [];
   errorMessage: string | null = null;
 
-  constructor(private galleryService: GalleryService) {}
+  constructor(
+    private galleryService: GalleryService,
+    public translationService: TranslationService
+  ) {}
 
   ngOnInit(): void {
     // Register Swiper web components
@@ -47,11 +51,11 @@ export class GalleryComponent implements OnInit {
           this.featuredImages = images.slice(0, Math.max(5, images.length));
           this.errorMessage = null;
         } else {
-          this.errorMessage = response.message;
+          this.errorMessage = response.message || this.translationService.translate('gallery.errorLoadingImages');
         }
       },
       error: (error) => {
-        this.errorMessage = error.message || 'فشل في تحميل صور المعرض';
+        this.errorMessage = error.message || this.translationService.translate('gallery.errorLoadingImages');
         console.error('Error loading gallery images:', error);
       }
     });

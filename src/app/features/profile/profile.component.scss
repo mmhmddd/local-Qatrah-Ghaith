@@ -1,4 +1,3 @@
-/* profile.component.scss */
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
 
 // Color variables
@@ -56,6 +55,23 @@ body {
     margin-top: 80px;
   }
 
+  .profile-header-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+
+    @media (min-width: 768px) {
+      flex-direction: row;
+      justify-content: center;
+      gap: 2rem;
+    }
+  }
+
+  .profile-image-container {
+    text-align: center;
+  }
+
   .profile-image {
     width: 100px;
     height: 100px;
@@ -72,6 +88,16 @@ body {
 
     &:hover {
       transform: scale(1.05);
+    }
+  }
+
+  .profile-details-container {
+    text-align: center;
+    max-width: 400px;
+
+    @media (min-width: 768px) {
+      text-align: right;
+      max-width: 500px;
     }
   }
 
@@ -98,28 +124,31 @@ body {
     }
   }
 
-  .upload-section {
-    max-width: 400px;
-    margin: 0 auto;
+  .message-section {
+    background-color: rgba($primary-color, 0.05);
+    border: 1px solid $border-color;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1.5rem;
+    text-align: right;
 
-    .form-control {
-      border-radius: 8px;
-      font-size: 0.9rem;
-
-      @media (min-width: 768px) {
-        font-size: 1rem;
-      }
+    .message-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: $neutral-color;
+      margin-bottom: 0.5rem;
     }
 
-    .btn-primary {
-      width: 100%;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      padding: 0.75rem;
+    .message-content {
+      font-size: 0.95rem;
+      color: $data-color;
+      margin-bottom: 0.5rem;
+    }
 
-      @media (min-width: 768px) {
-        font-size: 1rem;
-      }
+    .message-date {
+      font-size: 0.85rem;
+      color: $secondary-color;
+      font-style: italic;
     }
   }
 }
@@ -217,46 +246,49 @@ body {
   }
 }
 
-// Alerts
-.alert {
+// Toast styles
+.toast-container {
+  z-index: 1050;
+}
+
+.toast {
   border-radius: 8px;
-  margin: 0 auto 1.5rem;
-  max-width: 600px;
-  font-size: 0.9rem;
-  padding: 1rem 1.5rem;
-  border: 1px solid $border-color;
-  font-weight: 400;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  animation: slideIn 0.5s ease-in-out;
 
-  @media (min-width: 768px) {
-    font-size: 1rem;
-  }
-
-  &.alert-danger {
-    background-color: #f8d7da;
-    border-color: #f5c6cb;
-    color: #721c24;
-  }
-
-  &.alert-success {
+  &.toast-success {
     background-color: #d4edda;
-    border-color: #c3e6cb;
+    border: 1px solid #c3e6cb;
     color: #155724;
   }
 
-  &.alert-info {
-    background-color: #e7f3fe;
-    border-color: #b8daff;
-    color: #004085;
+  &.toast-error {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
   }
 
-  &.alert-warning {
-    background-color: #fff3cd;
-    border-color: #ffeeba;
-    color: #856404;
+  .toast-header {
+    border-bottom: 1px solid $border-color;
+    font-weight: 600;
+    padding: 0.75rem 1rem;
   }
 
-  .btn-close {
-    padding: 0.75rem;
+  .toast-body {
+    padding: 1rem;
+    font-size: 0.9rem;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
 }
 
@@ -607,39 +639,5 @@ dl.row {
     dd {
       margin-bottom: 1rem;
     }
-  }
-}
-
-// Add animation to alerts
-.alert {
-  animation: fadeIn 0.5s ease-in-out;
-  position: relative;
-  z-index: 1000;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
-  text-align: center;
-
-  &.alert-dismissible {
-    padding-left: 3rem;
-  }
-
-  .btn-close {
-    position: absolute;
-    left: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-  }
-}
-
-// Fade-in animation
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
   }
 }

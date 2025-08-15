@@ -1,3 +1,4 @@
+// join-request.service.ts (Updated if needed, but mostly unchanged from original)
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
@@ -24,13 +25,14 @@ export interface JoinRequest {
   volunteerHours: number;
   numberOfStudents: number;
   subjects: string[];
-  subjectsCount: number; // Added subjectsCount
+  subjectsCount: number;
   students: { name: string; email: string; phone: string; grade?: string; subjects: string[] }[];
   lectures: { _id: string; link: string; name: string; subject: string; createdAt: string; hasNewLecture: boolean }[];
   lectureCount: number;
   createdAt: string;
   showLectureWarning?: boolean;
   hasNewLecture: boolean;
+  messages: { _id: string; content: string; displayUntil: string }[]; // Added messages property
 }
 
 interface CreateJoinRequestResponse {
@@ -71,6 +73,21 @@ interface DeleteMemberResponse {
 
 interface MarkNotificationResponse {
   success: boolean;
+  message: string;
+}
+
+interface SendMessageResponse {
+  message: string;
+  displayUntil: string;
+  _id?: string; // Added _id to response
+}
+
+interface EditMessageResponse {
+  message: string;
+  displayUntil: string;
+}
+
+interface DeleteMessageResponse {
   message: string;
 }
 
@@ -178,7 +195,7 @@ export class JoinRequestService {
           volunteerHours: response.volunteerHours || 0,
           numberOfStudents: response.numberOfStudents || 0,
           subjects: response.subjects || [],
-          subjectsCount: response.subjects?.length || 0, // Add subjectsCount
+          subjectsCount: response.subjects?.length || 0,
           students: response.students || [],
           lectures: (response.lectures || []).map(lecture => ({
             ...lecture,
@@ -186,7 +203,8 @@ export class JoinRequestService {
           })),
           lectureCount: response.lectureCount || 0,
           createdAt: response.createdAt,
-          hasNewLecture: response.hasNewLecture ?? false
+          hasNewLecture: response.hasNewLecture ?? false,
+          messages: response.messages || [] // Include messages
         }
       })),
       catchError(error => {
@@ -308,7 +326,7 @@ export class JoinRequestService {
             subjects: student.subjects || []
           })),
           subjects: response.subjects || [],
-          subjectsCount: response.subjects?.length || 0 // Add subjectsCount
+          subjectsCount: response.subjects?.length || 0
         }
       })),
       catchError(error => {
@@ -403,6 +421,113 @@ export class JoinRequestService {
         return throwError(() => ({
           success: false,
           message: error.error?.message || 'فشل في تحديث حالة الإشعار، تحقق من الاتصال بالخادم',
+          error: error.statusText || error.message
+        }));
+      })
+    );
+  }
+
+  sendMessage(userId: string, content: string, displayDays: number): Observable<JoinRequestResponse> {
+    if (!userId || !content || !displayDays) {
+      return throwError(() => ({
+        success: false,
+        message: 'معرف المستخدم، الرسالة، وعدد الأيام للعرض مطلوبة'
+      }));
+    }
+    if (content.length < 1 || content.length > 1000) {
+      return throwError(() => ({
+        success: false,
+        message: 'الرسالة يجب أن تكون بين 1 و1000 حرف'
+      }));
+    }
+    if (!Number.isInteger(displayDays) || displayDays < 1 || displayDays > 30) {
+      return throwError(() => ({
+        success: false,
+        message: 'عدد الأيام يجب أن يكون عددًا صحيحًا بين 1 و30'
+      }));
+    }
+    return this.http.post<SendMessageResponse>(ApiEndpoints.admin.sendMessage, { userId, content, displayDays }, { headers: this.getAuthHeaders() }).pipe(
+      map(response => ({
+        success: true,
+        message: response.message || 'تم إرسال الرسالة بنجاح',
+        data: {
+          _id: response._id,
+          displayUntil: response.displayUntil
+        }
+      })),
+      catchError(error => {
+        console.error('خطأ في إرسال الرسالة:', error);
+        if (error.status === 400 && error.error?.activeMessage) {
+          return throwError(() => ({
+            success: false,
+            message: error.error.message || 'يوجد رسالة نشطة بالفعل، يرجى تعديلها أو حذفها أولاً',
+            data: error.error.activeMessage
+          }));
+        }
+        return throwError(() => ({
+          success: false,
+          message: error.error?.message || 'فشل في إرسال الرسالة، تحقق من البيانات أو الاتصال بالخادم',
+          error: error.statusText || error.message
+        }));
+      })
+    );
+  }
+
+  editMessage(userId: string, messageId: string, content: string, displayDays: number): Observable<JoinRequestResponse> {
+    if (!userId || !messageId || !content || !displayDays) {
+      return throwError(() => ({
+        success: false,
+        message: 'معرف المستخدم، معرف الرسالة، الرسالة، وعدد الأيام للعرض مطلوبة'
+      }));
+    }
+    if (content.length < 1 || content.length > 1000) {
+      return throwError(() => ({
+        success: false,
+        message: 'الرسالة يجب أن تكون بين 1 و1000 حرف'
+      }));
+    }
+    if (!Number.isInteger(displayDays) || displayDays < 1 || displayDays > 30) {
+      return throwError(() => ({
+        success: false,
+        message: 'عدد الأيام يجب أن يكون عددًا صحيحًا بين 1 و30'
+      }));
+    }
+    return this.http.put<EditMessageResponse>(ApiEndpoints.admin.editMessage, { userId, messageId, content, displayDays }, { headers: this.getAuthHeaders() }).pipe(
+      map(response => ({
+        success: true,
+        message: response.message || 'تم تعديل الرسالة بنجاح',
+        data: {
+          displayUntil: response.displayUntil
+        }
+      })),
+      catchError(error => {
+        console.error('خطأ في تعديل الرسالة:', error);
+        return throwError(() => ({
+          success: false,
+          message: error.error?.message || 'فشل في تعديل الرسالة، تحقق من البيانات أو الاتصال بالخادم',
+          error: error.statusText || error.message
+        }));
+      })
+    );
+  }
+
+  deleteMessage(userId: string, messageId: string): Observable<JoinRequestResponse> {
+    if (!userId || !messageId) {
+      return throwError(() => ({
+        success: false,
+        message: 'معرف المستخدم ومعرف الرسالة مطلوبان'
+      }));
+    }
+    return this.http.delete<DeleteMessageResponse>(ApiEndpoints.admin.deleteMessage, { headers: this.getAuthHeaders(), body: { userId, messageId } }).pipe(
+      map(response => ({
+        success: true,
+        message: response.message || 'تم حذف الرسالة بنجاح'
+      })),
+      catchError(error => {
+        console.error('خطأ في حذف الرسالة:', error);
+        return throwError(() => ({
+          success: false,
+          message: error.error?.message || 'فشل في حذف الرسالة، تحقق من البيانات أو الاتصال بالخادم',
           error: error.statusText || error.message
         }));
       })

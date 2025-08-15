@@ -3,11 +3,13 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { trigger, state, style, animate, transition } from '@angular/animations';
+import { TranslationService } from '../../core/services/translation.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 @Component({
   selector: 'app-contact',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, TranslatePipe],
   templateUrl: './contact.component.html',
   styleUrls: ['./contact.component.scss'],
   animations: [
@@ -61,26 +63,27 @@ export class ContactComponent implements AfterViewInit {
   // FAQ data
   faqData = [
     {
-      question: 'كيف يمكنني الانضمام إلى البرامج التعليمية؟',
-      answer: 'يمكنك الانضمام إلى برامجنا التعليمية من خلال التسجيل عبر موقعنا الإلكتروني أو التواصل معنا مباشرة عبر الهاتف أو البريد الإلكتروني. نقدم برامج متنوعة تناسب جميع الأعمار والمستويات التعليمية المختلفة.'
+      question: 'faq.joinPrograms',
+      answer: 'faq.joinProgramsAnswer'
     },
     {
-      question: 'ما هي فرص التطوع المتاحة؟',
-      answer: 'نوفر فرص تطوع متنوعة في التدريس، تنظيم الفعاليات، إدارة المشاريع، والدعم الإداري. يمكنك ملء استمارة التطوع على موقعنا أو التواصل مع فريقنا لمعرفة المزيد عن الفرص المتاحة وتحديد ما يناسب خبراتك واهتماماتك.'
+      question: 'faq.volunteeringOpportunities',
+      answer: 'faq.volunteeringOpportunitiesAnswer'
     },
     {
-      question: 'كيف يمكنني تقديم الدعم للمبادرة؟',
-      answer: 'يمكنك تقديم الدعم من خلال عدة طرق: التبرع المالي عبر موقعنا الإلكتروني، المشاركة في فعالياتنا الخيرية، التطوع بوقتك ومهاراتك، أو التواصل معنا لمناقشة خيارات الرعاية والشراكات طويلة المدى.'
+      question: 'faq.supportInitiative',
+      answer: 'faq.supportInitiativeAnswer'
     },
     {
-      question: 'ما هي أوقات العمل وكيف يمكن زيارة المركز؟',
-      answer: 'نعمل من الأحد إلى الخميس من الساعة 8:00 صباحاً حتى 4:00 مساءً. يمكنكم زيارة مركزنا في أي وقت خلال ساعات العمل، ونرحب بالزيارات المسبقة بموعد لضمان توفر المختصين لاستقبالكم وتقديم أفضل خدمة.'
+      question: 'faq.workingHours',
+      answer: 'faq.workingHoursAnswer'
     }
   ];
 
   constructor(
     private fb: FormBuilder,
-    @Inject(PLATFORM_ID) private platformId: Object
+    @Inject(PLATFORM_ID) private platformId: Object,
+    public translationService: TranslationService
   ) {
     this.contactForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2)]],
@@ -93,7 +96,6 @@ export class ContactComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     if (isPlatformBrowser(this.platformId)) {
-      // Add intersection observer for animations
       this.setupScrollAnimations();
     }
   }
@@ -112,7 +114,6 @@ export class ContactComponent implements AfterViewInit {
       });
     }, observerOptions);
 
-    // Observe all sections
     const sections = document.querySelectorAll('.contact-details, .whatsapp-section, .faq-section, .contact-form, .map-section');
     sections.forEach(section => observer.observe(section));
   }
@@ -129,14 +130,12 @@ export class ContactComponent implements AfterViewInit {
   }
 
   toggleFaq(index: number) {
-    // Close currently open FAQ if clicking on the same one
     if (this.activeFaq === index) {
       this.activeFaq = null;
     } else {
       this.activeFaq = index;
     }
 
-    // Add a small delay to ensure smooth animation
     if (isPlatformBrowser(this.platformId)) {
       setTimeout(() => {
         this.updateFaqAnswerClasses();
@@ -165,7 +164,6 @@ export class ContactComponent implements AfterViewInit {
     return this.activeFaq === index ? 'open' : 'closed';
   }
 
-  // Form validation helpers
   isFieldInvalid(fieldName: string): boolean {
     const field = this.contactForm.get(fieldName);
     return !!(field && field.invalid && (field.touched || this.submitted));
@@ -180,37 +178,26 @@ export class ContactComponent implements AfterViewInit {
     const field = this.contactForm.get(fieldName);
     if (field && field.errors) {
       if (field.errors['required']) {
-        return `${this.getFieldDisplayName(fieldName)} مطلوب`;
+        return this.translationService.translate(`home.${fieldName}Required`);
       }
       if (field.errors['email']) {
-        return 'البريد الإلكتروني غير صالح';
+        return this.translationService.translate('home.emailInvalid');
       }
       if (field.errors['pattern']) {
         if (fieldName === 'phone') {
-          return 'يرجى إدخال رقم هاتف أردني صالح (مثال: 0791234567)';
+          return this.translationService.translate('home.phonePattern');
         }
       }
       if (field.errors['minlength']) {
         const requiredLength = field.errors['minlength'].requiredLength;
-        return `يجب أن يكون ${this.getFieldDisplayName(fieldName)} ${requiredLength} أحرف على الأقل`;
+        return this.translationService.translate(`home.${fieldName}MinLength`).replace('${requiredLength}', requiredLength);
       }
       if (field.errors['maxlength']) {
         const maxLength = field.errors['maxlength'].requiredLength;
-        return `يجب أن لا يتجاوز ${this.getFieldDisplayName(fieldName)} ${maxLength} حرف`;
+        return this.translationService.translate(`home.${fieldName}MaxLength`).replace('${maxLength}', maxLength);
       }
     }
     return '';
-  }
-
-  private getFieldDisplayName(fieldName: string): string {
-    const fieldNames: { [key: string]: string } = {
-      'name': 'الاسم',
-      'email': 'البريد الإلكتروني',
-      'phone': 'رقم الهاتف',
-      'service': 'الخدمة',
-      'message': 'الرسالة'
-    };
-    return fieldNames[fieldName] || fieldName;
   }
 
   async onSubmit() {
@@ -220,24 +207,19 @@ export class ContactComponent implements AfterViewInit {
 
     if (this.contactForm.valid) {
       try {
-        // Simulate form submission delay
         await new Promise(resolve => setTimeout(resolve, 1000));
 
         const formValue = this.contactForm.value;
 
-        // Create WhatsApp message
         const whatsappMessage = this.createWhatsAppMessage(formValue);
 
-        // Open WhatsApp
         if (isPlatformBrowser(this.platformId)) {
           const whatsappUrl = `https://wa.me/+962795686452?text=${encodeURIComponent(whatsappMessage)}`;
           window.open(whatsappUrl, '_blank');
         }
 
-        // Show success message
-        this.formSubmissionMessage = 'تم إرسال الرسالة بنجاح! سيتم تحويلك إلى WhatsApp.';
+        this.formSubmissionMessage = this.translationService.translate('home.successMessage');
 
-        // Reset form after successful submission
         setTimeout(() => {
           this.contactForm.reset();
           this.submitted = false;
@@ -248,10 +230,10 @@ export class ContactComponent implements AfterViewInit {
 
       } catch (error) {
         console.error('Form submission error:', error);
-        this.formSubmissionMessage = 'حدث خطأ أثناء إرسال الرسالة. يرجى المحاولة مرة أخرى.';
+        this.formSubmissionMessage = this.translationService.translate('home.errorMessage');
       }
     } else {
-      this.formSubmissionMessage = 'يرجى ملء جميع الحقول المطلوبة بشكل صحيح.';
+      this.formSubmissionMessage = this.translationService.translate('home.formInvalid');
       this.scrollToFirstError();
     }
 
@@ -260,26 +242,20 @@ export class ContactComponent implements AfterViewInit {
 
   private createWhatsAppMessage(formValue: any): string {
     const serviceNames: { [key: string]: string } = {
-      'educational-programs': 'البرامج التعليمية',
-      'volunteering': 'فرص التطوع',
-      'support': 'الدعم والمساعدة',
-      'partnership': 'الشراكات والتعاون',
-      'donation': 'التبرعات',
-      'other': 'أخرى'
+      'educational-programs': this.translationService.translate('home.educationalPrograms'),
+      'volunteering': this.translationService.translate('home.volunteering'),
+      'support': this.translationService.translate('home.support'),
+      'partnership': this.translationService.translate('home.partnership'),
+      'donation': this.translationService.translate('home.donation'),
+      'other': this.translationService.translate('home.other')
     };
 
-    return `🌟 رسالة جديدة من موقع المبادرة التعليمية 🌟
-
-👤 الاسم: ${formValue.name}
-📧 البريد الإلكتروني: ${formValue.email}
-📱 رقم الهاتف: ${formValue.phone}
-🎯 الخدمة المطلوبة: ${serviceNames[formValue.service] || formValue.service}
-
-💬 الرسالة:
-${formValue.message}
-
----
-تم إرسال هذه الرسالة من خلال نموذج الاتصال في الموقع الإلكتروني.`;
+    return this.translationService.translate('home.whatsappMessage')
+      .replace('${name}', formValue.name)
+      .replace('${email}', formValue.email)
+      .replace('${phone}', formValue.phone)
+      .replace('${service}', serviceNames[formValue.service] || formValue.service)
+      .replace('${message}', formValue.message);
   }
 
   private scrollToFirstError() {
@@ -297,7 +273,6 @@ ${formValue.message}
     }
   }
 
-  // Utility method for form field classes
   getFieldClasses(fieldName: string): string {
     const baseClasses = 'form-control';
     const field = this.contactForm.get(fieldName);
@@ -315,7 +290,6 @@ ${formValue.message}
     return baseClasses;
   }
 
-  // Method to handle input focus events
   onFieldFocus(fieldName: string) {
     const field = this.contactForm.get(fieldName);
     if (field) {
@@ -323,7 +297,6 @@ ${formValue.message}
     }
   }
 
-  // Method to clear form
   clearForm() {
     this.contactForm.reset();
     this.submitted = false;

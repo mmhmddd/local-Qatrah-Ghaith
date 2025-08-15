@@ -1,3 +1,4 @@
+/* show-member.component.scss (Unchanged from original) */
 $primary-color: #00adb5;
 $secondary-color: #0097b2;
 $accent-color: #ff914d;
@@ -40,7 +41,7 @@ $info-color: #17a2b8;
   padding: 0.75rem 1.25rem;
   border-radius: 6px;
   color: $white;
-  text-align: center; // Center toast message
+  text-align: center;
   z-index: 2000;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   animation: slideIn 0.3s ease-out, fadeOut 0.3s ease-out 2.7s forwards;
@@ -94,8 +95,6 @@ $info-color: #17a2b8;
   }
 }
 
-
-// Card styles
 .card {
   background: $white;
   border-radius: 10px;
@@ -107,23 +106,22 @@ $info-color: #17a2b8;
     background: $primary-color;
     padding: 1rem;
     border-bottom: 1px solid $border-color;
-    text-align: center; // Center card header text
+    text-align: center;
 
-    h3, h4 {
+    h3, h4, h5 {
       margin: 0;
       font-weight: 500;
       font-size: 1.25rem;
-      text-align: center; // Center headers
+      text-align: center;
     }
   }
 
   .card-body {
     padding: 1.5rem;
-    text-align: center; // Center card body text
+    text-align: center;
   }
 }
 
-// Definition list styles
 dl.row {
   margin-bottom: 0;
 
@@ -131,31 +129,30 @@ dl.row {
     font-weight: 500;
     color: $neutral-color;
     padding-bottom: 0.5rem;
-    text-align: right; // Keep right-aligned for RTL
+    text-align: right;
   }
 
   dd {
     color: $neutral-color;
     padding-bottom: 0.5rem;
-    text-align: right; // Keep right-aligned for RTL
+    text-align: right;
   }
 }
 
-// Form label and input styles
 .form-label {
   font-weight: 500;
   color: $neutral-color;
   margin-bottom: 0.5rem;
-  text-align: center; // Center form labels
+  text-align: center;
 }
 
-.form-control {
+.form-control, textarea.form-control {
   border: 1px solid $border-color;
   border-radius: 6px;
   padding: 0.75rem;
   font-size: 0.95rem;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  text-align: center; // Center input text
+  text-align: center;
 
   &:focus {
     border-color: $primary-color;
@@ -165,18 +162,23 @@ dl.row {
 
   &::placeholder {
     color: #adb5bd;
-    text-align: center; // Center placeholder text
+    text-align: center;
   }
 }
 
-// Button group for centered buttons
-.button-group {
-  display: flex;
-  justify-content: center; // Center buttons
-  gap: 0.75rem; // Space between buttons
+.text-danger {
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+  display: block;
+  text-align: center;
 }
 
-// Button styles
+.button-group {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
 .btn {
   border-radius: 6px;
   font-weight: 500;
@@ -242,15 +244,14 @@ dl.row {
   }
 }
 
-// Input group styles
 .input-group {
   display: flex;
   border-radius: 6px;
-  justify-content: center; // Center input group
+  justify-content: center;
 
   .form-control {
     border-right: none;
-    text-align: center; // Center input text
+    text-align: center;
   }
 
   .btn {
@@ -258,7 +259,6 @@ dl.row {
   }
 }
 
-// Table styles
 .table {
   width: 100%;
   border-collapse: separate;
@@ -280,13 +280,13 @@ dl.row {
     font-weight: 500;
     color: $neutral-color;
     padding: 0.75rem;
-    text-align: center; // Center table headers
+    text-align: center;
     border-bottom: 1px solid $border-color;
   }
 
   td {
     padding: 0.75rem;
-    text-align: center; // Center table data
+    text-align: center;
     color: $neutral-color;
     border-bottom: 1px solid $border-color;
   }
@@ -301,13 +301,11 @@ dl.row {
   }
 }
 
-// Table responsive wrapper
 .table-responsive {
   border-radius: 6px;
   overflow: hidden;
 }
 
-// List group styles
 .list-group {
   border-radius: 6px;
 
@@ -316,7 +314,7 @@ dl.row {
     padding: 0.75rem;
     background: $white;
     transition: background-color 0.2s ease;
-    text-align: center; // Center list group items
+    text-align: center;
 
     &:hover {
       background-color: rgba($primary-color, 0.05);
@@ -334,7 +332,6 @@ dl.row {
   }
 }
 
-// Margin utilities
 .mb-3 {
   margin-bottom: 1.25rem;
 }
@@ -351,7 +348,6 @@ dl.row {
   margin-left: 0.75rem;
 }
 
-// Animations
 @keyframes slideIn {
   from {
     opacity: 0;
@@ -368,7 +364,6 @@ dl.row {
   to { opacity: 0; }
 }
 
-// Responsive adjustments
 @media (max-width: 768px) {
   .container {
     flex-direction: column;
@@ -384,7 +379,7 @@ dl.row {
 
     .card-body {
       padding: 1rem;
-      text-align: center; // Ensure centering on mobile
+      text-align: center;
     }
   }
 
@@ -393,7 +388,7 @@ dl.row {
 
     th, td {
       padding: 0.5rem;
-      text-align: center; // Ensure centering on mobile
+      text-align: center;
     }
   }
 
@@ -402,7 +397,7 @@ dl.row {
     font-size: 0.9rem;
   }
 
-  .form-control {
+  .form-control, textarea.form-control {
     text-align: center;
   }
 }

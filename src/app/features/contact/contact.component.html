@@ -1,79 +1,77 @@
 <!-- Hero Section -->
-<section class="hero-section" dir="rtl" aria-label="مبادرة التعليم - تواصلوا معنا">
+<section class="hero-section" [attr.dir]="translationService.isRtl() ? 'rtl' : 'ltr'" [attr.aria-label]="'home.contactUs' | translate">
   <!-- Map Content -->
-  <div class="map-container">
+  <div class="map-container" style="margin-top: 25px;">
     <iframe
-      src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3384.916644078917!2d35.930358999999996!3d31.963158000000004!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zMzHCsDU3JzQ3LjQiTiAzNcKwNTUnNDkuMyJF!5e0!3m2!1sen!2seg!4v1754238407960!5m2!1sen!2seg" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"      style="border:0; border-radius: 0; width: 100%; height: 100vh;"
+      src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3384.916644078917!2d35.930358999999996!3d31.963158000000004!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zMzHCsDU3JzQ3LjQiTiAzNcKwNTUnNDkuMyJF!5e0!3m2!1sen!2seg!4v1754238407960!5m2!1sen!2seg"
+      width="600"
+      height="450"
+      style="border:0; border-radius: 0; width: 100%; height: 100vh;"
       allowfullscreen=""
       loading="lazy"
       referrerpolicy="no-referrer-when-downgrade"
-      title="موقع المبادرة التعليمية على خرائط Google"
+      [attr.title]="'home.contactUs' | translate"
     ></iframe>
-
-<iframe src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3384.916644078917!2d35.930358999999996!3d31.963158000000004!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zMzHCsDU3JzQ3LjQiTiAzNcKwNTUnNDkuMyJF!5e0!3m2!1sen!2seg!4v1754238407960!5m2!1sen!2seg" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-
   </div>
   <!-- Text Content -->
-<div class="container">
-  <div class="row justify-content-center">
-    <div class="col-12 hero-content text-center">
-      <h1 class="hero-title fade-in-up">مرحبًا بكم في مبادرتنا التعليمية</h1>
-      <p class="hero-description fade-in-up" data-delay="0.2s">
-        اكتشف موقعنا في عمان، الأردن، وانضم إلينا لدعم التعليم والتطوع. تواصلوا معنا اليوم لمعرفة المزيد عن برامجنا وفعالياتنا!
-      </p>
-      <div class="hero-actions fade-in-up" data-delay="0.4s">
-        <a href="#contact-form" class="hero-button btn btn-submit" role="button" aria-label="تواصلوا معنا عبر النموذج">
-          <i class="fas fa-paper-plane me-2"></i>
-          تواصلوا معنا الآن
-        </a>
-        <a style="margin-right: 14px;" href="https://api.whatsapp.com/send?phone=962795686452" target="_blank" rel="noopener noreferrer" class="hero-button btn btn-whatsapp ms-3" role="button" aria-label="تواصلوا عبر واتساب">
-          <i class="fab fa-whatsapp me-2"></i>
-          تواصلوا عبر واتساب
-        </a>
-        <a style="margin-right: 14px;" href="https://www.google.com/maps?q=31.963158,35.930359" target="_blank" rel="noopener noreferrer" class="btn btn-outline-dark ms-3" role="button" aria-label="افتح في خرائط Google">
-          <i class="fas fa-external-link-alt me-2"></i>
-          افتح في خرائط Google
-        </a>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12 hero-content text-center">
+        <h1 class="hero-title fade-in-up">{{ 'home.contactTitle' | translate }}</h1>
+        <p class="hero-description fade-in-up" data-delay="0.2s">
+          {{ 'home.contactDescription' | translate }}
+        </p>
+        <div class="hero-actions fade-in-up" data-delay="0.4s">
+          <a href="#contact-form" class="hero-button btn btn-submit" role="button" [attr.aria-label]="'home.contactUs' | translate">
+            <i class="fas fa-paper-plane me-2"></i>
+            {{ 'home.contactUs' | translate }}
+          </a>
+          <a style="margin-right: 14px;" href="https://api.whatsapp.com/send?phone=962795686452" target="_blank" rel="noopener noreferrer" class="hero-button btn btn-whatsapp ms-3" role="button" [attr.aria-label]="('home.contactUs' | translate) + ' WhatsApp'">
+            <i class="fab fa-whatsapp me-2"></i>
+            {{ 'home.contactUs' | translate }} WhatsApp
+          </a>
+          <a style="margin-right: 14px;" href="https://www.google.com/maps?q=31.963158,35.930359" target="_blank" rel="noopener noreferrer" class="btn btn-outline-dark ms-3" role="button" [attr.aria-label]="('home.contactUs' | translate) + ' Google Maps'">
+            <i class="fas fa-external-link-alt me-2"></i>
+            {{ 'home.contactUs' | translate }} Google Maps
+          </a>
+        </div>
       </div>
     </div>
   </div>
-</div>
 </section>
 
 <!-- Contact Details Section -->
-<!-- Contact Details Section -->
-<section class="contact-details" dir="rtl">
+<section class="contact-details" [attr.dir]="translationService.isRtl() ? 'rtl' : 'ltr'">
   <div class="container">
-    <h2 class="section-title text-center mb-4">معلومات التواصل التفصيلية</h2>
+    <h2 class="section-title text-center mb-4">{{ 'home.contactInfo' | translate }}</h2>
     <div class="row g-4 justify-content-center equal-height-row">
       <div class="col-md-4 col-sm-6">
         <div class="card glass-card p-4 text-center hover-scale">
           <div class="icon-title-row">
             <i class="fas fa-map-marker-alt"></i>
-            <h4>عنوان المكتب</h4>
+            <h4>{{ 'home.address' | translate }}</h4>
           </div>
-          <p>عمان - الأردن<br>
-             شارع الملكة رانيا العبدالله<br>
-             المبنى رقم 15 - الطابق الثالث</p>
+          <p>{{ 'home.address' | translate }}<br>
+             Queen Rania Al-Abdullah Street<br>
+             Building No. 15 - Third Floor</p>
         </div>
       </div>
       <div class="col-md-4 col-sm-6">
         <div class="card glass-card p-4 text-center hover-scale">
           <div class="icon-title-row">
             <i class="fas fa-phone"></i>
-            <h4>أرقام الهواتف</h4>
+            <h4>{{ 'home.phone' | translate }}</h4>
           </div>
-          <p><a href="tel:+96261234567" style="direction: ltr; unicode-bidi: embed;">+962 7 9568 6452</a></p>
+          <p><a href="tel:+962795686452" style="direction: ltr; unicode-bidi: embed;">+962 7 9568 6452</a></p>
         </div>
       </div>
       <div class="col-md-4 col-sm-6">
         <div class="card glass-card p-4 text-center hover-scale">
           <div class="icon-title-row">
             <i class="fas fa-envelope"></i>
-            <h4>البريد الإلكتروني</h4>
+            <h4>{{ 'home.email' | translate }}</h4>
           </div>
-          <p><a href="mailto:info@educational-initiative.org">Contact&#64;qatrah-ghaith.com
-          </a></p>
+          <p><a href="mailto:info@educational-initiative.org">Contact&#64;qatrah-ghaith.com</a></p>
         </div>
       </div>
     </div>
@@ -81,9 +79,9 @@
 </section>
 
 <!-- FAQ Section -->
-<section class="faq-section py-5" dir="rtl">
+<section class="faq-section py-5" [attr.dir]="translationService.isRtl() ? 'rtl' : 'ltr'">
   <div class="container">
-    <h2 class="section-title text-center mb-4">الأسئلة الشائعة</h2>
+    <h2 class="section-title text-center mb-4">{{ 'faq.title' | translate }}</h2>
     <div class="faq-container">
       <div class="faq-item glass-card mb-3" *ngFor="let faq of faqData; let i = index" @fadeInUp>
         <div
@@ -94,7 +92,7 @@
           [attr.aria-expanded]="activeFaq === i"
           [attr.aria-controls]="'faq-answer-' + i"
         >
-          <h4>{{ faq.question }}</h4>
+          <h4>{{ faq.question | translate }}</h4>
           <i class="fas fa-chevron-down" [@iconRotate]="getIconState(i)"></i>
         </div>
         <div
@@ -104,7 +102,7 @@
           [@slideInOut]="getFaqState(i)"
           [attr.aria-hidden]="activeFaq !== i"
         >
-          <p>{{ faq.answer }}</p>
+          <p>{{ faq.answer | translate }}</p>
         </div>
       </div>
     </div>
@@ -112,20 +110,20 @@
 </section>
 
 <!-- Contact Form Section -->
-<section class="contact-form py-5" dir="rtl" id="contact-form">
+<section class="contact-form py-5" [attr.dir]="translationService.isRtl() ? 'rtl' : 'ltr'" id="contact-form">
   <div class="container">
-    <h2 class="section-title text-center mb-4">أرسل لنا رسالة</h2>
+    <h2 class="section-title text-center mb-4">{{ 'home.send' | translate }}</h2>
     <div class="form-container glass-form">
       <form [formGroup]="contactForm" (ngSubmit)="onSubmit()" class="needs-validation" novalidate>
         <div class="row g-3">
           <div class="col-md-6">
-            <label for="name" class="form-label">الاسم الكامل *</label>
+            <label for="name" class="form-label">{{ 'home.name' | translate }} *</label>
             <input
               type="text"
               [class]="getFieldClasses('name')"
               id="name"
               formControlName="name"
-              placeholder="أدخل اسمك الكامل"
+              [placeholder]="'home.namePlaceholder' | translate"
               (focus)="onFieldFocus('name')"
               autocomplete="name"
             >
@@ -133,18 +131,18 @@
               {{ getFieldErrorMessage('name') }}
             </div>
             <div *ngIf="isFieldValid('name')" class="valid-feedback">
-              ممتاز! الاسم صحيح
+              {{ 'home.nameValid' | translate }}
             </div>
           </div>
 
           <div class="col-md-6">
-            <label for="email" class="form-label">البريد الإلكتروني *</label>
+            <label for="email" class="form-label">{{ 'home.email' | translate }} *</label>
             <input
               type="email"
               [class]="getFieldClasses('email')"
               id="email"
               formControlName="email"
-              placeholder="أدخل بريدك الإلكتروني"
+              [placeholder]="'home.emailPlaceholder' | translate"
               (focus)="onFieldFocus('email')"
               autocomplete="email"
             >
@@ -152,18 +150,18 @@
               {{ getFieldErrorMessage('email') }}
             </div>
             <div *ngIf="isFieldValid('email')" class="valid-feedback">
-              عنوان البريد الإلكتروني صحيح
+              {{ 'home.emailValid' | translate }}
             </div>
           </div>
 
           <div class="col-12">
-            <label for="phone" class="form-label">رقم الهاتف *</label>
+            <label for="phone" class="form-label">{{ 'home.phone' | translate }} *</label>
             <input
               type="tel"
               [class]="getFieldClasses('phone')"
               id="phone"
               formControlName="phone"
-              placeholder="مثال: 0791234567"
+              [placeholder]="'home.phonePlaceholder' | translate"
               (focus)="onFieldFocus('phone')"
               autocomplete="tel"
             >
@@ -171,55 +169,54 @@
               {{ getFieldErrorMessage('phone') }}
             </div>
             <div *ngIf="isFieldValid('phone')" class="valid-feedback">
-              رقم الهاتف صحيح
+              {{ 'home.phoneValid' | translate }}
             </div>
           </div>
 
           <div class="col-12" style="border: none;">
-            <label for="service" class="form-label">الخدمة المطلوبة *</label>
+            <label for="service" class="form-label">{{ 'home.service' | translate }} *</label>
             <select
-            style="color: white; background-color: white; border: none;"
-
+              style="color: white; background-color: white; border: none;"
               [class]="getFieldClasses('service')"
               id="service"
               formControlName="service"
               (focus)="onFieldFocus('service')"
             >
-              <option value="">اختر الخدمة المطلوبة</option>
-              <option value="educational-programs">البرامج التعليمية</option>
-              <option value="volunteering">فرص التطوع</option>
-              <option value="support">الدعم والمساعدة</option>
-              <option value="partnership">الشراكات والتعاون</option>
-              <option value="donation">التبرعات</option>
-              <option value="other">أخرى</option>
+              <option value="">{{ 'home.selectService' | translate }}</option>
+              <option value="educational-programs">{{ 'home.educationalPrograms' | translate }}</option>
+              <option value="volunteering">{{ 'home.volunteering' | translate }}</option>
+              <option value="support">{{ 'home.support' | translate }}</option>
+              <option value="partnership">{{ 'home.partnership' | translate }}</option>
+              <option value="donation">{{ 'home.donation' | translate }}</option>
+              <option value="other">{{ 'home.other' | translate }}</option>
             </select>
             <div *ngIf="isFieldInvalid('service')" class="invalid-feedback">
               {{ getFieldErrorMessage('service') }}
             </div>
             <div *ngIf="isFieldValid('service')" class="valid-feedback">
-              تم اختيار الخدمة بنجاح
+              {{ 'home.serviceValid' | translate }}
             </div>
           </div>
 
           <div class="col-12">
-            <label for="message" class="form-label">الرسالة *</label>
+            <label for="message" class="form-label">{{ 'home.message' | translate }} *</label>
             <textarea
               [class]="getFieldClasses('message')"
               id="message"
               formControlName="message"
               rows="5"
-              placeholder="اكتب رسالتك هنا... (10-1000 حرف)"
+              [placeholder]="'home.messagePlaceholder' | translate"
               (focus)="onFieldFocus('message')"
               maxlength="1000"
             ></textarea>
             <div class="form-text">
-              عدد الأحرف: {{ contactForm.get('message')?.value?.length || 0 }}/1000
+              {{ 'home.charCount' | translate }}: {{ contactForm.get('message')?.value?.length || 0 }}/1000
             </div>
             <div *ngIf="isFieldInvalid('message')" class="invalid-feedback">
               {{ getFieldErrorMessage('message') }}
             </div>
             <div *ngIf="isFieldValid('message')" class="valid-feedback">
-              الرسالة مكتوبة بشكل جيد
+              {{ 'home.messageValid' | translate }}
             </div>
           </div>
 
@@ -231,11 +228,11 @@
             >
               <span *ngIf="!isFormSubmitting">
                 <i class="fas fa-paper-plane me-2"></i>
-                إرسال الرسالة
+                {{ 'home.send' | translate }}
               </span>
               <span *ngIf="isFormSubmitting">
                 <i class="fas fa-spinner fa-spin me-2"></i>
-                جاري الإرسال...
+                {{ 'home.submitting' | translate }}
               </span>
             </button>
 
@@ -246,17 +243,17 @@
               [disabled]="isFormSubmitting"
               style="margin: 7px;"
             >
-              <i class="fas fa-eraser me-2" ></i>
-              مسح النموذج
+              <i class="fas fa-eraser me-2"></i>
+              {{ 'home.clearForm' | translate }}
             </button>
 
             <div
               *ngIf="formSubmissionMessage"
               class="mt-3 p-3 rounded"
               [ngClass]="{
-                'alert alert-success': formSubmissionMessage.includes('بنجاح'),
-                'alert alert-danger': !formSubmissionMessage.includes('بنجاح') && formSubmissionMessage.includes('خطأ'),
-                'alert alert-warning': !formSubmissionMessage.includes('بنجاح') && !formSubmissionMessage.includes('خطأ')
+                'alert alert-success': formSubmissionMessage.includes(translationService.translate('home.success')),
+                'alert alert-danger': formSubmissionMessage.includes(translationService.translate('home.error')),
+                'alert alert-warning': !formSubmissionMessage.includes(translationService.translate('home.success')) && !formSubmissionMessage.includes(translationService.translate('home.error'))
               }"
               @fadeInUp
             >
@@ -270,11 +267,10 @@
   </div>
 </section>
 
-
 <!-- Social Media Section -->
-<section class="social-media-section py-5" dir="rtl" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+<section class="social-media-section py-5" [attr.dir]="translationService.isRtl() ? 'rtl' : 'ltr'" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
   <div class="container">
-    <h2 class="section-title text-center mb-4" style="color: #1a1a1a;">تابعونا على وسائل التواصل الاجتماعي</h2>
+    <h2 class="section-title text-center mb-4" style="color: #1a1a1a;">{{ 'home.followUs' | translate }}</h2>
     <div class="row justify-content-center">
       <div class="col-lg-8">
         <div class="d-flex justify-content-center flex-wrap gap-3">
@@ -300,7 +296,7 @@
           </a>
         </div>
         <p class="text-center mt-4 text-muted">
-          كونوا أول من يعلم بأحدث البرامج والفعاليات التعليمية
+          {{ 'home.socialMediaDescription' | translate }}
         </p>
       </div>
     </div>

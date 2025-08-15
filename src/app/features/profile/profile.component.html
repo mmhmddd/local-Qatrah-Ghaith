@@ -1,125 +1,137 @@
-<!-- profile.component.html -->
-<div class="container-fluid p-0">
+<div class="container-fluid p-0" [dir]="translationService.isRtl() ? 'rtl' : 'ltr'">
   <main class="main-content container">
+    <!-- Toast Container for Notifications -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1050;">
+      <div *ngFor="let toast of toasts" class="toast" [id]="toast.id" [ngClass]="{'toast-success': toast.type === 'success', 'toast-error': toast.type === 'error'}" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+          <strong class="me-auto">{{ toast.title }}</strong>
+          <button type="button" class="btn-close" (click)="closeToast(toast.id)"></button>
+        </div>
+        <div class="toast-body">
+          {{ toast.message }}
+        </div>
+      </div>
+    </div>
+
     <!-- Profile Header -->
-    <div class="profile-header text-center">
-      <img *ngIf="profile?.profileImage" [src]="profile.profileImage" alt="صورة الملف الشخصي" class="profile-image">
-      <img *ngIf="!profile?.profileImage" src="/assets/default-profile.png" alt="صورة افتراضية" class="profile-image">
-      <h2 class="profile-name">{{ profile?.name || 'اسم المستخدم' }}</h2>
-      <button class="btn btn-outline-primary change-image-btn" (click)="changeImage()">تغيير الصورة</button>
-      <div *ngIf="showUploadField" class="upload-section mt-3">
-        <input type="file" id="profileImageInput" class="form-control mb-2" accept="image/jpeg,image/png,image/gif,image/webp" (change)="onFileSelected($event)">
-        <button [disabled]="isUploading" class="btn btn-primary" (click)="uploadProfileImage()">
-          {{ isUploading ? 'جاري الرفع...' : 'رفع الصورة' }}
-        </button>
+    <div class="profile-header">
+      <div class="profile-header-content">
+        <div class="profile-image-container">
+          <img *ngIf="profile?.profileImage" [src]="profile.profileImage" [alt]="translationService.translate('profile.profileImage')" class="profile-image">
+          <img *ngIf="!profile?.profileImage" src="/assets/default-profile.png" [alt]="translationService.translate('profile.defaultImage')" class="profile-image">
+        </div>
+        <div class="profile-details-container">
+          <h2 class="profile-name">{{ profile?.name || translationService.translate('profile.notSpecified') }}</h2>
+          <button class="btn btn-outline-primary change-image-btn" (click)="changeImage()">{{ translationService.translate('profile.changeImage') }}</button>
+          <div *ngIf="showUploadField" class="upload-section mt-3">
+            <input type="file" id="profileImageInput" class="form-control mb-2" accept="image/jpeg,image/png,image/gif,image/webp" (change)="onFileSelected($event)">
+            <button [disabled]="isUploading" class="btn btn-primary" (click)="uploadProfileImage()">
+              {{ isUploading ? translationService.translate('profile.uploading') : translationService.translate('profile.uploadImage') }}
+            </button>
+          </div>
+          <div *ngIf="activeMessage" class="message-section mt-3">
+            <h4 class="message-title">{{ translationService.translate('profile.adminMessage') }}</h4>
+            <p class="message-content">{{ activeMessage.content }}</p>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- Navigation Tabs -->
     <div class="nav-tabs">
-      <button class="nav-tab" [ngClass]="{'active': activeSection === 'profile'}" (click)="setActiveSection('profile')">الملف الشخصي</button>
-      <button class="nav-tab" [ngClass]="{'active': activeSection === 'students'}" (click)="setActiveSection('students')">الطلاب</button>
-      <button class="nav-tab" [ngClass]="{'active': activeSection === 'meetings'}" (click)="setActiveSection('meetings')">المواعيد</button>
-      <button class="nav-tab" [ngClass]="{'active': activeSection === 'pdf-request'}" (click)="setActiveSection('pdf-request')">رفع محاضرة PDF</button>
+      <button class="nav-tab" [ngClass]="{'active': activeSection === 'profile'}" (click)="setActiveSection('profile')">{{ translationService.translate('profile.profileTab') }}</button>
+      <button class="nav-tab" [ngClass]="{'active': activeSection === 'students'}" (click)="setActiveSection('students')">{{ translationService.translate('profile.studentsTab') }}</button>
+      <button class="nav-tab" [ngClass]="{'active': activeSection === 'meetings'}" (click)="setActiveSection('meetings')">{{ translationService.translate('profile.meetingsTab') }}</button>
+      <button class="nav-tab" [ngClass]="{'active': activeSection === 'pdf-request'}" (click)="setActiveSection('pdf-request')">{{ translationService.translate('profile.pdfRequestTab') }}</button>
       <button class="nav-tab" [ngClass]="{'active': activeSection === 'notifications'}" (click)="setActiveSection('notifications')">
-        الإشعارات
+        {{ translationService.translate('profile.notificationsTab') }}
         <span *ngIf="unreadNotificationsCount > 0" class="badge">{{ unreadNotificationsCount }}</span>
       </button>
-      <button class="nav-tab" (click)="openPasswordModal()">تغيير كلمة المرور</button>
-    </div>
-
-    <!-- Error and Success Alerts -->
-    <div *ngIf="error" class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
-      {{ error }}
-      <button type="button" class="btn-close" (click)="error = null"></button>
-    </div>
-    <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show mt-3" role="alert">
-      {{ successMessage }}
-      <button type="button" class="btn-close" (click)="successMessage = null"></button>
+      <button class="nav-tab" (click)="openPasswordModal()">{{ translationService.translate('profile.changePasswordTab') }}</button>
     </div>
 
     <!-- Profile Section -->
     <div id="profile" *ngIf="activeSection === 'profile' && profile" class="card shadow-sm mt-4">
       <div class="card-header">
-        <h3 class="mb-0">الملف الشخصي</h3>
+        <h3 class="mb-0">{{ translationService.translate('profile.profileTab') }}</h3>
       </div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-6">
             <dl class="row">
-              <dt class="col-sm-4">الاسم:</dt>
-              <dd class="col-sm-8">{{ profile.name }}</dd>
-              <dt class="col-sm-4">البريد الإلكتروني:</dt>
-              <dd class="col-sm-8">{{ profile.email }}</dd>
-              <dt class="col-sm-4">الهاتف:</dt>
-              <dd class="col-sm-8">{{ profile.phone }}</dd>
-              <dt class="col-sm-4">العنوان:</dt>
-              <dd class="col-sm-8">{{ profile.address }}</dd>
+              <dt class="col-sm-4">{{ translationService.translate('profile.name') }}:</dt>
+              <dd class="col-sm-8">{{ profile.name || translationService.translate('profile.notSpecified') }}</dd>
+              <dt class="col-sm-4">{{ translationService.translate('profile.email') }}:</dt>
+              <dd class="col-sm-8">{{ profile.email || translationService.translate('profile.notSpecified') }}</dd>
+              <dt class="col-sm-4">{{ translationService.translate('profile.phone') }}:</dt>
+              <dd class="col-sm-8">{{ profile.phone || translationService.translate('profile.notSpecified') }}</dd>
+              <dt class="col-sm-4">{{ translationService.translate('profile.address') }}:</dt>
+              <dd class="col-sm-8">{{ profile.address || translationService.translate('profile.notSpecified') }}</dd>
             </dl>
           </div>
           <div class="col-md-6">
             <dl class="row">
-              <dt class="col-sm-4">التخصص الأكاديمي:</dt>
-              <dd class="col-sm-8">{{ profile.academicSpecialization }}</dd>
-              <dt class="col-sm-4">ساعات التطوع:</dt>
-              <dd class="col-sm-8">{{ profile.volunteerHours }}</dd>
-              <dt class="col-sm-4">عدد الطلاب:</dt>
-              <dd class="col-sm-8">{{ profile.numberOfStudents }}</dd>
-              <dt class="col-sm-4">المواد:</dt>
-              <dd class="col-sm-8">{{ profile.subjects?.length > 0 ? profile.subjects.join(', ') : 'غير محدد' }}</dd>
-              <dt class="col-sm-4">عدد المحاضرات:</dt>
-              <dd class="col-sm-8">{{ profile.lectureCount }}</dd>
+              <dt class="col-sm-4">{{ translationService.translate('profile.academicSpecialization') }}:</dt>
+              <dd class="col-sm-8">{{ profile.academicSpecialization || translationService.translate('profile.notSpecified') }}</dd>
+              <dt class="col-sm-4">{{ translationService.translate('profile.volunteerHours') }}:</dt>
+              <dd class="col-sm-8">{{ profile.volunteerHours || translationService.translate('profile.notSpecified') }}</dd>
+              <dt class="col-sm-4">{{ translationService.translate('profile.numberOfStudents') }}:</dt>
+              <dd class="col-sm-8">{{ profile.numberOfStudents || translationService.translate('profile.notSpecified') }}</dd>
+              <dt class="col-sm-4">{{ translationService.translate('profile.subjects') }}:</dt>
+              <dd class="col-sm-8">{{ profile.subjects?.length > 0 ? profile.subjects.join(', ') : translationService.translate('profile.notSpecified') }}</dd>
+              <dt class="col-sm-4">{{ translationService.translate('profile.lectureCount') }}:</dt>
+              <dd class="col-sm-8">{{ profile.lectureCount || translationService.translate('profile.notSpecified') }}</dd>
             </dl>
           </div>
         </div>
         <!-- Add Lecture Section -->
         <div class="upload-section mt-4">
-          <h4>إضافة محاضرة</h4>
+          <h4>{{ translationService.translate('profile.addLecture') }}</h4>
           <form [formGroup]="lectureForm" (ngSubmit)="uploadLecture()">
             <div class="form-group">
-              <label for="lectureLink" class="form-label">رابط المحاضرة</label>
+              <label for="lectureLink" class="form-label">{{ translationService.translate('profile.lectureLink') }}</label>
               <input
                 id="lectureLink"
                 formControlName="link"
                 type="text"
                 class="form-control mb-2"
-                placeholder="أدخل رابط المحاضرة (مثال: https://example.com)"
+                [placeholder]="translationService.translate('profile.lectureLinkPlaceholder')"
                 [class.is-invalid]="lectureForm.get('link')?.invalid && lectureForm.get('link')?.touched"
               />
               <div *ngIf="lectureForm.get('link')?.invalid && lectureForm.get('link')?.touched" class="invalid-feedback">
-                <span *ngIf="lectureForm.get('link')?.errors?.['required']">رابط المحاضرة مطلوب</span>
-                <span *ngIf="lectureForm.get('link')?.errors?.['pattern']">يرجى إدخال رابط صالح</span>
+                <span *ngIf="lectureForm.get('link')?.errors?.['required']">{{ translationService.translate('profile.validation.link.required') }}</span>
+                <span *ngIf="lectureForm.get('link')?.errors?.['pattern']">{{ translationService.translate('profile.validation.link.pattern') }}</span>
               </div>
             </div>
             <div class="form-group">
-              <label for="lectureName" class="form-label">اسم المحاضرة</label>
+              <label for="lectureName" class="form-label">{{ translationService.translate('profile.lectureName') }}</label>
               <input
                 id="lectureName"
                 formControlName="name"
                 type="text"
                 class="form-control mb-2"
-                placeholder="أدخل اسم المحاضرة"
+                [placeholder]="translationService.translate('profile.lectureNamePlaceholder')"
                 [class.is-invalid]="lectureForm.get('name')?.invalid && lectureForm.get('name')?.touched"
               />
               <div *ngIf="lectureForm.get('name')?.invalid && lectureForm.get('name')?.touched" class="invalid-feedback">
-                <span *ngIf="lectureForm.get('name')?.errors?.['required']">اسم المحاضرة مطلوب</span>
-                <span *ngIf="lectureForm.get('name')?.errors?.['minlength']">اسم المحاضرة قصير جدًا</span>
-                <span *ngIf="lectureForm.get('name')?.errors?.['maxlength']">اسم المحاضرة طويل جدًا (الحد الأقصى 100 حرف)</span>
+                <span *ngIf="lectureForm.get('name')?.errors?.['required']">{{ translationService.translate('profile.validation.name.required') }}</span>
+                <span *ngIf="lectureForm.get('name')?.errors?.['minlength']">{{ translationService.translate('profile.validation.name.minlength') }}</span>
+                <span *ngIf="lectureForm.get('name')?.errors?.['maxlength']">{{ translationService.translate('profile.validation.name.maxlength') }}</span>
               </div>
             </div>
             <div class="form-group">
-              <label for="lectureSubject" class="form-label">المادة</label>
+              <label for="lectureSubject" class="form-label">{{ translationService.translate('profile.lectureSubject') }}</label>
               <select
                 id="lectureSubject"
                 formControlName="subject"
                 class="form-control mb-2"
                 [class.is-invalid]="lectureForm.get('subject')?.invalid && lectureForm.get('subject')?.touched"
               >
-                <option value="" disabled selected>اختر المادة</option>
-                <option *ngFor="let subject of profile?.subjects" [value]="subject">{{ subject }}</option>
+                <option value="" disabled selected>{{ translationService.translate('profile.selectSubject') }}</option>
+                <option *ngFor="let subject of getTranslatedSubjects()" [value]="subject">{{ subject }}</option>
               </select>
               <div *ngIf="lectureForm.get('subject')?.invalid && lectureForm.get('subject')?.touched" class="invalid-feedback">
-                <span *ngIf="lectureForm.get('subject')?.errors?.['required']">اسم المادة مطلوب</span>
+                <span *ngIf="lectureForm.get('subject')?.errors?.['required']">{{ translationService.translate('profile.validation.subject.required') }}</span>
               </div>
             </div>
             <button
@@ -127,7 +139,7 @@
               class="btn btn-success"
               [disabled]="isUploadingLecture || lectureForm.invalid"
             >
-              {{ isUploadingLecture ? 'جاري الرفع...' : 'رفع المحاضرة' }}
+              {{ isUploadingLecture ? translationService.translate('profile.uploadingLecture') : translationService.translate('profile.uploadLecture') }}
             </button>
           </form>
         </div>
@@ -137,65 +149,65 @@
     <!-- PDF Request Section -->
     <div id="pdf-request" *ngIf="activeSection === 'pdf-request'" class="card shadow-sm mt-4">
       <div class="card-header">
-        <h3 class="mb-0">طلب رفع محاضرة PDF</h3>
+        <h3 class="mb-0">{{ translationService.translate('profile.pdfRequestTitle') }}</h3>
       </div>
       <div class="card-body">
         <form [formGroup]="pdfRequestForm" (ngSubmit)="uploadPdfRequest()">
           <div class="row">
             <div class="col-md-6">
               <div class="form-group mb-3">
-                <label for="pdfTitle" class="form-label">عنوان المحاضرة</label>
+                <label for="pdfTitle" class="form-label">{{ translationService.translate('profile.pdfTitle') }}</label>
                 <input
                   id="pdfTitle"
                   formControlName="title"
                   type="text"
                   class="form-control"
-                  placeholder="أدخل عنوان المحاضرة"
+                  [placeholder]="translationService.translate('profile.pdfTitlePlaceholder')"
                   [class.is-invalid]="pdfRequestForm.get('title')?.invalid && pdfRequestForm.get('title')?.touched"
                 />
                 <div *ngIf="pdfRequestForm.get('title')?.invalid && pdfRequestForm.get('title')?.touched" class="invalid-feedback">
-                  <span *ngIf="pdfRequestForm.get('title')?.errors?.['required']">عنوان المحاضرة مطلوب</span>
-                  <span *ngIf="pdfRequestForm.get('title')?.errors?.['minlength']">العنوان قصير جدًا (الحد الأدنى 3 أحرف)</span>
-                  <span *ngIf="pdfRequestForm.get('title')?.errors?.['maxlength']">العنوان طويل جدًا (الحد الأقصى 100 حرف)</span>
+                  <span *ngIf="pdfRequestForm.get('title')?.errors?.['required']">{{ translationService.translate('profile.validation.title.required') }}</span>
+                  <span *ngIf="pdfRequestForm.get('title')?.errors?.['minlength']">{{ translationService.translate('profile.validation.title.minlength') }}</span>
+                  <span *ngIf="pdfRequestForm.get('title')?.errors?.['maxlength']">{{ translationService.translate('profile.validation.title.maxlength') }}</span>
                 </div>
               </div>
 
               <div class="form-group mb-3">
-                <label for="pdfDescription" class="form-label">وصف المحاضرة</label>
+                <label for="pdfDescription" class="form-label">{{ translationService.translate('profile.pdfDescription') }}</label>
                 <textarea
                   id="pdfDescription"
                   formControlName="description"
                   class="form-control"
                   rows="4"
-                  placeholder="أدخل وصف تفصيلي للمحاضرة"
+                  [placeholder]="translationService.translate('profile.pdfDescriptionPlaceholder')"
                   [class.is-invalid]="pdfRequestForm.get('description')?.invalid && pdfRequestForm.get('description')?.touched"
                 ></textarea>
                 <div *ngIf="pdfRequestForm.get('description')?.invalid && pdfRequestForm.get('description')?.touched" class="invalid-feedback">
-                  <span *ngIf="pdfRequestForm.get('description')?.errors?.['required']">وصف المحاضرة مطلوب</span>
-                  <span *ngIf="pdfRequestForm.get('description')?.errors?.['minlength']">الوصف قصير جدًا (الحد الأدنى 10 أحرف)</span>
-                  <span *ngIf="pdfRequestForm.get('description')?.errors?.['maxlength']">الوصف طويل جدًا (الحد الأقصى 500 حرف)</span>
+                  <span *ngIf="pdfRequestForm.get('description')?.errors?.['required']">{{ translationService.translate('profile.validation.description.required') }}</span>
+                  <span *ngIf="pdfRequestForm.get('description')?.errors?.['minlength']">{{ translationService.translate('profile.validation.description.minlength') }}</span>
+                  <span *ngIf="pdfRequestForm.get('description')?.errors?.['maxlength']">{{ translationService.translate('profile.validation.description.maxlength') }}</span>
                 </div>
               </div>
 
               <div class="form-group mb-3">
-                <label for="pdfCreatorName" class="form-label">اسم منشئ المحاضرة</label>
+                <label for="pdfCreatorName" class="form-label">{{ translationService.translate('profile.pdfCreatorName') }}</label>
                 <input
                   id="pdfCreatorName"
                   formControlName="creatorName"
                   type="text"
                   class="form-control"
-                  placeholder="أدخل اسم منشئ المحاضرة"
+                  [placeholder]="translationService.translate('profile.pdfCreatorNamePlaceholder')"
                   [class.is-invalid]="pdfRequestForm.get('creatorName')?.invalid && pdfRequestForm.get('creatorName')?.touched"
                 />
                 <div *ngIf="pdfRequestForm.get('creatorName')?.invalid && pdfRequestForm.get('creatorName')?.touched" class="invalid-feedback">
-                  <span *ngIf="pdfRequestForm.get('creatorName')?.errors?.['required']">اسم منشئ المحاضرة مطلوب</span>
-                  <span *ngIf="pdfRequestForm.get('creatorName')?.errors?.['minlength']">الاسم قصير جدًا (الحد الأدنى حرفان)</span>
-                  <span *ngIf="pdfRequestForm.get('creatorName')?.errors?.['maxlength']">الاسم طويل جدًا (الحد الأقصى 50 حرف)</span>
+                  <span *ngIf="pdfRequestForm.get('creatorName')?.errors?.['required']">{{ translationService.translate('profile.validation.creatorName.required') }}</span>
+                  <span *ngIf="pdfRequestForm.get('creatorName')?.errors?.['minlength']">{{ translationService.translate('profile.validation.creatorName.minlength') }}</span>
+                  <span *ngIf="pdfRequestForm.get('creatorName')?.errors?.['maxlength']">{{ translationService.translate('profile.validation.creatorName.maxlength') }}</span>
                 </div>
               </div>
 
               <div class="form-group mb-3">
-                <label for="pdfFile" class="form-label">ملف المحاضرة (PDF)</label>
+                <label for="pdfFile" class="form-label">{{ translationService.translate('profile.pdfFile') }}</label>
                 <input
                   id="pdfFileInput"
                   type="file"
@@ -203,72 +215,72 @@
                   accept=".pdf"
                   (change)="onPdfFileSelected($event)"
                 />
-                <div class="form-text text-muted">الحد الأقصى لحجم الملف: 10 ميغابايت، الصيغة المدعومة: PDF فقط</div>
+                <div class="form-text text-muted">{{ translationService.translate('profile.pdfFileNote') }}</div>
               </div>
             </div>
 
             <div class="col-md-6">
               <div class="form-group mb-3">
-                <label for="pdfSubject" class="form-label">المادة</label>
+                <label for="pdfSubject" class="form-label">{{ translationService.translate('profile.lectureSubject') }}</label>
                 <select
                   id="pdfSubject"
                   formControlName="subject"
                   class="form-control"
                   [class.is-invalid]="pdfRequestForm.get('subject')?.invalid && pdfRequestForm.get('subject')?.touched"
                 >
-                  <option value="" disabled selected>اختر المادة</option>
-                  <option *ngFor="let subject of subjects" [value]="subject">{{ subject }}</option>
+                  <option value="" disabled selected>{{ translationService.translate('profile.selectSubject') }}</option>
+                  <option *ngFor="let subject of getTranslatedSubjects()" [value]="subject">{{ subject }}</option>
                 </select>
                 <div *ngIf="pdfRequestForm.get('subject')?.invalid && pdfRequestForm.get('subject')?.touched" class="invalid-feedback">
-                  <span *ngIf="pdfRequestForm.get('subject')?.errors?.['required']">المادة مطلوبة</span>
+                  <span *ngIf="pdfRequestForm.get('subject')?.errors?.['required']">{{ translationService.translate('profile.validation.subject.required') }}</span>
                 </div>
               </div>
 
               <div class="form-group mb-3">
-                <label for="pdfSemester" class="form-label">الفصل الدراسي</label>
+                <label for="pdfSemester" class="form-label">{{ translationService.translate('profile.semester') }}</label>
                 <select
                   id="pdfSemester"
                   formControlName="semester"
                   class="form-control"
                   [class.is-invalid]="pdfRequestForm.get('semester')?.invalid && pdfRequestForm.get('semester')?.touched"
                 >
-                  <option value="" disabled selected>اختر الفصل الدراسي</option>
-                  <option *ngFor="let semester of semesters" [value]="semester">{{ semester }}</option>
+                  <option value="" disabled selected>{{ translationService.translate('profile.selectSemester') }}</option>
+                  <option *ngFor="let semester of getTranslatedSemesters()" [value]="semester">{{ semester }}</option>
                 </select>
                 <div *ngIf="pdfRequestForm.get('semester')?.invalid && pdfRequestForm.get('semester')?.touched" class="invalid-feedback">
-                  <span *ngIf="pdfRequestForm.get('semester')?.errors?.['required']">الفصل الدراسي مطلوب</span>
+                  <span *ngIf="pdfRequestForm.get('semester')?.errors?.['required']">{{ translationService.translate('profile.validation.semester.required') }}</span>
                 </div>
               </div>
 
               <div class="form-group mb-3">
-                <label for="pdfCountry" class="form-label">الدولة</label>
+                <label for="pdfCountry" class="form-label">{{ translationService.translate('profile.country') }}</label>
                 <select
                   id="pdfCountry"
                   formControlName="country"
                   class="form-control"
                   [class.is-invalid]="pdfRequestForm.get('country')?.invalid && pdfRequestForm.get('country')?.touched"
                 >
-                  <option value="" disabled selected>اختر الدولة</option>
-                  <option *ngFor="let country of countries" [value]="country">{{ country }}</option>
+                  <option value="" disabled selected>{{ translationService.translate('profile.selectCountry') }}</option>
+                  <option *ngFor="let country of getTranslatedCountries()" [value]="country">{{ country }}</option>
                 </select>
                 <div *ngIf="pdfRequestForm.get('country')?.invalid && pdfRequestForm.get('country')?.touched" class="invalid-feedback">
-                  <span *ngIf="pdfRequestForm.get('country')?.errors?.['required']">الدولة مطلوبة</span>
+                  <span *ngIf="pdfRequestForm.get('country')?.errors?.['required']">{{ translationService.translate('profile.validation.country.required') }}</span>
                 </div>
               </div>
 
               <div class="form-group mb-3">
-                <label for="pdfAcademicLevel" class="form-label">المرحلة الدراسية</label>
+                <label for="pdfAcademicLevel" class="form-label">{{ translationService.translate('profile.academicLevel') }}</label>
                 <select
                   id="pdfAcademicLevel"
                   formControlName="academicLevel"
                   class="form-control"
                   [class.is-invalid]="pdfRequestForm.get('academicLevel')?.invalid && pdfRequestForm.get('academicLevel')?.touched"
                 >
-                  <option value="" disabled selected>اختر المرحلة الدراسية</option>
-                  <option *ngFor="let level of academicLevels" [value]="level">{{ level }}</option>
+                  <option value="" disabled selected>{{ translationService.translate('profile.selectAcademicLevel') }}</option>
+                  <option *ngFor="let level of getTranslatedAcademicLevels()" [value]="level">{{ level }}</option>
                 </select>
                 <div *ngIf="pdfRequestForm.get('academicLevel')?.invalid && pdfRequestForm.get('academicLevel')?.touched" class="invalid-feedback">
-                  <span *ngIf="pdfRequestForm.get('academicLevel')?.errors?.['required']">المرحلة الدراسية مطلوبة</span>
+                  <span *ngIf="pdfRequestForm.get('academicLevel')?.errors?.['required']">{{ translationService.translate('profile.validation.academicLevel.required') }}</span>
                 </div>
               </div>
             </div>
@@ -280,19 +292,19 @@
               class="btn btn-primary btn-lg"
               [disabled]="isUploadingPdfRequest || pdfRequestForm.invalid || !selectedPdfFile"
             >
-              {{ isUploadingPdfRequest ? 'جاري إرسال الطلب...' : 'إرسال طلب رفع المحاضرة' }}
+              {{ isUploadingPdfRequest ? translationService.translate('profile.submittingPdfRequest') : translationService.translate('profile.submitPdfRequest') }}
             </button>
           </div>
         </form>
 
         <div class="mt-4 p-3 bg-light rounded">
-          <h5 class="text-info">ملاحظات مهمة:</h5>
+          <h5 class="text-info">{{ translationService.translate('profile.importantNotes') }}</h5>
           <ul class="mb-0">
-            <li>سيتم مراجعة طلبك من قبل الإدارة قبل الموافقة على النشر</li>
-            <li>يُرجى التأكد من صحة جميع المعلومات المدخلة</li>
-            <li>الملف المرفوع يجب أن يكون بصيغة PDF فقط</li>
-            <li>الحد الأقصى لحجم الملف هو 10 ميغابايت</li>
-            <li>ستتلقى إشعارًا عند الموافقة على الطلب أو رفضه</li>
+            <li>{{ translationService.translate('profile.note1') }}</li>
+            <li>{{ translationService.translate('profile.note2') }}</li>
+            <li>{{ translationService.translate('profile.note3') }}</li>
+            <li>{{ translationService.translate('profile.note4') }}</li>
+            <li>{{ translationService.translate('profile.note5') }}</li>
           </ul>
         </div>
       </div>
@@ -301,11 +313,11 @@
     <!-- Notifications Section -->
     <div id="notifications" *ngIf="activeSection === 'notifications'" class="card shadow-sm mt-4">
       <div class="card-header">
-        <h3 class="mb-0">الإشعارات</h3>
+        <h3 class="mb-0">{{ translationService.translate('profile.notificationsTitle') }}</h3>
       </div>
       <div class="card-body">
         <div *ngIf="notifications.length === 0" class="alert alert-info">
-          لا توجد إشعارات جديدة.
+          {{ translationService.translate('profile.noNotifications') }}
         </div>
         <div *ngIf="notifications.length > 0" class="notification-list">
           <div *ngFor="let notification of notifications" class="alert alert-warning alert-dismissible fade show d-flex align-items-center justify-content-between">
@@ -314,10 +326,10 @@
               <small>({{ notification.createdAt | date:'short' }})</small>
             </div>
             <div>
-              <button class="btn btn-danger btn-sm me-2" (click)="deleteNotification(notification._id)">حذف</button>
+              <button class="btn btn-danger btn-sm me-2" (click)="deleteNotification(notification._id)">{{ translationService.translate('profile.delete') }}</button>
             </div>
           </div>
-          <button class="btn btn-success mt-2" (click)="markNotificationsRead()">تحديد الكل كمقروء</button>
+          <button class="btn btn-success mt-2" (click)="markNotificationsRead()">{{ translationService.translate('profile.markAllRead') }}</button>
         </div>
       </div>
     </div>
@@ -325,32 +337,32 @@
     <!-- Students Section -->
     <div id="students" *ngIf="activeSection === 'students'" class="card shadow-sm mt-4">
       <div class="card-header">
-        <h3 class="mb-0">الطلاب</h3>
+        <h3 class="mb-0">{{ translationService.translate('profile.studentsTitle') }}</h3>
       </div>
       <div class="card-body">
         <div *ngIf="profile.numberOfStudents > 0 && profile.students.length === 0" class="alert alert-warning">
-          يوجد {{ profile.numberOfStudents }} طالب/طلاب مسجلين، لكن تفاصيل الطلاب غير متوفرة حاليًا. يرجى التواصل مع الإدارة.
+          {{ translationService.translate('profile.studentDataMismatch') }}
         </div>
         <div *ngIf="profile.numberOfStudents === 0 && profile.students.length === 0" class="alert alert-info">
-          لا يوجد طلاب مسجلين.
+          {{ translationService.translate('profile.noStudents') }}
         </div>
         <div class="table-responsive" *ngIf="profile.students.length > 0">
           <table class="table table-hover">
             <thead>
               <tr>
-                <th>الاسم</th>
-                <th>البريد الإلكتروني</th>
-                <th>الهاتف</th>
-                <th>الصف</th>
-                <th>المواد</th>
+                <th>{{ translationService.translate('profile.studentName') }}</th>
+                <th>{{ translationService.translate('profile.studentEmail') }}</th>
+                <th>{{ translationService.translate('profile.studentPhone') }}</th>
+                <th>{{ translationService.translate('profile.studentGrade') }}</th>
+                <th>{{ translationService.translate('profile.studentSubjects') }}</th>
               </tr>
             </thead>
             <tbody>
               <tr *ngFor="let student of profile.students">
-                <td>{{ student.name || 'غير متوفر' }}</td>
-                <td>{{ student.email || 'غير متوفر' }}</td>
-                <td>{{ student.phone || 'غير متوفر' }}</td>
-                <td>{{ student.grade || 'غير محدد' }}</td>
+                <td>{{ student.name || translationService.translate('profile.notAvailable') }}</td>
+                <td>{{ student.email || translationService.translate('profile.notAvailable') }}</td>
+                <td>{{ student.phone || translationService.translate('profile.notAvailable') }}</td>
+                <td>{{ student.grade || translationService.translate('profile.notSpecified') }}</td>
                 <td>{{ getStudentSubjects(student) }}</td>
               </tr>
             </tbody>
@@ -362,20 +374,20 @@
     <!-- Meetings Section -->
     <div id="meetings" *ngIf="activeSection === 'meetings'" class="card shadow-sm mt-4 mb-4">
       <div class="card-header">
-        <h3 class="mb-0">المواعيد</h3>
+        <h3 class="mb-0">{{ translationService.translate('profile.meetingsTitle') }}</h3>
       </div>
       <div class="card-body">
-        <button class="btn btn-success mb-3" (click)="openMeetingModal()">إضافة موعد</button>
-        <div *ngIf="profile?.meetings.length === 0" class="alert alert-info">لا يوجد مواعيد مسجلة.</div>
+        <button class="btn btn-success mb-3" (click)="openMeetingModal()">{{ translationService.translate('profile.addMeeting') }}</button>
+        <div *ngIf="profile?.meetings.length === 0" class="alert alert-info">{{ translationService.translate('profile.noMeetings') }}</div>
         <div class="table-responsive" *ngIf="profile?.meetings.length > 0">
           <table class="table table-hover">
             <thead>
               <tr>
-                <th>العنوان</th>
-                <th>التاريخ</th>
-                <th>وقت البدء</th>
-                <th>وقت الانتهاء</th>
-                <th>الإجراءات</th>
+                <th>{{ translationService.translate('profile.meetingTitle') }}</th>
+                <th>{{ translationService.translate('profile.meetingDate') }}</th>
+                <th>{{ translationService.translate('profile.startTime') }}</th>
+                <th>{{ translationService.translate('profile.endTime') }}</th>
+                <th>{{ translationService.translate('profile.actions') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -385,7 +397,9 @@
                 <td>{{ meeting.startTime }}</td>
                 <td>{{ meeting.endTime }}</td>
                 <td>
-                  <button class="btn btn-danger btn-sm" (click)="deleteMeeting(meeting.id)">حذف</button>
+                  <button class="btn btn-danger btn-sm" [disabled]="isDeletingMeeting[meeting.id]" (click)="deleteMeeting(meeting.id)">
+                    {{ isDeletingMeeting[meeting.id] ? translationService.translate('profile.deleting') : translationService.translate('profile.delete') }}
+                  </button>
                 </td>
               </tr>
             </tbody>
@@ -395,75 +409,75 @@
     </div>
 
     <!-- Password Change Modal -->
-    <div class="modal fade" [ngClass]="{'show d-block': showPasswordModal}" tabindex="-1" role="dialog" aria-labelledby="passwordModalLabel" aria-hidden="true">
+    <div class="modal fade" [ngClass]="{'show d-block': showPasswordModal}" tabindex="-1" role="dialog" [attr.aria-labelledby]="translationService.translate('profile.changePassword')">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="passwordModalLabel">تغيير كلمة المرور</h5>
-            <button type="button" class="btn-close" (click)="closePasswordModal()" aria-label="Close"></button>
+            <h5 class="modal-title">{{ translationService.translate('profile.changePassword') }}</h5>
+            <button type="button" class="btn-close" (click)="closePasswordModal()" [attr.aria-label]="translationService.translate('profile.close')"></button>
           </div>
           <div class="modal-body">
-            <!-- Error Message -->
-            <div *ngIf="error" class="alert alert-danger alert-dismissible fade show" role="alert">
-              {{ error }}
-              <button type="button" class="btn-close" (click)="error = null"></button>
-            </div>
-            <!-- Forgot Password Button for Incorrect Password -->
-            <div *ngIf="errorCode === 'incorrect_password'" class="mb-3 text-center">
-              <button class="btn btn-link" (click)="navigateToForgotPassword()" aria-label="نسيت كلمة المرور">هل نسيت كلمة المرور؟</button>
-            </div>
             <div class="mb-3">
-              <label for="currentPassword" class="form-label">كلمة المرور الحالية</label>
-              <input type="password" class="form-control" id="currentPassword" [(ngModel)]="currentPassword" [class.is-invalid]="errorCode === 'incorrect_password'">
+              <label for="currentPassword" class="form-label">{{ translationService.translate('profile.currentPassword') }}</label>
+              <input type="password" class="form-control" id="currentPassword" [(ngModel)]="currentPassword" [class.is-invalid]="errorCode === 'incorrect_password' || errorCode === 'missing_fields'">
               <div *ngIf="errorCode === 'incorrect_password'" class="invalid-feedback">
-                كلمة المرور الحالية غير صحيحة
+                {{ translationService.translate('profile.validation.currentPassword.incorrect') }}
+              </div>
+              <div *ngIf="errorCode === 'missing_fields'" class="invalid-feedback">
+                {{ translationService.translate('profile.passwordFieldsRequired') }}
               </div>
             </div>
             <div class="mb-3">
-              <label for="newPassword" class="form-label">كلمة المرور الجديدة</label>
-              <input type="password" class="form-control" id="newPassword" [(ngModel)]="newPassword" [class.is-invalid]="errorCode === 'same_password'">
+              <label for="newPassword" class="form-label">{{ translationService.translate('profile.newPassword') }}</label>
+              <input type="password" class="form-control" id="newPassword" [(ngModel)]="newPassword" [class.is-invalid]="errorCode === 'same_password' || errorCode === 'missing_fields'">
               <div *ngIf="errorCode === 'same_password'" class="invalid-feedback">
-                كلمة المرور الجديدة لا يمكن أن تكون نفس كلمة المرور الحالية
+                {{ translationService.translate('profile.validation.newPassword.same') }}
               </div>
+              <div *ngIf="errorCode === 'missing_fields'" class="invalid-feedback">
+                {{ translationService.translate('profile.passwordFieldsRequired') }}
+              </div>
+            </div>
+            <div *ngIf="errorCode === 'incorrect_password'" class="mb-3 text-center">
+              <button class="btn btn-link" (click)="navigateToForgotPassword()" [attr.aria-label]="translationService.translate('profile.forgotPassword')">{{ translationService.translate('profile.forgotPassword') }}</button>
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" (click)="closePasswordModal()">إغلاق</button>
-            <button type="button" class="btn btn-primary" (click)="changePassword()">حفظ التغييرات</button>
+            <button type="button" class="btn btn-secondary" (click)="closePasswordModal()">{{ translationService.translate('profile.close') }}</button>
+            <button type="button" class="btn btn-primary" (click)="changePassword()">{{ translationService.translate('profile.saveChanges') }}</button>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Meeting Modal -->
-    <div class="modal fade" [ngClass]="{'show d-block': showMeetingModal}" tabindex="-1" role="dialog" aria-labelledby="meetingModalLabel" aria-hidden="true">
+    <div class="modal fade" [ngClass]="{'show d-block': showMeetingModal}" tabindex="-1" role="dialog" [attr.aria-labelledby]="translationService.translate('profile.addMeeting')">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="meetingModalLabel">إضافة موعد</h5>
-            <button type="button" class="btn-close" (click)="closeMeetingModal()" aria-label="Close"></button>
+            <h5 class="modal-title">{{ translationService.translate('profile.addMeeting') }}</h5>
+            <button type="button" class="btn-close" (click)="closeMeetingModal()" [attr.aria-label]="translationService.translate('profile.close')"></button>
           </div>
           <div class="modal-body">
             <div class="mb-3">
-              <label for="meetingTitle" class="form-label">العنوان</label>
+              <label for="meetingTitle" class="form-label">{{ translationService.translate('profile.meetingTitle') }}</label>
               <input type="text" class="form-control" id="meetingTitle" [(ngModel)]="meeting.title">
             </div>
             <div class="mb-3">
-              <label for="meetingDate" class="form-label">التاريخ</label>
+              <label for="meetingDate" class="form-label">{{ translationService.translate('profile.meetingDate') }}</label>
               <input type="date" class="form-control" id="meetingDate" [(ngModel)]="meeting.date">
             </div>
             <div class="mb-3">
-              <label for="startTime" class="form-label">وقت البدء</label>
+              <label for="startTime" class="form-label">{{ translationService.translate('profile.startTime') }}</label>
               <input type="time" class="form-control" id="startTime" [(ngModel)]="meeting.startTime">
             </div>
             <div class="mb-3">
-              <label for="endTime" class="form-label">وقت الانتهاء</label>
+              <label for="endTime" class="form-label">{{ translationService.translate('profile.endTime') }}</label>
               <input type="time" class="form-control" id="endTime" [(ngModel)]="meeting.endTime">
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" (click)="closeMeetingModal()">إغلاق</button>
-            <button type="button" class="btn btn-primary" (click)="addMeeting()">حفظ الموعد</button>
+            <button type="button" class="btn btn-secondary" (click)="closeMeetingModal()">{{ translationService.translate('profile.close') }}</button>
+            <button type="button" class="btn btn-primary" (click)="addMeeting()">{{ translationService.translate('profile.saveMeeting') }}</button>
           </div>
         </div>
       </div>

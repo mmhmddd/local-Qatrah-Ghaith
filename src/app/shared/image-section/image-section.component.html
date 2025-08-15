@@ -1,21 +1,24 @@
-<div class="container image-section-container">
+<div class="container image-section-container" [dir]="translationService.isRtl() ? 'rtl' : 'ltr'">
   <div class="section-header">
-    <span class="section-badge">معرض الصور</span>
-    <h2 class="section-title">ألبوم الصور الخاص بنا</h2>
-    <p class="section-description">استعرض مجموعتنا من الصور التي تعكس جهودنا في دعم الأطفال ومرضى السرطان في غزة.</p>
+    <span class="section-badge">{{ translationService.translate('gallery.sectionBadge') }}</span>
+    <h2 class="section-title">{{ translationService.translate('gallery.sectionTitle') }}</h2>
+    <p class="section-description">{{ translationService.translate('gallery.sectionDescription') }}</p>
   </div>
-  <div class="image-grid">
+  <div class="image-grid" *ngIf="displayedImages.length > 0; else noImages">
     <div class="image-card" *ngFor="let image of displayedImages; let i = index" [ngClass]="{'active': i < 4}">
-      <img [src]="getImageUrl(image.imagePath)" [alt]="image.title" class="image-card-img">
+      <img [src]="getImageUrl(image.imagePath)" [alt]="image.title | translate" class="image-card-img">
       <div class="image-card-content">
-        <h3 class="image-title">{{ image.title }}</h3>
-        <p class="image-description">{{ image.description }}</p>
+        <h3 class="image-title">{{ image.title | translate }}</h3>
+        <p class="image-description">{{ image.description ?? '' | translate }}</p>
       </div>
     </div>
   </div>
+  <ng-template #noImages>
+    <p class="no-images-message">{{ translationService.translate('gallery.noImages') }}</p>
+  </ng-template>
   <div class="section-actions">
     <a class="hero-btn btn-primary" (click)="goToGallery()">
-      شاهد معرض الصور
+      {{ translationService.translate('gallery.viewGallery') }}
     </a>
   </div>
 </div>

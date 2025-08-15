@@ -2,15 +2,16 @@ import { Component, AfterViewInit, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { isPlatformBrowser } from '@angular/common';
 import { TestimonialsService, Testimonial } from '../../core/services/testimonials.service';
+import { TranslationService } from '../../core/services/translation.service';
 import Swiper from 'swiper';
 import { Autoplay, Pagination } from 'swiper/modules';
-
+import { TranslatePipe } from '../../pipes/translate.pipe';
 Swiper.use([Autoplay, Pagination]);
 
 @Component({
   selector: 'app-testimonials',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslatePipe],
   templateUrl: './testimonials.component.html',
   styleUrls: ['./testimonials.component.scss']
 })
@@ -21,6 +22,7 @@ export class TestimonialsComponent implements AfterViewInit {
 
   constructor(
     private testimonialsService: TestimonialsService,
+    public translationService: TranslationService, // Changed to public
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
@@ -37,7 +39,7 @@ export class TestimonialsComponent implements AfterViewInit {
         setTimeout(() => this.initializeSwiper(), 0);
       },
       error: (err) => {
-        this.error = err.message || 'خطأ في جلب الشهادات';
+        this.error = err.message || this.translationService.translate('testimonials.errorDefault');
         this.testimonials = [];
         this.testimonialChunks = [];
         setTimeout(() => this.initializeSwiper(), 0);

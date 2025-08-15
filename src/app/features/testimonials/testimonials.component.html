@@ -1,29 +1,27 @@
 <section class="hero-section">
   <div class="container hero-container">
-    <div class="text-container" dir="rtl">
-      <h1 class="hero-title">آراء المستفيدين</h1>
-      <p class="hero-description">
-        نَبني أُمّة لتحي أُمّة، لا يسودها الأُمّية؛ لنبني حضارة
-      </p>
-      <button class="hero-button btn" (click)="scrollToSwiper()">عرض جميع الآراء</button>
+    <div class="text-container" [attr.dir]="translationService.isRtl() ? 'rtl' : 'ltr'">
+      <h1 class="hero-title">{{ 'testimonials.heroTitle' | translate }}</h1>
+      <p class="hero-description">{{ 'testimonials.heroDescription' | translate }}</p>
+      <button class="hero-button btn" (click)="scrollToSwiper()">{{ 'testimonials.viewAllButton' | translate }}</button>
     </div>
   </div>
 </section>
 
 <section class="values-section">
   <div class="container values-container">
-    <div class="row text-center" dir="rtl">
+    <div class="row text-center" [attr.dir]="translationService.isRtl() ? 'rtl' : 'ltr'">
       <div class="col-4 value-item">
         <i class="fas fa-lightbulb fa-3x value-icon"></i>
-        <h3 class="value-title">الخبرة</h3>
+        <h3 class="value-title">{{ 'testimonials.valueExperience' | translate }}</h3>
       </div>
       <div class="col-4 value-item">
         <i class="fas fa-book fa-3x value-icon"></i>
-        <h3 class="value-title">التعلم</h3>
+        <h3 class="value-title">{{ 'testimonials.valueLearning' | translate }}</h3>
       </div>
       <div class="col-4 value-item">
         <i class="fas fa-heart fa-3x value-icon"></i>
-        <h3 class="value-title">الإنسانية</h3>
+        <h3 class="value-title">{{ 'testimonials.valueHumanity' | translate }}</h3>
       </div>
     </div>
   </div>
@@ -37,7 +35,7 @@
         <div class="testimonial-card card" *ngFor="let testimonial of slideTestimonials">
           <div class="card-body">
             <div class="profile-container d-flex">
-              <img [src]="getImageUrl(testimonial.image)" alt="Profile" class="profile-image" (error)="handleImageError($event)">
+              <img [src]="getImageUrl(testimonial.image)" alt="{{ 'testimonials.profileAlt' | translate }}" class="profile-image" (error)="handleImageError($event)">
               <div class="profile-text">
                 <h3 class="name">{{ testimonial.name }}</h3>
                 <span class="role" *ngIf="testimonial.major">{{ testimonial.major }}</span>
@@ -46,7 +44,7 @@
             <div class="rating">
               <span *ngFor="let star of [1,2,3,4,5]" [ngClass]="getStarClass(testimonial.rating, star)">★</span>
             </div>
-            <p class="comment" lang="ar" dir="rtl">{{ testimonial.reviewText }}</p>
+            <p class="comment" [attr.lang]="translationService.isRtl() ? 'ar' : 'en'" [attr.dir]="translationService.isRtl() ? 'rtl' : 'ltr'">{{ testimonial.reviewText }}</p>
           </div>
         </div>
         <!-- Add placeholder card if only one testimonial in chunk -->
@@ -54,12 +52,12 @@
           <div class="card-body">
             <div class="profile-container d-flex align-items-center">
               <div class="profile-image placeholder-image"></div>
-              <h3 class="name placeholder-text">...</h3>
+              <h3 class="name placeholder-text">{{ 'testimonials.placeholderText' | translate }}</h3>
             </div>
             <div class="rating">
-              <span class="star placeholder-text">...</span>
+              <span class="star placeholder-text">{{ 'testimonials.placeholderText' | translate }}</span>
             </div>
-            <p class="comment placeholder-text">...</p>
+            <p class="comment placeholder-text">{{ 'testimonials.placeholderText' | translate }}</p>
           </div>
         </div>
       </div>
@@ -70,6 +68,6 @@
 
 <ng-template #noTestimonials>
   <div class="alert alert-info">
-    لا توجد شهادات متاحة حاليًا
+    {{ 'testimonials.noTestimonials' | translate }}
   </div>
 </ng-template>

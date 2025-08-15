@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Pdf, PdfService } from '../../core/services/pdf.service';
-
+import { TranslationService } from '../../core/services/translation.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 @Component({
   selector: 'app-library',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslatePipe],
   templateUrl: './library.component.html',
   styleUrls: ['./library.component.scss']
 })
@@ -40,10 +41,25 @@ export class LibraryComponent implements OnInit {
     'تاسع': 'level-تاسع',
     'عاشر': 'level-عاشر',
     'أول ثانوي': 'level-أول-ثانوي',
-    'ثانوي (توجيهي)': 'level-ثانوي-توجيهي'
+    'ثانوي (توجيهي)': 'level-ثانوي-توجيهي',
+    'First': 'level-first',
+    'Second': 'level-second',
+    'Third': 'level-third',
+    'Fourth': 'level-fourth',
+    'Fifth': 'level-fifth',
+    'Sixth': 'level-sixth',
+    'Seventh': 'level-seventh',
+    'Eighth': 'level-eighth',
+    'Ninth': 'level-ninth',
+    'Tenth': 'level-tenth',
+    'First Secondary': 'level-first-secondary',
+    'Secondary (Tawjihi)': 'level-secondary-tawjihi'
   };
 
-  constructor(private pdfService: PdfService) {}
+  constructor(
+    private pdfService: PdfService,
+    public translationService: TranslationService
+  ) {}
 
   ngOnInit(): void {
     this.loadPdfs();
@@ -58,11 +74,11 @@ export class LibraryComponent implements OnInit {
         next: (pdfs) => {
           this.pdfs = pdfs;
           this.filteredPdfs = pdfs;
-          this.errorMessage = pdfs.length === 0 ? 'لا توجد ملفات PDF لعرضها' : null;
+          this.errorMessage = pdfs.length === 0 ? this.translationService.translate('library.noPdfs') : null;
           this.initializeFilters(pdfs);
         },
         error: (err) => {
-          this.errorMessage = err.message || 'حدث خطأ في تحميل الملفات';
+          this.errorMessage = err.message || this.translationService.translate('library.errorLoadingPdfs');
           this.clearMessages();
         }
       });
@@ -124,7 +140,7 @@ export class LibraryComponent implements OnInit {
 
     // Show message if no results found
     if (tempPdfs.length === 0 && this.pdfs.length > 0) {
-      this.errorMessage = 'لا توجد نتائج تطابق البحث المحدد';
+      this.errorMessage = this.translationService.translate('library.noResults');
     } else if (tempPdfs.length > 0) {
       this.errorMessage = null;
     }
@@ -142,7 +158,7 @@ export class LibraryComponent implements OnInit {
       country: ''
     };
     this.filteredPdfs = [...this.pdfs];
-    this.errorMessage = this.pdfs.length === 0 ? 'لا توجد ملفات PDF لعرضها' : null;
+    this.errorMessage = this.pdfs.length === 0 ? this.translationService.translate('library.noPdfs') : null;
   }
 
   /**
@@ -150,7 +166,7 @@ export class LibraryComponent implements OnInit {
    */
   openPdf(id: string): void {
     if (!id) {
-      this.showErrorMessage('معرف الملف غير صحيح');
+      this.showErrorMessage(this.translationService.translate('library.invalidId'));
       return;
     }
 
@@ -162,28 +178,30 @@ export class LibraryComponent implements OnInit {
             const newWindow = window.open(url, '_blank');
 
             if (!newWindow) {
-              this.showErrorMessage('فشل في فتح الملف. تأكد من السماح للنوافذ المنبثقة');
+              this.showErrorMessage(this.translationService.translate('library.popupBlocked'));
             } else {
-              this.showSuccessMessage('تم فتح الملف بنجاح');
+              this.showSuccessMessage(this.translationService.translate('library.fileOpened'));
             }
 
             setTimeout(() => {
               URL.revokeObjectURL(url);
             }, 1000);
           } catch (error) {
-            this.showErrorMessage('حدث خطأ في فتح الملف');
+            this.showErrorMessage(this.translationService.translate('library.errorOpeningFile'));
           }
         },
         error: (err) => {
-          this.showErrorMessage(err.message || 'فشل في تحميل الملف');
+          this.showErrorMessage(err.message || this.translationService.translate('library.errorLoadingFile'));
         }
       });
   }
 
-
+  /**
+   * Share PDF link
+   */
   sharePdf(id: string): void {
     if (!id) {
-      this.showErrorMessage('معرف الملف غير صحيح');
+      this.showErrorMessage(this.translationService.translate('library.invalidId'));
       return;
     }
 
@@ -192,7 +210,7 @@ export class LibraryComponent implements OnInit {
     if (navigator.clipboard && window.isSecureContext) {
       navigator.clipboard.writeText(shareUrl)
         .then(() => {
-          this.showSuccessMessage('تم نسخ رابط المشاركة بنجاح');
+          this.showSuccessMessage(this.translationService.translate('library.linkCopied'));
         })
         .catch(() => {
           this.fallbackCopyTextToClipboard(shareUrl);
@@ -202,7 +220,9 @@ export class LibraryComponent implements OnInit {
     }
   }
 
-
+  /**
+   * Fallback method for copying text to clipboard
+   */
   private fallbackCopyTextToClipboard(text: string): void {
     const textArea = document.createElement('textarea');
     textArea.value = text;
@@ -215,28 +235,35 @@ export class LibraryComponent implements OnInit {
 
     try {
       document.execCommand('copy');
-      this.showSuccessMessage('تم نسخ رابط المشاركة بنجاح');
+      this.showSuccessMessage(this.translationService.translate('library.linkCopied'));
     } catch (err) {
-      this.showErrorMessage('فشل في نسخ الرابط. يرجى النسخ يدوياً');
+      this.showErrorMessage(this.translationService.translate('library.copyFailed'));
     } finally {
       document.body.removeChild(textArea);
     }
   }
 
-
+  /**
+   * Show success message
+   */
   private showSuccessMessage(message: string): void {
     this.successMessage = message;
     this.errorMessage = null;
     this.clearMessages();
   }
 
-
+  /**
+   * Show error message
+   */
   private showErrorMessage(message: string): void {
     this.errorMessage = message;
     this.successMessage = null;
     this.clearMessages();
   }
 
+  /**
+   * Clear messages after a delay
+   */
   private clearMessages(): void {
     setTimeout(() => {
       this.successMessage = null;
@@ -244,11 +271,16 @@ export class LibraryComponent implements OnInit {
     }, 4000);
   }
 
-
+  /**
+   * Get CSS class for academic level
+   */
   getAcademicLevelClass(level: string): string {
     return this.academicLevelClassMap[level] || 'level-default';
   }
 
+  /**
+   * Track PDFs by ID for better performance
+   */
   trackByPdfId(index: number, pdf: Pdf): string {
     return pdf.id;
   }

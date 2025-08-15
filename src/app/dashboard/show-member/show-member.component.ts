@@ -25,6 +25,10 @@ export class ShowMemberComponent implements OnInit {
   editedStudents: { name: string; email: string; phone: string; grade?: string; subjects: string[] }[] = [];
   subjectCount: number = 0;
   subjectInputs: string[] = [];
+  activeMessage: { _id: string; content: string; displayUntil: string } | null = null;
+  newMessage = { content: '', displayDays: 7 };
+  messageError = { content: '', displayDays: '' };
+  isLoadingMessages = false;
 
   constructor(
     private joinRequestService: JoinRequestService,
@@ -40,8 +44,10 @@ export class ShowMemberComponent implements OnInit {
     if (this.memberId) {
       this.loadMemberDetails(this.memberId);
       this.loadNotifications();
+      this.loadMemberMessages(this.memberId);
     } else {
       this.showToast('معرف العضو غير موجود', 'error');
+      this.router.navigate(['/']);
     }
   }
 
@@ -53,18 +59,19 @@ export class ShowMemberComponent implements OnInit {
     if (!localStorage.getItem('token')) {
       this.showToast('يرجى تسجيل الدخول للوصول إلى تفاصيل العضو', 'error');
       this.router.navigate(['/login']);
+    } else if (this.memberId) {
+      this.loadMemberMessages(this.memberId);
     }
   }
 
   loadMemberDetails(id: string): void {
     this.joinRequestService.getMember(id).subscribe({
       next: (response: JoinRequestResponse) => {
-        console.log('Member response:', response);
         if (response.success && response.member) {
           this.member = {
             ...response.member,
-            id: response.member.id || response.member.id,
-            createdAt: new Date(response.member.createdAt).toLocaleDateString('en-US', {
+            id: response.member.id,
+            createdAt: new Date(response.member.createdAt).toLocaleDateString('ar-EG', {
               year: 'numeric',
               month: '2-digit',
               day: '2-digit'
@@ -72,7 +79,7 @@ export class ShowMemberComponent implements OnInit {
             lectureCount: response.member.lectureCount || 0,
             lectures: response.member.lectures.map(lecture => ({
               ...lecture,
-              createdAt: new Date(lecture.createdAt).toLocaleDateString('en-US', {
+              createdAt: new Date(lecture.createdAt).toLocaleDateString('ar-EG', {
                 year: 'numeric',
                 month: '2-digit',
                 day: '2-digit'
@@ -190,7 +197,6 @@ export class ShowMemberComponent implements OnInit {
       return;
     }
 
-    // Basic validation
     if (!this.newStudent.name.trim() || !this.newStudent.email.trim() || !this.newStudent.phone.trim()) {
       this.showToast('يرجى إدخال جميع تفاصيل الطالب الأساسية (الاسم، البريد الإلكتروني، الهاتف)', 'error');
       return;
@@ -206,35 +212,21 @@ export class ShowMemberComponent implements OnInit {
       return;
     }
 
-    // Handle subjects
     let subjects: string[] = [];
-
     if (this.subjectCount > 0) {
-      // Get valid subjects from inputs
       const validSubjects = this.subjectInputs
         .map(subject => subject.trim())
         .filter(subject => subject !== '');
-
       if (validSubjects.length !== Number(this.subjectCount)) {
-        this.showToast(`يرجى إدخال ${this.subjectCount} مادة/مواد بالكامل، تأكد من ملء جميع حقول المواد`, 'error');
+        this.showToast(`يرجى إدخال ${this.subjectCount} مادة/مواد بالكامل`, 'error');
         return;
       }
-
       if (validSubjects.some(subject => subject.length < 1 || subject.length > 100)) {
         this.showToast('كل مادة يجب أن تكون بين 1 و100 حرف', 'error');
         return;
       }
-
       subjects = validSubjects;
     }
-
-    console.log('Adding student with data:', {
-      name: this.newStudent.name.trim(),
-      email: this.newStudent.email.trim(),
-      phone: this.newStudent.phone.trim(),
-      grade: this.newStudent.grade?.trim() || undefined,
-      subjects: subjects
-    });
 
     this.joinRequestService.addStudent(
       this.memberId,
@@ -245,7 +237,6 @@ export class ShowMemberComponent implements OnInit {
       subjects
     ).subscribe({
       next: (response: JoinRequestResponse) => {
-        console.log('Add student response:', response);
         if (response.success && response.data && this.member) {
           this.member.students = response.data.students;
           this.member.numberOfStudents = response.data.numberOfStudents;
@@ -256,11 +247,8 @@ export class ShowMemberComponent implements OnInit {
             subjects: student.subjects || []
           }))];
           this.editedSubjects = [...this.member.subjects];
-
-          // Reset form
           this.newStudent = { name: '', email: '', phone: '', grade: '', subjects: [] };
           this.clearSubjectInputs();
-
           this.showToast(response.message || 'تم إضافة الطالب بنجاح', 'success');
           this.checkMonthlyLectures();
         } else {
@@ -268,8 +256,8 @@ export class ShowMemberComponent implements OnInit {
         }
       },
       error: (err) => {
+        this.showToast(err.message || 'حدث خطأ أثناء إضافة الطالب', 'error');
         console.error('Add student error:', err);
-        this.showToast(err.message || 'حدث خطأ أثناء إضافة الطالب، تحقق من البيانات أو الاتصال بالخادم', 'error');
       }
     });
   }
@@ -372,6 +360,108 @@ export class ShowMemberComponent implements OnInit {
         error: (err) => {
           this.showToast(err.message || 'حدث خطأ أثناء حذف المحاضرة', 'error');
           console.error('Delete lecture error:', err);
+        }
+      });
+    }
+  }
+
+  loadMemberMessages(id: string): void {
+    this.isLoadingMessages = true;
+    this.joinRequestService.getMember(id).subscribe({
+      next: (response: JoinRequestResponse) => {
+        this.isLoadingMessages = false;
+        if (response.success && response.member) {
+          const messages = response.member.messages || [];
+          const activeMessages = messages.filter(
+            (msg: { _id: string; content: string; displayUntil: string }) =>
+              new Date(msg.displayUntil) > new Date()
+          );
+          this.activeMessage = activeMessages.length > 0 ? {
+            _id: activeMessages[0]._id,
+            content: activeMessages[0].content,
+            displayUntil: new Date(activeMessages[0].displayUntil).toISOString()
+          } : null;
+          this.newMessage = { content: '', displayDays: 7 };
+          this.messageError = { content: '', displayDays: '' };
+        } else {
+          this.showToast(response.message || 'فشل في جلب الرسائل', 'error');
+          this.activeMessage = null;
+        }
+      },
+      error: (err) => {
+        this.isLoadingMessages = false;
+        this.showToast(err.message || 'حدث خطأ أثناء جلب الرسائل', 'error');
+        console.error('Load messages error:', err);
+        this.activeMessage = null;
+      }
+    });
+  }
+
+  sendMessage(): void {
+    if (!this.memberId) {
+      this.showToast('معرف العضو غير موجود', 'error');
+      return;
+    }
+    this.messageError = { content: '', displayDays: '' };
+    if (!this.newMessage.content.trim()) {
+      this.messageError.content = 'نص الرسالة مطلوب';
+      this.showToast('يرجى إدخال نص الرسالة', 'error');
+      return;
+    }
+    if (this.newMessage.content.length > 1000) {
+      this.messageError.content = 'الرسالة يجب أن تكون أقل من 1000 حرف';
+      this.showToast('الرسالة طويلة جدًا', 'error');
+      return;
+    }
+    if (!Number.isInteger(this.newMessage.displayDays) || this.newMessage.displayDays < 1 || this.newMessage.displayDays > 30) {
+      this.messageError.displayDays = 'عدد الأيام يجب أن يكون بين 1 و30';
+      this.showToast('عدد الأيام غير صالح', 'error');
+      return;
+    }
+    this.joinRequestService.sendMessage(this.memberId, this.newMessage.content.trim(), this.newMessage.displayDays).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.activeMessage = { _id: response.data._id || '', content: this.newMessage.content, displayUntil: response.data.displayUntil };
+          this.newMessage = { content: '', displayDays: 7 };
+          this.showToast(response.message || 'تم إرسال الرسالة بنجاح', 'success');
+          this.loadMemberMessages(this.memberId!); // Refresh messages
+        } else {
+          this.showToast(response.message || 'فشل في إرسال الرسالة', 'error');
+        }
+      },
+      error: (err) => {
+        if (err.data && err.data._id) {
+          this.activeMessage = err.data;
+          this.showToast('يوجد رسالة نشطة بالفعل، يرجى حذفها أولاً', 'error');
+        } else {
+          this.showToast(err.message || 'حدث خطأ أثناء إرسال الرسالة', 'error');
+        }
+        console.error('Send message error:', err);
+      }
+    });
+  }
+
+  deleteMessage(): void {
+    if (!this.memberId || !this.activeMessage) {
+      this.showToast('معرف العضو أو الرسالة غير موجود', 'error');
+      return;
+    }
+    if (confirm('هل أنت متأكد من حذف هذه الرسالة؟')) {
+      this.joinRequestService.deleteMessage(this.memberId, this.activeMessage._id).subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.activeMessage = null;
+            this.newMessage = { content: '', displayDays: 7 };
+            this.messageError = { content: '', displayDays: '' };
+            this.showToast(response.message || 'تم حذف الرسالة بنجاح', 'success');
+            this.loadMemberMessages(this.memberId!); // Refresh messages
+          } else {
+            this.showToast(response.message || 'فشل في حذف الرسالة', 'error');
+          }
+        },
+        error: (err) => {
+          this.showToast(err.message || 'حدث خطأ أثناء حذف الرسالة', 'error');
+          console.error('Delete message error:', err);
         }
       });
     }

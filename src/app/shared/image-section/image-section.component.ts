@@ -1,13 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { GalleryService, GalleryImage, GalleryResponse } from '../../core/services/gallery.service';
-import { Router } from '@angular/router';
 import { CommonModule, ViewportScroller } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
+import { TranslationService } from '../../core/services/translation.service';
+import { GalleryService, GalleryImage, GalleryResponse } from '../../core/services/gallery.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 @Component({
   selector: 'app-image-section',
   standalone: true,
-  imports: [RouterModule, CommonModule],
+  imports: [CommonModule, RouterModule, TranslatePipe],
   templateUrl: './image-section.component.html',
   styleUrls: ['./image-section.component.scss']
 })
@@ -17,7 +18,8 @@ export class ImageSectionComponent implements OnInit {
   constructor(
     private galleryService: GalleryService,
     private router: Router,
-    private viewportScroller: ViewportScroller
+    private viewportScroller: ViewportScroller,
+    public translationService: TranslationService
   ) {}
 
   ngOnInit() {
@@ -25,6 +27,8 @@ export class ImageSectionComponent implements OnInit {
       next: (response: GalleryResponse) => {
         if (response.success && Array.isArray(response.data)) {
           this.displayedImages = response.data.slice(0, 4);
+        } else {
+          console.warn('No images found or invalid response');
         }
       },
       error: (error: any) => {
@@ -39,12 +43,10 @@ export class ImageSectionComponent implements OnInit {
 
   goToGallery() {
     const currentUrl = this.router.url.split('#')[0];
-
     if (currentUrl === '/gallery') {
       this.viewportScroller.scrollToAnchor('gallery');
     } else {
-      // Navigate to gallery page with fragment
-      this.router.navigate(['/last-news'], { fragment: 'gallerysection' });
+      this.router.navigate(['/gallery'], { fragment: 'gallerysection' });
     }
   }
 }

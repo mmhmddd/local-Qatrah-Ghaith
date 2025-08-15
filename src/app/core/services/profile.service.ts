@@ -1,4 +1,3 @@
-// profile.service.ts
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
@@ -18,6 +17,7 @@ export interface UserProfile {
   meetings: { _id?: string; id?: string; title: string; date: string | Date; startTime: string; endTime: string }[];
   lectures: { _id: string; link: string; createdAt: string }[];
   lectureCount: number;
+  messages: { _id: string; content: string; createdAt: string; displayUntil: string }[];
 }
 
 export interface ProfileResponse {
@@ -78,6 +78,14 @@ export class ProfileService {
         if (!response.success || !response.data || !response.data.user) {
           throw new Error(response.message || 'Invalid profile data');
         }
+        // Filter out meetings without a valid _id
+        const validMeetings = response.data.user.meetings.filter(meeting => meeting._id).map(meeting => ({
+          id: meeting._id,
+          title: meeting.title,
+          date: typeof meeting.date === 'string' ? meeting.date : new Date(meeting.date).toISOString().split('T')[0],
+          startTime: meeting.startTime,
+          endTime: meeting.endTime,
+        }));
         return {
           success: true,
           message: response.message || 'تم جلب بيانات الملف الشخصي بنجاح',
@@ -88,15 +96,15 @@ export class ProfileService {
             numberOfStudents: response.data.user.numberOfStudents,
             subjects: response.data.user.subjects,
             students: response.data.user.students,
-            meetings: response.data.user.meetings.map(meeting => ({
-              id: meeting._id || meeting.id || '',
-              title: meeting.title,
-              date: typeof meeting.date === 'string' ? meeting.date : new Date(meeting.date).toISOString().split('T')[0],
-              startTime: meeting.startTime,
-              endTime: meeting.endTime,
-            })),
+            meetings: validMeetings,
             lectures: response.data.user.lectures || [],
             lectureCount: response.data.user.lectureCount || 0,
+            messages: response.data.user.messages.map(message => ({
+              _id: message._id,
+              content: message.content,
+              createdAt: message.createdAt,
+              displayUntil: message.displayUntil
+            })) || [],
             name: response.data.joinRequest?.name || '',
             phone: response.data.joinRequest?.phone || '',
             address: response.data.joinRequest?.address || '',
@@ -198,10 +206,11 @@ export class ProfileService {
   }
 
   deleteMeeting(meetingId: string): Observable<{ success: boolean; data: { meetings: any }; message?: string }> {
-    if (!meetingId) {
+    if (!meetingId || meetingId.trim() === '') {
+      console.error('Invalid meetingId:', meetingId);
       return throwError(() => ({
         success: false,
-        message: 'معرف الموعد مطلوب',
+        message: 'معرف الموعد مطلوب ويجب أن يكون صالحًا',
       }));
     }
     return this.http.delete<MeetingResponse>(ApiEndpoints.profile.deleteMeeting(meetingId), { headers: this.getHeaders() }).pipe(
@@ -209,7 +218,7 @@ export class ProfileService {
         success: true,
         data: { meetings: response.meetings },
         message: response.message || 'تم حذف الموعد بنجاح',
-      })),
+      }),
       catchError(error => {
         console.error('Error deleting meeting:', error);
         return throwError(() => ({
@@ -218,6 +227,6 @@ export class ProfileService {
           error: error.message,
         }));
       })
-    );
+      ));
   }
 }

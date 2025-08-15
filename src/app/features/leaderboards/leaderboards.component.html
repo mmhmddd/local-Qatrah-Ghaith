@@ -1,15 +1,15 @@
-<div class="leaderboard-container">
+<div class="leaderboard-container" [attr.dir]="translationService.isRtl() ? 'rtl' : 'ltr'">
   <!-- Hero Section -->
   <div class="hero-section position-relative text-white d-flex align-items-center justify-content-center">
     <div class="hero-overlay"></div>
     <div class="container position-relative z-1">
       <div class="row align-items-center">
         <div class="col-lg-12 hero-content text-center text-lg-center">
-          <h1 class="display-4 fw-bold mb-4 animate__animated animate__fadeIn">لوحة الصدارة</h1>
+          <h1 class="display-4 fw-bold mb-4 animate__animated animate__fadeIn">{{ 'leaderboards.heroTitle' | translate }}</h1>
           <p class="lead mb-4 animate__animated animate__fadeIn animate__delay-1s">
-            اكتشف أفضل المتطوعين والقادة في منصتنا! انضم إلى صفوف المتميزين وساهم في تحقيق التغيير.
+            {{ 'leaderboards.heroDescription' | translate }}
           </p>
-          <a href="#join" class="btn btn-primary btn-lg animate__animated animate__fadeIn animate__delay-2s">انضم الآن</a>
+          <a href="#join" class="btn btn-primary btn-lg animate__animated animate__fadeIn animate__delay-2s">{{ 'leaderboards.joinNow' | translate }}</a>
         </div>
       </div>
     </div>
@@ -21,7 +21,7 @@
   <!-- Top 3 Leaders Section -->
   <div class="podium-section" *ngIf="topLeaders.length >= 1">
     <div class="container text-center">
-      <h2 class="display-5 fw-bold mb-5 animate__animated animate__fadeIn">أفضل القادة</h2>
+      <h2 class="display-5 fw-bold mb-5 animate__animated animate__fadeIn">{{ 'leaderboards.topLeaders' | translate }}</h2>
       <div class="podium-background rounded-3">
         <div class="row podium-users justify-content-center align-items-end gy-4">
           <!-- Second Place -->
@@ -31,14 +31,14 @@
               <img
                 *ngIf="topLeaders[1].image"
                 [src]="getImageUrl(topLeaders[1].image)"
-                alt="{{ topLeaders[1].name }}'s profile"
+                [alt]="topLeaders[1].name + ' ' + ('leaderboards.profileAlt' | translate)"
                 class="profile-img rounded-circle"
                 (error)="handleImageError(topLeaders[1])"
               />
               <div *ngIf="!topLeaders[1].image" class="fallback-icon rounded-circle">🏆</div>
             </div>
             <div class="user-name fw-bold">{{ topLeaders[1].name }}</div>
-            <div class="user-level text-muted">الرتبة: {{ topLeaders[1].rank || 'غير محدد' }}</div>
+            <div class="user-level text-muted">{{ 'leaderboards.rankLabel' | translate }}: {{ topLeaders[1].rank || ('leaderboards.rankNotSpecified' | translate) }}</div>
             <div class="podium-base second mt-3 mx-auto">
               <div class="rank-number">2</div>
             </div>
@@ -52,14 +52,14 @@
               <img
                 *ngIf="topLeaders[0].image"
                 [src]="getImageUrl(topLeaders[0].image)"
-                alt="{{ topLeaders[0].name }}'s profile"
+                [alt]="topLeaders[0].name + ' ' + ('leaderboards.profileAlt' | translate)"
                 class="profile-img rounded-circle"
                 (error)="handleImageError(topLeaders[0])"
               />
               <div *ngIf="!topLeaders[0].image" class="fallback-icon rounded-circle">🏆</div>
             </div>
             <div class="user-name fw-bold">{{ topLeaders[0].name }}</div>
-            <div class="user-level text-muted">الرتبة: {{ topLeaders[0].rank || 'غير محدد' }}</div>
+            <div class="user-level text-muted">{{ 'leaderboards.rankLabel' | translate }}: {{ topLeaders[0].rank || ('leaderboards.rankNotSpecified' | translate) }}</div>
             <div class="podium-base first mt-3 mx-auto">
               <div class="rank-number">1</div>
             </div>
@@ -72,14 +72,14 @@
               <img
                 *ngIf="topLeaders[2].image"
                 [src]="getImageUrl(topLeaders[2].image)"
-                alt="{{ topLeaders[2].name }}'s profile"
+                [alt]="topLeaders[2].name + ' ' + ('leaderboards.profileAlt' | translate)"
                 class="profile-img rounded-circle"
                 (error)="handleImageError(topLeaders[2])"
               />
               <div *ngIf="!topLeaders[2].image" class="fallback-icon rounded-circle">🏆</div>
             </div>
             <div class="user-name fw-bold">{{ topLeaders[2].name }}</div>
-            <div class="user-level text-muted">الرتبة: {{ topLeaders[2].rank || 'غير محدد' }}</div>
+            <div class="user-level text-muted">{{ 'leaderboards.rankLabel' | translate }}: {{ topLeaders[2].rank || ('leaderboards.rankNotSpecified' | translate) }}</div>
             <div class="podium-base third mt-3 mx-auto">
               <div class="rank-number">3</div>
             </div>
@@ -92,18 +92,18 @@
   <!-- Criteria Section -->
   <div class="criteria-section py-5">
     <div class="container text-center">
-      <h2 class="display-5 fw-bold mb-4 animate__animated animate__fadeIn">كن نجم التغيير!</h2>
+      <h2 class="display-5 fw-bold mb-4 animate__animated animate__fadeIn">{{ 'leaderboards.criteriaTitle' | translate }}</h2>
       <p class="lead mb-5 animate__animated animate__fadeIn animate__delay-1s">
-        انضم إلى مجتمعنا من المتطوعين والقادة المميزين، وساهم في بناء مستقبل مشرق! كل جهد تقدمه يصنع فارقًا ويقربك من القمة. ابدأ رحلتك الآن وكن جزءًا من التأثير الإيجابي!
+        {{ 'leaderboards.criteriaDescription' | translate }}
       </p>
-      <a href="#join" class="btn btn-primary btn-lg animate__animated animate__fadeIn animate__delay-2s">ساهم الآن</a>
+      <a href="#join" class="btn btn-primary btn-lg animate__animated animate__fadeIn animate__delay-2s">{{ 'leaderboards.contributeNow' | translate }}</a>
     </div>
   </div>
 
   <!-- Top 3 Volunteers Section -->
   <div class="volunteers-section py-5" *ngIf="topVolunteers.length >= 1">
     <div class="container text-center">
-      <h2 class="display-5 fw-bold mb-5 animate__animated animate__fadeIn">أفضل المتطوعين</h2>
+      <h2 class="display-5 fw-bold mb-5 animate__animated animate__fadeIn">{{ 'leaderboards.topVolunteers' | translate }}</h2>
       <div class="row volunteer-cards justify-content-center g-4">
         <div class="col-lg-4 col-md-6" *ngFor="let volunteer of topVolunteers; let i = index">
           <div class="volunteer-card position-relative rounded-3 shadow-lg animate__animated animate__fadeInUp" [ngClass]="'animate__delay-' + i + 's'">
@@ -112,7 +112,7 @@
               <img
                 *ngIf="volunteer.image"
                 [src]="getImageUrl(volunteer.image)"
-                alt="{{ volunteer.name }}'s profile"
+                [alt]="volunteer.name + ' ' + ('leaderboards.profileAlt' | translate)"
                 class="profile-img rounded-circle"
                 (error)="handleImageError(volunteer)"
               />
@@ -120,10 +120,10 @@
             </div>
             <div class="volunteer-details">
               <h3 class="h4 fw-bold mb-2">{{ volunteer.name }}</h3>
-              <p class="text-muted mb-2">الدرجة: {{ volunteer.score }}</p>
-              <p class="text-muted mb-2">ساعات التطوع: {{ volunteer.volunteerHours }}</p>
-              <p class="text-muted mb-2">عدد الطلاب: {{ volunteer.numberOfStudents }}</p>
-              <p class="text-muted mb-0">المواد: {{ volunteer.subjects.join(', ') || 'لا توجد مواد' }}</p>
+              <p class="text-muted mb-2">{{ 'leaderboards.scoreLabel' | translate }}: {{ volunteer.score }}</p>
+              <p class="text-muted mb-2">{{ 'leaderboards.volunteerHoursLabel' | translate }}: {{ volunteer.volunteerHours }}</p>
+              <p class="text-muted mb-2">{{ 'leaderboards.numberOfStudentsLabel' | translate }}: {{ volunteer.numberOfStudents }}</p>
+              <p class="text-muted mb-0">{{ 'leaderboards.subjectsLabel' | translate }}: {{ volunteer.subjects.join(', ') || ('leaderboards.noSubjects' | translate) }}</p>
             </div>
           </div>
         </div>
@@ -134,7 +134,7 @@
   <!-- Remaining Volunteers List -->
   <div class="ranking-list py-5" *ngIf="remainingVolunteers.length > 0">
     <div class="container">
-      <h2 class="display-5 fw-bold mb-5 text-center animate__animated animate__fadeIn">باقي تصنيفات المتطوعين</h2>
+      <h2 class="display-5 fw-bold mb-5 text-center animate__animated animate__fadeIn">{{ 'leaderboards.remainingVolunteers' | translate }}</h2>
       <div class="row g-4">
         <div class="col-12" *ngFor="let volunteer of remainingVolunteers; let i = index">
           <div class="ranking-item d-flex align-items-center rounded-3 shadow-sm animate__animated animate__fadeInUp" [ngClass]="'animate__delay-' + (i % 3) + 's'">
@@ -143,7 +143,7 @@
               <img
                 *ngIf="volunteer.image"
                 [src]="getImageUrl(volunteer.image)"
-                alt="{{ volunteer.name }}'s profile"
+                [alt]="volunteer.name + ' ' + ('leaderboards.profileAlt' | translate)"
                 class="profile-img rounded-circle"
                 (error)="handleImageError(volunteer)"
               />
@@ -151,21 +151,21 @@
             </div>
             <div class="user-details flex-grow-1">
               <div class="user-name fw-bold">{{ volunteer.name }}</div>
-              <div class="user-type text-muted">متطوع</div>
-              <div class="user-level text-muted">الدرجة: {{ volunteer.score }}</div>
+              <div class="user-type text-muted">{{ 'leaderboards.volunteerLabel' | translate }}</div>
+              <div class="user-level text-muted">{{ 'leaderboards.scoreLabel' | translate }}: {{ volunteer.score }}</div>
             </div>
             <div class="user-stats d-flex flex-wrap gap-3">
               <div class="stat-item d-flex align-items-center text-success">
                 <span class="stat-icon me-2">⏰</span>
-                <span>{{ volunteer.volunteerHours || 0 }} ساعات تطوع</span>
+                <span>{{ volunteer.volunteerHours || 0 }} {{ 'leaderboards.volunteerHoursLabel' | translate }}</span>
               </div>
               <div class="stat-item d-flex align-items-center text-success">
                 <span class="stat-icon me-2">👥</span>
-                <span>{{ volunteer.numberOfStudents || 0 }} طلاب</span>
+                <span>{{ volunteer.numberOfStudents || 0 }} {{ 'leaderboards.numberOfStudentsLabel' | translate }}</span>
               </div>
               <div class="stat-item d-flex align-items-center text-success">
                 <span class="stat-icon me-2">📚</span>
-                <span>{{ volunteer.subjects.join(', ') || 'لا توجد مواد' }}</span>
+                <span>{{ volunteer.subjects.join(', ') || ('leaderboards.noSubjects' | translate) }}</span>
               </div>
             </div>
           </div>
@@ -177,8 +177,8 @@
   <!-- No Users Message -->
   <div class="no-users py-5 text-center" *ngIf="!leaderboard.length">
     <div class="container">
-      <p class="lead text-muted animate__animated animate__fadeIn">لا يوجد مستخدمين في لوحة الصدارة</p>
-      <a href="#join" class="btn btn-primary btn-lg mt-3 animate__animated animate__fadeIn animate__delay-1s">انضم الآن</a>
+      <p class="lead text-muted animate__animated animate__fadeIn">{{ 'leaderboards.noUsers' | translate }}</p>
+      <a href="#join" class="btn btn-primary btn-lg mt-3 animate__animated animate__fadeIn animate__delay-1s">{{ 'leaderboards.joinNow' | translate }}</a>
     </div>
   </div>
 </div>

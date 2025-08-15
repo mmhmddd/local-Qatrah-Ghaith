@@ -2,20 +2,14 @@
   <div class="container">
     <div class="content-wrapper">
       <div class="text-content">
-        <h3 class="section-title">التعريف العام عن المبادرة</h3>
-        <p class="section-description">
-          نحن مبادرة خيرية تعليمية تأسست عام 2020 هدفها مساعدة الطلاب الذين بحاجة لدراسة خاصة ولا تتوفر لهم
-          الإمكانيات، من خلال استقطاب طلاب جامعيين أو خريجين للقيام بالمهمة. توفر المبادرة بيئة
-          تعليمية عن بعد لدعم جميع الصفوف وبجميع المواد الدراسية، إلى جانب التأسيس لمن هو بحاجة.
-          يتم التعليم عن بعد عبر الإنترنت باستخدام تطبيقات مثل زووم وتيمز وغيرها، حيث تكون الحصص
-          مباشرة ويتم تسجيلها من قبل المتطوعين ومراجعتها من مختصين لضمان سير العملية التعليمية بنجاح.
-        </p>
+        <h3 class="section-title">{{ 'about.introductionTitle' | translate }}</h3>
+        <p class="section-description">{{ 'about.introductionDescription' | translate }}</p>
       </div>
       <div class="image-content">
         <div class="image-wrapper">
           <img
             src="/assets/images/about/about.jpg"
-            alt="Student engaged in learning"
+            alt="{{ 'about.imageAlt' | translate }}"
             class="responsive-image"
           />
           <div class="image-overlay"></div>
@@ -27,122 +21,119 @@
 
 <section class="coverage-section">
   <div class="container">
-    <h3 class="section-title">الجهات التي تغطيها المبادرة</h3>
+    <h3 class="section-title">{{ 'about.coverageTitle' | translate }}</h3>
     <div class="cards-wrapper">
       <div class="card">
         <div class="card-image-wrapper">
           <img
             src="/assets/images/about/poor_people.png"
-            alt="Orphans and Poor"
+            alt="{{ 'about.coverageOrphansAlt' | translate }}"
             class="card-image"
           />
           <div class="card-overlay">
-            <h4 class="overlay-title">الأيتام واصحاب الدخل المحدود</h4>
+            <h4 class="overlay-title">{{ 'about.coverageOrphans' | translate }}</h4>
           </div>
         </div>
-        <h4 class="card-title">الأيتام واصحاب الدخل المحدود</h4>
+        <h4 class="card-title">{{ 'about.coverageOrphans' | translate }}</h4>
       </div>
       <div class="card">
         <div class="card-image-wrapper">
           <img
             src="/assets/images/about/person_can.png"
-            alt="Cancer Patients"
+            alt="{{ 'about.coverageChronicAlt' | translate }}"
             class="card-image"
           />
           <div class="card-overlay">
-            <h4 class="overlay-title">مرضى الأمراض المزمنة</h4>
+            <h4 class="overlay-title">{{ 'about.coverageChronic' | translate }}</h4>
           </div>
         </div>
-        <h4 class="card-title">مرضى الأمراض المزمنة</h4>
+        <h4 class="card-title">{{ 'about.coverageChronic' | translate }}</h4>
       </div>
       <div class="card">
         <div class="card-image-wrapper">
           <img
             src="../../../assets/images/about/gaza_student.png"
-            alt="Gaza City Students"
+            alt="{{ 'about.coverageGazaAlt' | translate }}"
             class="card-image"
           />
           <div class="card-overlay">
-            <h4 class="overlay-title">طلاب مدينة غزة</h4>
+            <h4 class="overlay-title">{{ 'about.coverageGaza' | translate }}</h4>
           </div>
         </div>
-        <h4 class="card-title">طلاب مدينة غزة</h4>
+        <h4 class="card-title">{{ 'about.coverageGaza' | translate }}</h4>
       </div>
     </div>
   </div>
 </section>
-
 
 <section class="values-section">
   <div class="container">
-    <h3 class="section-title">قيمنا ورسالتنا وأهدافنا</h3>
+    <h3 class="section-title">{{ 'about.valuesTitle' | translate }}</h3>
     <div class="cards-wrapper">
       <div class="card values">
-        <h4 class="card-title">أهدافنا</h4>
-        <p class="card-content">نحن نهدف إلى "أن نكون قدوة" في العمل الجاد والالتزام</p>
+        <h4 class="card-title">{{ 'about.goalsTitle' | translate }}</h4>
+        <p class="card-content">{{ 'about.goalsDescription' | translate }}</p>
       </div>
       <div class="card mission">
-        <h4 class="card-title">رسالتنا</h4>
-        <p class="card-content">نركز على تطوير المهارات وتنمية القدرات لدى الشباب</p>
+        <h4 class="card-title">{{ 'about.missionTitle' | translate }}</h4>
+        <p class="card-content">{{ 'about.missionDescription' | translate }}</p>
       </div>
       <div class="card goals">
-        <h4 class="card-title">قيمنا</h4>
-        <p class="card-content">نعمل على تعزيز ثقة الطلاب ونشر ثقافة التطوع</p>
+        <h4 class="card-title">{{ 'about.valuesCardTitle' | translate }}</h4>
+        <p class="card-content">{{ 'about.valuesDescription' | translate }}</p>
       </div>
     </div>
   </div>
 </section>
-
 
 <section class="accreditation-section">
   <div class="container">
     <div class="section-header">
-      <h3 class="section-title">اعتماد المبادرة</h3>
+      <h3 class="section-title">{{ 'about.accreditationTitle' | translate }}</h3>
       <p class="section-subtitle">
-        المبادرة <span class="highlight">معتمدة على منصة نحن</span> كمبادرة رسمية.
-        هذا الاعتماد يفيد المتطوعين بالعديد من المزايا والفوائد المهمة.
+        {{ 'about.accreditationSubtitle' | translate }}
       </p>
     </div>
 
     <div class="accreditation-content">
       <div class="accreditation-badge">
         <div class="badge-icon"></div>
-        <h4 class="badge-title">مبادرة معتمدة</h4>
-        <p class="badge-subtitle">منصة نحن الرسمية</p>
+        <h4 class="badge-title">{{ 'about.accreditationBadgeTitle' | translate }}</h4>
+        <p class="badge-subtitle">{{ 'about.accreditationBadgeSubtitle' | translate }}</p>
       </div>
 
       <div class="benefits-list">
-        <h4 class="benefits-title">مزايا الاعتماد للمتطوعين</h4>
+        <h4 class="benefits-title">{{ 'about.benefitsTitle' | translate }}</h4>
 
         <div class="benefit-item">
           <div class="benefit-icon"></div>
           <div class="benefit-text">
-            <h4>اعتماد ساعات التطوع</h4>
-            <p>اعتماد ساعات التطوع كخدمة مجتمع للمتطوع داخل المملكة الأردنية الهاشمية</p>
+            <h4>{{ 'about.benefitVolunteerHoursTitle' | translate }}</h4>
+            <p>{{ 'about.benefitVolunteerHoursDescription' | translate }}</p>
           </div>
         </div>
 
         <div class="benefit-item">
           <div class="benefit-icon"></div>
           <div class="benefit-text">
-            <h4>نقاط أكاديمية</h4>
-            <p>الحصول على نقاط على مادة خدمة مجتمع في الجامعات</p>
+            <h4>{{ 'about.benefitAcademicPointsTitle' | translate }}</h4>
+            <p>{{ 'about.benefitAcademicPointsDescription' | translate }}</p>
           </div>
         </div>
 
         <div class="benefit-item">
           <div class="benefit-icon"></div>
           <div class="benefit-text">
-            <h4>نقاط إضافية للمنح</h4>
-            <p>نقاط إضافية على المنح الخارجية التي تكون من قبل الحكومات</p>
+            <h4>{{ 'about.benefitGrantsPointsTitle' | translate }}</h4>
+            <p>{{ 'about.benefitGrantsPointsDescription' | translate }}</p>
           </div>
         </div>
 
         <div class="benefit-item">
           <div class="benefit-icon"></div>
           <div class="benefit-text">
-            <h4>شهادات معتمدة</h4>
-            <p>الحصول على شهادات معتمدة من منصة نحن للمتطوعين</p>
+            <h4>{{ 'about.benefitCertificatesTitle' | translate }}</h4>
+            <p>{{ 'about.benefitCertificatesDescription' | translate }}</p>
           </div>
         </div>
       </div>
@@ -150,13 +141,12 @@
   </div>
 </section>
 
-<!-- Standard Partners Layout -->
 <section class="partners-section">
   <div class="container">
     <div class="section-header">
-      <h3 class="section-title"> شراكات واعتمادات</h3>
+      <h3 class="section-title">{{ 'about.partnersTitle' | translate }}</h3>
       <p class="section-subtitle">
-        نفتخر بشراكتنا مع مؤسسات وجهات محترمة تساهم في دعم رسالتنا التعليمية والتطوعية
+        {{ 'about.partnersSubtitle' | translate }}
       </p>
     </div>
 
@@ -165,82 +155,79 @@
         <div class="partner-logo-wrapper">
           <img
             src="../../../assets/images/about/contributors/walyel3ahdlogo.png"
-            alt="Partner 1 Logo"
+            alt="{{ 'about.partnerCrownPrinceAlt' | translate }}"
             class="partner-logo"
           />
         </div>
-        <h4 class="partner-name" style="font-size: 20px;">مؤسسة ولي العهد</h4>
+        <h4 class="partner-name" style="font-size: 20px;">{{ 'about.partnerCrownPrince' | translate }}</h4>
       </div>
 
       <div class="partner-item">
         <div class="partner-logo-wrapper">
           <img
             src="../../../assets/images/about/contributors/namaalogo.gif"
-            alt="Partner 2 Logo"
+            alt="{{ 'about.partnerNamaaAlt' | translate }}"
             class="partner-logo"
           />
         </div>
-        <h4 class="partner-name">جمعية نماء</h4>
+        <h4 class="partner-name">{{ 'about.partnerNamaa' | translate }}</h4>
       </div>
 
       <div class="partner-item">
         <div class="partner-logo-wrapper">
           <img
             src="../../../assets/images/about/contributors/180logo.png"
-            alt="Partner 3 Logo"
+            alt="{{ 'about.partner180Alt' | translate }}"
             class="partner-logo"
             style="border-radius: 30%;"
           />
         </div>
-        <h4 class="partner-name">مؤسسة 180</h4>
+        <h4 class="partner-name">{{ 'about.partner180' | translate }}</h4>
       </div>
 
       <div class="partner-item">
         <div class="partner-logo-wrapper">
           <img
             src="../../../assets/images/about/contributors/joacademylogo.png"
-            alt="Partner 4 Logo"
+            alt="{{ 'about.partnerJoAcademyAlt' | translate }}"
             class="partner-logo"
           />
         </div>
-        <h4 class="partner-name">جو اكاديمي</h4>
+        <h4 class="partner-name">{{ 'about.partnerJoAcademy' | translate }}</h4>
       </div>
 
       <div class="partner-item">
         <div class="partner-logo-wrapper">
           <img
             src="../../../assets/images/about/contributors/nahnologo.png"
-            alt="Partner 5 Logo"
+            alt="{{ 'about.partnerNahnAlt' | translate }}"
             class="partner-logo"
           />
         </div>
-        <h4 class="partner-name">منصة نحن</h4>
+        <h4 class="partner-name">{{ 'about.partnerNahn' | translate }}</h4>
       </div>
     </div>
 
     <div class="trust-indicators">
       <div class="trust-item">
         <div class="trust-icon"></div>
-        <span>شراكات موثقة ومعتمدة</span>
+        <span>{{ 'about.trustVerified' | translate }}</span>
       </div>
       <div class="trust-item">
         <div class="trust-icon"></div>
-        <span>أكثر من 5 شركاء استراتيجيين</span>
+        <span>{{ 'about.trustPartners' | translate }}</span>
       </div>
       <div class="trust-item">
         <div class="trust-icon"></div>
-        <span>دعم مستمر للمبادرة</span>
+        <span>{{ 'about.trustSupport' | translate }}</span>
       </div>
     </div>
   </div>
 </section>
 
-
-
 <section class="volunteer-section">
   <div class="container">
-    <h3 class="section-title">انضم إلينا</h3>
-      <button class="volunteer-btn" routerLink="/join-us">تطوع معنا</button>
-
+    <h3 class="section-title">{{ 'about.volunteerTitle' | translate }}</h3>
+    <button class="volunteer-btn" routerLink="/join-us">{{ 'about.volunteerButton' | translate }}</button>
   </div>
 </section>

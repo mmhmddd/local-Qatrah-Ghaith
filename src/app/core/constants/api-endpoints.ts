@@ -74,4 +74,9 @@ export const ApiEndpoints = {
     edit: (id: string) => `${base}/gallery/images/${id}`,
     delete: (id: string) => `${base}/gallery/images/${id}`,
   },
+    admin: {
+    sendMessage: 'http://localhost:5000/api/admin/send-message',
+    editMessage: 'http://localhost:5000/api/admin/edit-message',
+    deleteMessage: 'http://localhost:5000/api/admin/delete-message',
+  },
 };

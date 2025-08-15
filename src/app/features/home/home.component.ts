@@ -7,10 +7,13 @@ import AOS from 'aos';
 import { NgForm } from '@angular/forms';
 import { NewSectionComponent } from '../../shared/new-section/new-section.component';
 import { ImageSectionComponent } from '../../shared/image-section/image-section.component';
+import { TranslationService } from '../../core/services/translation.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 interface Achievement {
   value: number;
-  label: string;
+  labelKey: string; // تغيير من label إلى labelKey لاستخدام مفاتيح الترجمة
+  label?: string; // إبقاء label كخاصية اختيارية للعرض
   count: number;
   prefix?: string;
   suffix?: string;
@@ -27,7 +30,7 @@ interface ContactData {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterModule, CommonModule, FormsModule, NewSectionComponent, ImageSectionComponent],
+  imports: [RouterModule, CommonModule, FormsModule, NewSectionComponent, ImageSectionComponent, TranslatePipe],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
@@ -36,11 +39,12 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
   @ViewChild('carouselElement') carouselElement!: ElementRef;
 
   readonly ringDasharray = 2 * Math.PI * 36;
+  currentLanguage = 'ar';
 
   achievements: Achievement[] = [
     {
       value: 5,
-      label: 'سنة خبرة',
+      labelKey: 'home.yearsExperience',
       count: 0,
       prefix: '+',
       animationDuration: 2000,
@@ -48,7 +52,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
     },
     {
       value: 40,
-      label: 'نشاط وخدمة',
+      labelKey: 'home.activities',
       count: 0,
       prefix: '+',
       animationDuration: 1800,
@@ -56,7 +60,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
     },
     {
       value: 900,
-      label: 'متطوع',
+      labelKey: 'home.volunteers',
       count: 0,
       prefix: '+',
       animationDuration: 2500,
@@ -64,7 +68,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
     },
     {
       value: 20000,
-      label: 'ساعات تطوع',
+      labelKey: 'home.volunteerHours',
       count: 0,
       prefix: '+',
       animationDuration: 2200,
@@ -72,7 +76,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
     },
     {
       value: 700,
-      label: 'مستفيد',
+      labelKey: 'home.beneficiaries',
       count: 0,
       prefix: '+',
       animationDuration: 3000,
@@ -93,8 +97,16 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
-    private router: Router
-  ) {}
+    private router: Router,
+    private translationService: TranslationService
+  ) {
+    // الاشتراك في تغييرات اللغة
+    this.translationService.currentLanguage$.subscribe(lang => {
+      this.currentLanguage = lang;
+      // تحديث النصوص المترجمة في achievements
+      this.updateAchievementLabels();
+    });
+  }
 
   ngAfterViewInit() {
     if (isPlatformBrowser(this.platformId)) {
@@ -135,6 +147,13 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
         AOS.refresh();
       });
     }
+  }
+
+  // تحديث التسميات المترجمة للإنجازات
+  private updateAchievementLabels() {
+    this.achievements.forEach(achievement => {
+      achievement.label = this.translationService.translate(achievement.labelKey);
+    });
   }
 
   private async initializeBrowserFeatures() {
@@ -292,7 +311,11 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
   }
 
   formatNumber(num: number): string {
-    return num.toLocaleString('ar-EG', { useGrouping: true }); // تغيير إلى تنسيق الأرقام بالعربية
+    if (this.currentLanguage === 'ar') {
+      return num.toLocaleString('ar-EG', { useGrouping: true });
+    } else {
+      return num.toLocaleString('en-US', { useGrouping: true });
+    }
   }
 
   formatPhoneNumber(phone: string): string {
@@ -311,11 +334,20 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
 
   submitContactForm(form: NgForm): void {
     if (isPlatformBrowser(this.platformId) && form.valid) {
-      const message = `الاسم: ${this.contactData.name}\nالبريد الإلكتروني: ${this.contactData.email}\nالرسالة: ${this.contactData.message}`;
+      const nameLabel = this.translationService.translate('home.name');
+      const emailLabel = this.translationService.translate('home.email');
+      const messageLabel = this.translationService.translate('home.message');
+
+      const message = `${nameLabel}: ${this.contactData.name}\n${emailLabel}: ${this.contactData.email}\n${messageLabel}: ${this.contactData.message}`;
       const whatsappUrl = `https://wa.me/+962795686452?text=${encodeURIComponent(message)}`;
       window.open(whatsappUrl, '_blank');
       this.contactData = { name: '', email: '', message: '' };
       form.resetForm();
     }
+  }
+
+  // التحقق من اتجاه النص
+  isRtl(): boolean {
+    return this.translationService.isRtl();
   }
 }

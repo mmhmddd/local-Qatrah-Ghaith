@@ -181,7 +181,7 @@
                   <td>{{ student.email }}</td>
                   <td>{{ student.phone }}</td>
                   <td>{{ student.grade || 'غير محدد' }}</td>
-                  <td>{{ student.subjects?.join(', ') || 'غير محدد' }}</td>
+                  <td>{{ student.subjects.join(', ') || 'غير محدد' }}</td>
                 </tr>
               </tbody>
             </table>
@@ -232,6 +232,42 @@
           <ul class="list-group" *ngIf="member.subjects.length > 0">
             <li class="list-group-item" *ngFor="let subject of member.subjects">{{ subject }}</li>
           </ul>
+        </div>
+      </div>
+
+      <div class="card shadow-sm mt-4" *ngIf="member">
+        <div class="card-header bg-secondary text-white">
+          <h4 class="mb-0">إدارة الرسائل</h4>
+        </div>
+        <div class="card-body">
+          <div *ngIf="isLoadingMessages" class="alert alert-info">جاري تحميل الرسائل...</div>
+          <div *ngIf="!isLoadingMessages && activeMessage" class="mb-3">
+            <h5>الرسالة النشطة</h5>
+            <p><strong>المحتوى:</strong> {{ activeMessage.content }}</p>
+            <p><strong>تنتهي في:</strong> {{ activeMessage.displayUntil | date:'medium' }}</p>
+            <div class="button-group">
+              <button class="btn btn-danger" (click)="deleteMessage()">حذف الرسالة</button>
+            </div>
+          </div>
+          <div *ngIf="!isLoadingMessages && !activeMessage" class="mt-3">
+            <h5>إرسال رسالة جديدة</h5>
+            <div class="mb-3">
+              <label for="newMessageContent" class="form-label">نص الرسالة</label>
+              <textarea class="form-control" id="newMessageContent" [(ngModel)]="newMessage.content" rows="4" dir="rtl"></textarea>
+              <small *ngIf="messageError.content" class="text-danger">{{ messageError.content }}</small>
+            </div>
+            <div class="mb-3">
+              <label for="newMessageDisplayDays" class="form-label">مدة العرض (أيام)</label>
+              <input type="number" class="form-control" id="newMessageDisplayDays" [(ngModel)]="newMessage.displayDays" min="1" max="30" dir="rtl">
+              <small *ngIf="messageError.displayDays" class="text-danger">{{ messageError.displayDays }}</small>
+            </div>
+            <div class="button-group">
+              <button class="btn btn-success" (click)="sendMessage()" [disabled]="!newMessage.content.trim() || !newMessage.displayDays">إرسال الرسالة</button>
+            </div>
+          </div>
+          <div *ngIf="!isLoadingMessages && !activeMessage && !newMessage.content" class="alert alert-info">
+            لا توجد رسائل نشطة حاليًا. يمكنك إرسال رسالة جديدة.
+          </div>
         </div>
       </div>
     </div>

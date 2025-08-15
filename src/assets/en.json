@@ -1,0 +1,75 @@
+{
+  "navbar": {
+    "home": "Home",
+    "about": "About Us",
+    "testimonials": "Testimonials",
+    "library": "Library",
+    "last_news": "Latest News",
+    "join_us": "Join Us",
+    "leaderboards": "Leaderboards",
+    "contact": "Contact Us",
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "logout": "Logout",
+    "login": "Login"
+  },
+  "hero": {
+    "title_main": "Remote E-Learning Initiative",
+    "title_subtitle": "Qatrah Ghaith",
+    "description": "Towards a better educational future for all",
+    "discover_more": "Discover More About Us",
+    "volunteer": "Volunteer With Us"
+  },
+  "about": {
+    "badge": "About Us",
+    "title": "Who We Are",
+    "lead_text": "We are a charitable educational initiative established in 2020, aimed at helping students who need special education but lack the resources, by recruiting university students or graduates to carry out this mission. The initiative provides a remote learning environment to support all grade levels and subjects, in addition to foundational education for those in need. Education is delivered online using applications like Zoom and Teams, where sessions are live, recorded by volunteers, and reviewed by specialists to ensure the success of the educational process.",
+    "description_1": "It provides a remote learning environment to support all grade levels and subjects, in addition to foundational education for those in need.",
+    "description_2": "Remote education is conducted via the internet using applications like Zoom and Teams, where sessions are live, recorded by volunteers, and reviewed by specialists to ensure the success of the educational process.",
+    "feature_1": "Specialized Education",
+    "feature_2": "Remote Learning",
+    "feature_3": "Volunteer Team"
+  },
+  "achievements": {
+    "badge": "Our Achievements",
+    "title": "Achievements",
+    "description": "Numbers that tell the story of our journey in serving education",
+    "items": [
+      { "label": "Years of Experience" },
+      { "label": "Activities and Services" },
+      { "label": "Volunteers" },
+      { "label": "Volunteer Hours" },
+      { "label": "Beneficiaries" }
+    ]
+  },
+  "help": {
+    "badge": "How to Help",
+    "title": "Join Us Today",
+    "description": "Contribute to supporting our community through donations or joining our team.",
+    "donate": "Contact Us to Donate",
+    "join": "Join Us"
+  },
+  "contact": {
+    "badge": "Contact Us",
+    "title": "Get in Touch",
+    "description": "We are delighted to connect with you to support our community initiatives.",
+    "form": {
+      "name": "Name",
+      "email": "Email",
+      "message": "Your Message",
+      "submit": "Send"
+    },
+    "info": {
+      "title": "Contact Information",
+      "email": "Contact@qatrah-ghaith.com",
+      "phone": "+962-795-686452",
+      "address": "Amman",
+      "availability": "We are available to respond to your inquiries from 8:00 AM to 4:00 PM"
+    },
+    "social": {
+      "facebook": "Facebook",
+      "twitter": "Twitter",
+      "instagram": "Instagram"
+    }
+  }
+}
