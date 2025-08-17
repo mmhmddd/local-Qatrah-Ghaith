@@ -143,16 +143,19 @@
           <!-- Add/Edit Lecture Section -->
           <div class="upload-section mt-4">
             <h4>{{ translationService.translate(lectureEditMode ? 'profile.editLecture' : 'profile.addLecture') }}</h4>
+            <div *ngIf="!profile?.students?.length" class="alert alert-warning mt-3">
+              {{ translationService.translate('profile.noStudentsAvailable') }}
+            </div>
             <form [formGroup]="lectureForm" (ngSubmit)="lectureEditMode ? updateLecture() : uploadLecture()">
               <div class="row">
                 <div class="col-md-4">
-                  <div class="form-group">
+                  <div class="form-group mb-3">
                     <label for="lectureStudentEmail" class="form-label">
                       {{ translationService.translate('profile.lectureStudentEmail') }}
                     </label>
                     <select id="lectureStudentEmail"
                             formControlName="studentEmail"
-                            class="form-control mb-2"
+                            class="form-control"
                             [class.is-invalid]="lectureForm.get('studentEmail')?.invalid && lectureForm.get('studentEmail')?.touched">
                       <option value="" disabled>{{ translationService.translate('profile.selectStudent') }}</option>
                       <option *ngFor="let student of profile.students" [value]="student.email">
@@ -172,13 +175,13 @@
                 </div>
 
                 <div class="col-md-4">
-                  <div class="form-group">
+                  <div class="form-group mb-3">
                     <label for="lectureSubject" class="form-label">
                       {{ translationService.translate('profile.lectureSubject') }}
                     </label>
                     <select id="lectureSubject"
                             formControlName="subject"
-                            class="form-control mb-2"
+                            class="form-control"
                             [class.is-invalid]="lectureForm.get('subject')?.invalid && lectureForm.get('subject')?.touched">
                       <option value="" disabled>{{ translationService.translate('profile.selectSubject') }}</option>
                       <option *ngFor="let subject of getTranslatedSubjects()" [value]="subject">
@@ -195,14 +198,15 @@
                 </div>
 
                 <div class="col-md-4">
-                  <div class="form-group">
+                  <div class="form-group mb-3">
                     <label for="lectureDate" class="form-label">
                       {{ translationService.translate('profile.lectureDate') }}
                     </label>
                     <input id="lectureDate"
                            formControlName="date"
                            type="date"
-                           class="form-control mb-2"
+                           class="form-control"
+                           [placeholder]="translationService.translate('profile.lectureDatePlaceholder')"
                            [class.is-invalid]="lectureForm.get('date')?.invalid && lectureForm.get('date')?.touched" />
                     <div *ngIf="lectureForm.get('date')?.invalid && lectureForm.get('date')?.touched"
                          class="invalid-feedback">
@@ -214,14 +218,14 @@
                 </div>
 
                 <div class="col-md-4">
-                  <div class="form-group">
+                  <div class="form-group mb-3">
                     <label for="lectureDuration" class="form-label">
                       {{ translationService.translate('profile.lectureDuration') }}
                     </label>
                     <input id="lectureDuration"
                            formControlName="duration"
                            type="number"
-                           class="form-control mb-2"
+                           class="form-control"
                            [placeholder]="translationService.translate('profile.lectureDurationPlaceholder')"
                            [class.is-invalid]="lectureForm.get('duration')?.invalid && lectureForm.get('duration')?.touched" />
                     <div *ngIf="lectureForm.get('duration')?.invalid && lectureForm.get('duration')?.touched"
@@ -232,19 +236,22 @@
                       <span *ngIf="lectureForm.get('duration')?.errors?.['min']">
                         {{ translationService.translate('profile.validation.duration.min') }}
                       </span>
+                      <span *ngIf="lectureForm.get('duration')?.errors?.['pattern']">
+                        {{ translationService.translate('profile.validation.duration.pattern') }}
+                      </span>
                     </div>
                   </div>
                 </div>
 
                 <div class="col-md-4">
-                  <div class="form-group">
+                  <div class="form-group mb-3">
                     <label for="lectureLink" class="form-label">
                       {{ translationService.translate('profile.lectureLink') }}
                     </label>
                     <input id="lectureLink"
                            formControlName="link"
                            type="text"
-                           class="form-control mb-2"
+                           class="form-control"
                            [placeholder]="translationService.translate('profile.lectureLinkPlaceholder')"
                            [class.is-invalid]="lectureForm.get('link')?.invalid && lectureForm.get('link')?.touched" />
                     <div *ngIf="lectureForm.get('link')?.invalid && lectureForm.get('link')?.touched"
@@ -260,14 +267,14 @@
                 </div>
 
                 <div class="col-md-4">
-                  <div class="form-group">
+                  <div class="form-group mb-3">
                     <label for="lectureName" class="form-label">
                       {{ translationService.translate('profile.lectureName') }}
                     </label>
                     <input id="lectureName"
                            formControlName="name"
                            type="text"
-                           class="form-control mb-2"
+                           class="form-control"
                            [placeholder]="translationService.translate('profile.lectureNamePlaceholder')"
                            [class.is-invalid]="lectureForm.get('name')?.invalid && lectureForm.get('name')?.touched" />
                     <div *ngIf="lectureForm.get('name')?.invalid && lectureForm.get('name')?.touched"
@@ -289,7 +296,7 @@
               <div class="d-flex justify-content-center mt-3">
                 <button type="submit"
                         class="btn btn-success me-2"
-                        [disabled]="isUploadingLecture || lectureForm.invalid">
+                        [disabled]="isUploadingLecture || lectureForm.invalid || !profile?.students?.length">
                   {{ isUploadingLecture ?
                      translationService.translate('profile.uploadingLecture') :
                      translationService.translate(lectureEditMode ? 'profile.updateLecture' : 'profile.uploadLecture') }}

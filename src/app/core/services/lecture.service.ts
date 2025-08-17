@@ -1,3 +1,4 @@
+// lecture.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
@@ -23,6 +24,7 @@ export interface LowLectureMembersResponse {
   success: boolean;
   message: string;
   members: {
+    [x: string]: any;
     id: string | null;
     lowLectureStudents: any;
     _id: string;
@@ -31,7 +33,15 @@ export interface LowLectureMembersResponse {
     underTargetSubjects: {
       name: string;
       minLectures: number;
-      deliveredLectures: number
+      deliveredLectures: number;
+    }[];
+    lectures: {
+      _id: string;
+      studentEmail: string;
+      subject: string;
+      createdAt: string;
+      link: string;
+      name: string;
     }[];
   }[];
 }
@@ -48,7 +58,7 @@ export class LectureService {
     const token = localStorage.getItem('token');
     if (!token) {
       console.error('No token found in localStorage');
-      return this.headers;
+      throw new Error('No authentication token found');
     }
     return this.headers.set('Authorization', `Bearer ${token}`);
   }
@@ -62,34 +72,47 @@ export class LectureService {
     if (!userId || !studentEmail || !subject || !date || !duration || !link || !name) {
       return throwError(() => ({
         success: false,
-        message: 'معرف المستخدم، بريد الطالب، المادة، التاريخ، المدة، رابط المحاضرة، والاسم مطلوبة'
+        message: 'All fields (userId, studentEmail, subject, date, duration, link, name) are required'
       }));
     }
     if (!Number.isInteger(duration) || duration <= 0) {
       return throwError(() => ({
         success: false,
-        message: 'المدة يجب أن تكون عددًا صحيحًا موجبًا'
+        message: 'Duration must be a positive integer'
       }));
     }
     if (!this.isValidUrl(link)) {
       return throwError(() => ({
         success: false,
-        message: 'رابط المحاضرة يجب أن يكون عنوان URL صالحًا'
+        message: 'Lecture link must be a valid URL starting with http:// or https://'
       }));
     }
     return this.http.post<LectureResponse>(ApiEndpoints.lectures.upload, { userId, studentEmail, subject, date, duration, link, name }, { headers: this.getAuthHeaders() }).pipe(
-      map(response => ({
-        success: true,
-        message: response.message || 'تم إضافة المحاضرة بنجاح',
-        lecture: response.lecture,
-        lectureCount: response.lectureCount,
-        volunteerHours: response.volunteerHours
-      })),
+      map(response => {
+        if (!response.success) {
+          throw new Error(response.message || 'Failed to upload lecture');
+        }
+        return {
+          success: true,
+          message: response.message || 'Lecture uploaded successfully',
+          lecture: response.lecture || { _id: '', studentEmail, subject, date, duration, link, name },
+          lectureCount: response.lectureCount || 0,
+          volunteerHours: response.volunteerHours || 0
+        };
+      }),
       catchError(error => {
-        console.error('خطأ في إضافة المحاضرة:', error);
+        console.error('Error uploading lecture:', error);
+        let message = 'Failed to upload lecture. Please check your data or server connection.';
+        if (error.status === 404) {
+          message = 'Student email not found in the system';
+        } else if (error.status === 400) {
+          message = error.error?.message || 'Invalid lecture data';
+        } else if (error.status === 401) {
+          message = 'Unauthorized. Please log in again.';
+        }
         return throwError(() => ({
           success: false,
-          message: error.error?.message || 'فشل في إضافة المحاضرة، تحقق من البيانات أو الاتصال بالخادم',
+          message,
           error: error.statusText || error.message
         }));
       })

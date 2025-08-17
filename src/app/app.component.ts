@@ -1,4 +1,3 @@
-import { Testimonial } from './core/services/testimonials.service';
 import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NavbarComponent } from './shared/navbar/navbar.component';
@@ -33,6 +32,7 @@ export class AppComponent implements OnInit {
         url.startsWith('/add-testimonials') ||
         url.startsWith('/add-leaderboards') ||
         url.startsWith('/add-gallery') ||
+        url.startsWith('/low-lecture-members') ||
         url.startsWith('/tree') ||
         !!url.match(/^\/member\/[^\/]+$/) ||
         url.startsWith('/login');

@@ -1,17 +1,684 @@
-.main-content {
-  padding: 20px;
-  margin-top: 120px;
+$primary-color: #00adb5;
+$secondary-color: #0097b2;
+$accent-color: #ff914d;
+$neutral-color: #545454;
+$dark-color: #1a1a1a;
+$light-gray: #f8f9fa;
+$white: #ffffff;
+$black: #000;
+$success-color: #2e7d32;
+$error-color: #c0392b;
+$warning-color: #f57c00;
+$info-color: #1976d2;
+
+.app-container {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  min-height: 100vh;
+  direction: rtl;
 }
 
-.table {
+app-sidebar {
+  background: $white;
+  border-left: 1px solid darken($light-gray, 10%);
+  padding: 24px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+
+  .sidebar-header {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: $dark-color;
+    margin-bottom: 16px;
+  }
+
+  .sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    a {
+      padding: 12px;
+      color: $neutral-color;
+      text-decoration: none;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: $light-gray;
+        color: $primary-color;
+      }
+
+      &.active {
+        background: $primary-color;
+        color: $white;
+      }
+    }
+  }
+}
+
+main {
+  background: $light-gray;
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  direction: rtl;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  gap: 16px;
+
+  h2 {
+    color: $dark-color;
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.2;
+  }
+}
+
+.refresh-btn,
+.retry-btn {
+  background: $info-color;
+  color: $white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &:hover:not(:disabled) {
+    background: darken($info-color, 10%);
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    background: $light-gray;
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+}
+
+.success-container {
+  background: lighten($success-color, 40%);
+  color: $success-color;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 24px;
+  text-align: center;
+  animation: fadeIn 0.5s ease-in;
+
+  .success-icon {
+    font-size: 2rem;
+    margin-bottom: 8px;
+  }
+}
+
+.debug-info {
+  background: $light-gray;
+  border: 1px solid darken($light-gray, 10%);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 24px;
+  font-family: monospace;
+
+  details {
+    cursor: pointer;
+  }
+
+  summary {
+    font-weight: 600;
+    color: $neutral-color;
+    margin-bottom: 12px;
+  }
+
+  .debug-details {
+    background: $white;
+    padding: 12px;
+    border-radius: 4px;
+    border: 1px solid darken($light-gray, 10%);
+    font-size: 14px;
+    color: $neutral-color;
+
+    p {
+      margin: 8px 0;
+    }
+  }
+}
+
+.debug-warning {
+  background: lighten($error-color, 40%);
+  border: 1px solid lighten($error-color, 30%);
+  color: $error-color;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  margin: 8px 0;
+}
+
+.loading-container {
+  text-align: center;
+  padding: 80px 24px;
+  animation: fadeIn 0.5s ease-in;
+
+  .loading-spinner {
+    width: 48px;
+    height: 48px;
+    border: 5px solid $light-gray;
+    border-top: 5px solid $info-color;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 24px;
+  }
+
+  p {
+    color: $neutral-color;
+    font-size: 1.1rem;
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.error-container,
+.no-data-container {
+  text-align: center;
+  padding: 48px 24px;
+  border-radius: 12px;
+  margin: 24px 0;
+  animation: fadeIn 0.5s ease-in;
+}
+
+.error-container {
+  background: lighten($error-color, 40%);
+  border: 1px solid lighten($error-color, 20%);
+
+  h3 {
+    color: $error-color;
+    margin-bottom: 16px;
+  }
+}
+
+.no-data-container {
+  background: lighten($success-color, 40%);
+  border: 1px solid lighten($success-color, 20%);
+
+  h3 {
+    color: $success-color;
+    margin-bottom: 16px;
+  }
+}
+
+.error-icon,
+.no-data-icon {
+  font-size: 3.5rem;
+  margin-bottom: 16px;
+}
+
+.summary-card {
+  background: $white;
+  padding: 24px;
+  border-radius: 12px;
+  margin-bottom: 32px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+  .summary-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+
+    .stat-item {
+      text-align: center;
+      padding: 16px;
+      background: $light-gray;
+      border-radius: 8px;
+
+      .stat-number {
+        display: block;
+        font-size: 2rem;
+        font-weight: 700;
+        color: $info-color;
+      }
+
+      .stat-label {
+        display: block;
+        color: $neutral-color;
+        font-size: 0.9rem;
+        margin-top: 4px;
+      }
+    }
+  }
+}
+
+.members-grid {
+  display: grid;
+  gap: 24px;
+}
+
+.member-card {
+  background: $white;
+  border: 1px solid darken($light-gray, 10%);
+  border-radius: 12px;
+  padding: 24px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+}
+
+.member-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid $light-gray;
+  padding-bottom: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+
+  .member-info {
+    .member-name {
+      color: $accent-color;
+      font-family: 'Cairo', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin: 0 0 8px;
+    }
+
+    .member-email {
+      color: $neutral-color;
+      font-size: 0.95rem;
+      display: block;
+    }
+
+    .member-week-count {
+      color: $warning-color;
+      font-size: 0.95rem;
+      font-weight: 600;
+      display: block;
+      margin-top: 4px;
+    }
+  }
+
+  .delete-btn {
+    background: $error-color;
+    color: $white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s;
+
+    &:hover:not(:disabled) {
+      background: darken($error-color, 10%);
+    }
+
+    &:disabled {
+      background: $neutral-color;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.students-section {
+  h5 {
+    color: darken($neutral-color, 10%);
+    font-size: 1.2rem;
+    margin-bottom: 16px;
+    font-weight: 600;
+  }
+}
+
+.student-card {
+  background: $light-gray;
+  border: 1px solid darken($light-gray, 10%);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border-left: 4px solid $info-color;
+}
+
+.student-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+
+  .student-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+
+    strong {
+      color: $dark-color;
+      font-size: 1.1rem;
+    }
+
+    .student-email,
+    .academic-level {
+      background: $light-gray;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      color: $neutral-color;
+    }
+  }
+
+  .student-meta {
+    .student-number {
+      background: lighten($success-color, 40%);
+      color: $success-color;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+  }
+}
+
+.subjects-section {
+  h6 {
+    color: $neutral-color;
+    font-size: 1rem;
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+}
+
+.subjects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.subject-card {
+  background: $white;
+  border: 1px solid darken($light-gray, 10%);
+  border-radius: 8px;
+  padding: 16px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.subject-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  gap: 12px;
+
+  .subject-name {
+    font-weight: 600;
+    color: $dark-color;
+    font-size: 1rem;
+    flex: 1;
+  }
+
+  .subject-status {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+
+    &.critical {
+      background: lighten($error-color, 40%);
+      color: $error-color;
+    }
+
+    &.warning {
+      background: lighten($warning-color, 40%);
+      color: $warning-color;
+    }
+  }
+}
+
+.lecture-progress {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+
+  .delivered {
+    color: $error-color;
+    font-weight: 600;
+  }
+
+  .required {
+    color: $success-color;
+    font-weight: 600;
+  }
+
+  .label {
+    color: $neutral-color;
+  }
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: $light-gray;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: $success-color;
+  transition: width 0.4s ease;
+
+  &.low {
+    background: $error-color;
+  }
+
+  &.medium {
+    background: $warning-color;
+  }
+}
+
+.subject-details {
+  small {
+    color: $neutral-color;
+    font-size: 0.85rem;
+  }
+}
+
+.recent-lectures {
   margin-top: 20px;
+  background: $light-gray;
+  border-radius: 8px;
+  padding: 16px;
+
+  details {
+    cursor: pointer;
+
+    summary {
+      font-weight: 600;
+      color: $neutral-color;
+      margin-bottom: 12px;
+    }
+  }
+
+  .lectures-list {
+    .lecture-item {
+      background: $white;
+      border: 1px solid darken($light-gray, 10%);
+      border-radius: 4px;
+      padding: 8px 12px;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+
+      strong {
+        color: darken($neutral-color, 10%);
+      }
+
+      a {
+        color: $info-color;
+        text-decoration: none;
+        margin: 4px 0;
+        display: block;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+
+      small {
+        display: block;
+        color: $neutral-color;
+        margin-top: 4px;
+      }
+    }
+
+    .more-lectures {
+      text-align: center;
+      color: $neutral-color;
+      font-style: italic;
+      padding: 8px;
+    }
+  }
 }
 
-.table th, .table td {
-  vertical-align: middle;
-  text-align: right;
+@media (max-width: 768px) {
+  .app-container {
+    grid-template-columns: 1fr;
+  }
+
+  app-sidebar {
+    position: fixed;
+    width: 250px;
+    right: 0;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    z-index: 2000;
+
+    &.open {
+      transform: translateX(0);
+    }
+
+    &.open::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba($black, 0.5);
+      z-index: -1;
+    }
+  }
+
+  .container {
+    padding: 16px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+
+    h2 {
+      text-align: center;
+      font-size: 1.75rem;
+    }
+  }
+
+  .summary-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .member-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .student-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .subjects-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .subject-header {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .lecture-progress {
+    justify-content: flex-start;
+  }
 }
 
-.btn-primary {
-  margin-left: 10px;
+@media (max-width: 480px) {
+  app-sidebar {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .container {
+    padding: 16px;
+  }
+
+  .refresh-btn,
+  .retry-btn {
+    width: 100%;
+    padding: 12px;
+  }
+
+  .summary-card {
+    padding: 16px;
+  }
+
+  .member-card {
+    padding: 16px;
+  }
 }

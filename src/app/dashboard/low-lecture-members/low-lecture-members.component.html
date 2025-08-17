@@ -1,41 +1,159 @@
-<div class="container-fluid p-0">
-  <main class="main-content container">
-    <h2 class="text-center mb-4">الأعضاء الذين لديهم أقل من محاضرتين أسبوعيًا</h2>
+<div class="app-container">
+  <app-sidebar></app-sidebar>
+  <main>
+    <div class="container">
+      <div class="header">
+        <h2>الأعضاء ذوو المحاضرات المنخفضة</h2>
+        <button class="refresh-btn" (click)="refreshData()" [disabled]="loading">
+          تحديث
+        </button>
+      </div>
 
-    <div *ngIf="error" class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
-      <strong>خطأ:</strong> {{ error }}
-      <button type="button" class="btn-close" (click)="error = null"></button>
-    </div>
-    <div *ngIf="successMessage && members.length > 0" class="alert alert-success alert-dismissible fade show mt-3" role="alert">
-      {{ successMessage }}
-      <button type="button" class="btn-close" (click)="successMessage = null"></button>
-    </div>
+      <!-- Debug Info -->
+      <div class="debug-info" *ngIf="debugInfo.weekStart || debugInfo.weekEnd || debugInfo.totalUsersProcessed || debugInfo.membersWithLowLectures">
+        <details>
+          <summary>معلومات التصحيح</summary>
+          <div class="debug-details">
+            <p><strong>فترة الأسبوع:</strong> {{ formatWeekRange() }}</p>
+            <p><strong>إجمالي المستخدمين المعالجين:</strong> {{ debugInfo.totalUsersProcessed || 0 }}</p>
+            <p><strong>الأعضاء ذوو المحاضرات المنخفضة:</strong> {{ debugInfo.membersWithLowLectures || 0 }}</p>
+          </div>
+        </details>
+      </div>
 
-    <div *ngIf="members.length === 0 && !error" class="alert alert-info">
-      لا يوجد أعضاء لديهم أقل من محاضرتين أسبوعيًا.
-    </div>
+      <!-- Success Message -->
+      <div class="success-container" *ngIf="successMessage">
+        <div class="success-icon">✅</div>
+        <p>{{ successMessage }}</p>
+      </div>
 
-    <div class="table-responsive" *ngIf="members.length > 0">
-      <table class="table table-hover">
-        <thead>
-          <tr>
-            <th>الاسم</th>
-            <th>البريد الإلكتروني</th>
-            <th>المواد التي لم تحقق الهدف</th>
-            <th>الإجراءات</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let member of members" (click)="viewMember(member._id)" style="cursor: pointer;">
-            <td>{{ member.name }}</td>
-            <td>{{ member.email }}</td>
-            <td>{{ getUnderTargetSubjectsDisplay(member.underTargetSubjects) }}</td>
-            <td>
-              <button class="btn btn-primary btn-sm" (click)="viewMember(member._id); $event.stopPropagation()">عرض التفاصيل</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <!-- Loading State -->
+      <div class="loading-container" *ngIf="loading">
+        <div class="loading-spinner"></div>
+        <p>جاري تحميل البيانات...</p>
+      </div>
+
+      <!-- Error State -->
+      <div class="error-container" *ngIf="errorMessage && !loading">
+        <div class="error-icon">⚠️</div>
+        <h3>خطأ في تحميل البيانات</h3>
+        <p>{{ errorMessage }}</p>
+        <button class="retry-btn" (click)="refreshData()">إعادة المحاولة</button>
+      </div>
+
+      <!-- No Data State -->
+      <div class="no-data-container" *ngIf="!loading && !errorMessage && members.length === 0">
+        <div class="no-data-icon">✅</div>
+        <h3>لا يوجد أعضاء بمحاضرات أقل من المطلوب</h3>
+        <p>جميع الأعضاء يحققون الحد الأدنى المطلوب من المحاضرات الأسبوعية</p>
+      </div>
+
+      <!-- Data Display -->
+      <div class="data-container" *ngIf="!loading && !errorMessage && members.length > 0">
+        <div class="summary-card">
+          <div class="summary-stats">
+            <div class="stat-item">
+              <span class="stat-number">{{ members.length }}</span>
+              <span class="stat-label">عضو يحتاج متابعة</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">{{ getTotalStudentsCount() }}</span>
+              <span class="stat-label">إجمالي الطلاب</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">{{ getTotalSubjectsCount() }}</span>
+              <span class="stat-label">إجمالي المواد</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="members-grid">
+          <div class="member-card" *ngFor="let member of members; trackBy: trackByMemberId">
+            <div class="member-header">
+              <div class="member-info">
+                <h4 class="member-name">{{ member.name || 'اسم غير متوفر' }}</h4>
+                <span class="member-email">{{ member.email || 'بريد غير متوفر' }}</span>
+                <span class="member-week-count">أسابيع النقص: {{ member.lowLectureWeekCount || 0 }}</span>
+              </div>
+              <button class="delete-btn" (click)="deleteMember(member._id, member.name)"
+                      [disabled]="isDeleting(member._id)" title="إزالة العضو من تقرير هذا الأسبوع">
+                {{ isDeleting(member._id) ? 'جاري الحذف...' : 'إزالة' }}
+              </button>
+            </div>
+
+            <div class="students-section">
+              <h5>الطلاب الذين يحتاجون متابعة ({{ member.underTargetStudents?.length || 0 }}):</h5>
+              <div class="debug-warning" *ngIf="!member.underTargetStudents || member.underTargetStudents.length === 0">
+                ⚠️ لا توجد بيانات طلاب لهذا العضو
+              </div>
+              <div class="student-card" *ngFor="let student of member.underTargetStudents; trackBy: trackByStudentEmail; let studentIndex = index">
+                <div class="student-info">
+                  <div class="student-details">
+                    <strong>{{ student.studentName || 'اسم غير متوفر' }}</strong>
+                    <span class="student-email">{{ student.studentEmail || 'بريد غير متوفر' }}</span>
+                    <span class="academic-level">{{ student.academicLevel || 'مستوى غير محدد' }}</span>
+                  </div>
+                  <div class="student-meta">
+                    <span class="student-number">طالب #{{ studentIndex + 1 }}</span>
+                  </div>
+                </div>
+
+                <div class="subjects-section">
+                  <h6>المواد التي تحتاج متابعة ({{ student.underTargetSubjects?.length || 0 }}):</h6>
+                  <div class="debug-warning" *ngIf="!student.underTargetSubjects || student.underTargetSubjects.length === 0">
+                    ⚠️ لا توجد مواد تحتاج متابعة لهذا الطالب
+                  </div>
+                  <div class="subjects-grid" *ngIf="student.underTargetSubjects && student.underTargetSubjects.length > 0">
+                    <div class="subject-card" *ngFor="let subject of student.underTargetSubjects">
+                      <div class="subject-header">
+                        <div class="subject-name">{{ subject.name || 'مادة غير محددة' }}</div>
+                        <div class="subject-status"
+                             [ngClass]="{
+                               'critical': subject.deliveredLectures === 0,
+                               'warning': subject.deliveredLectures > 0 && subject.deliveredLectures < (subject.minLectures * 0.5)
+                             }">
+                          {{ getSubjectStatus(subject.deliveredLectures || 0, subject.minLectures || 0) }}
+                        </div>
+                      </div>
+                      <div class="lecture-progress">
+                        <span class="delivered">{{ subject.deliveredLectures || 0 }}</span>
+                        <span class="separator">/</span>
+                        <span class="required">{{ subject.minLectures || 0 }}</span>
+                        <span class="label">محاضرة</span>
+                      </div>
+                      <div class="progress-bar">
+                        <div class="progress-fill"
+                             [ngClass]="getProgressClass(subject.deliveredLectures || 0, subject.minLectures || 0)"
+                             [style.width.%]="getProgressPercentage(subject.deliveredLectures || 0, subject.minLectures || 0)">
+                        </div>
+                      </div>
+                      <div class="subject-details">
+                        <small>النقص: {{ (subject.minLectures || 0) - (subject.deliveredLectures || 0) }} محاضرة</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="recent-lectures" *ngIf="member.lectures && member.lectures.length > 0">
+              <details>
+                <summary>المحاضرات الأخيرة ({{ member.lectures.length }})</summary>
+                <div class="lectures-list">
+                  <div class="lecture-item" *ngFor="let lecture of member.lectures | slice:0:5">
+                    <strong>{{ lecture.name || 'محاضرة غير محددة' }}</strong> - {{ lecture.subject || 'مادة غير محددة' }} - {{ lecture.studentEmail || 'بريد غير متوفر' }}
+                    <a [href]="lecture.link" target="_blank">رابط المحاضرة</a>
+                    <small>{{ formatDate(lecture.createdAt) }}</small>
+                  </div>
+                  <div class="more-lectures" *ngIf="member.lectures.length > 5">
+                    ... و {{ member.lectures.length - 5 }} محاضرات أخرى
+                  </div>
+                </div>
+              </details>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </main>
 </div>

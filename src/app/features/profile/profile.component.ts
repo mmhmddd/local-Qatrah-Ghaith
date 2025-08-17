@@ -8,6 +8,7 @@ import { LectureService, LectureResponse, LowLectureMembersResponse } from '../.
 import { LectureRequestService, LectureRequestData } from '../../core/services/lecture-request.service';
 import { TranslationService } from '../../core/services/translation.service';
 import { TranslatePipe } from '../../pipes/translate.pipe';
+import { AuthService } from '../../core/services/auth.service';
 
 interface Toast {
   id: string;
@@ -57,7 +58,7 @@ export class ProfileComponent implements OnInit {
     date: '',
     startTime: '',
     endTime: ''
-};
+  };
   showMeetingModal = false;
   selectedFile: File | null = null;
   selectedPdfFile: File | null = null;
@@ -89,7 +90,8 @@ export class ProfileComponent implements OnInit {
     private lectureRequestService: LectureRequestService,
     public translationService: TranslationService,
     private router: Router,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private authService: AuthService
   ) {
     this.initializeForms();
   }
@@ -105,8 +107,8 @@ export class ProfileComponent implements OnInit {
       studentEmail: ['', [Validators.required, Validators.email]],
       subject: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(100)]],
       date: ['', [Validators.required]],
-      duration: [0, [Validators.required, Validators.min(1)]],
-      link: ['', [Validators.required, Validators.pattern(/^https?:\/\/.+/)]],
+      duration: ['', [Validators.required, Validators.min(1), Validators.pattern(/^[1-9]\d*$/)]], // Empty string as default
+      link: ['', [Validators.required, Validators.pattern(/^https?:\/\/[^\s/$.?#].[^\s]*$/)]],
       name: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(100)]]
     });
 
@@ -122,9 +124,9 @@ export class ProfileComponent implements OnInit {
   }
 
   checkAuth(): void {
-    const userId = localStorage.getItem('userId');
-    const token = localStorage.getItem('token');
-    if (!token || !userId) {
+    const userId = this.authService.getUserId();
+    const token = this.authService.getToken();
+    if (!token || !userId || !this.authService.isLoggedIn()) {
       this.showToast('error', 'profile.error', 'profile.unauthorizedError');
       this.router.navigate(['/login']);
     }
@@ -174,7 +176,6 @@ export class ProfileComponent implements OnInit {
     const title = this.translationService.translate(titleKey);
     const message = this.translationService.translate(messageKey);
     this.toasts.push({ id, type, title, message });
-
     setTimeout(() => this.closeToast(id), 5000);
     setTimeout(() => {
       const toastElement = document.querySelector(`.toast[id="${id}"]`);
@@ -189,37 +190,38 @@ export class ProfileComponent implements OnInit {
   }
 
   loadProfile(): void {
-    const userId = localStorage.getItem('userId') || '';
+    const userId = this.authService.getUserId();
     if (!userId) {
       this.showToast('error', 'profile.error', 'profile.unauthorizedError');
       this.router.navigate(['/login']);
       return;
     }
 
-    this.joinRequestService.getMember(userId).subscribe({
+    this.profileService.getProfile().subscribe({
       next: (response: JoinRequestResponse) => {
-        if (response.success && response.member) {
-          this.profile = this.processProfileData(response.member);
+        if (response.success && response.data) {
+          this.profile = this.processProfileData(response.data);
           this.setActiveMessage();
           this.showUploadField = !this.profile.profileImage;
-
+          // Enable/disable lecture form based on students availability
+          if (this.profile.students?.length) {
+            this.lectureForm.enable();
+          } else {
+            this.lectureForm.disable();
+          }
           if (this.profile.numberOfStudents > 0 && this.profile.students.length === 0) {
             this.showToast('error', 'profile.error', 'profile.studentDataMismatch');
-            console.warn('Student data mismatch:', this.profile.numberOfStudents, this.profile.students);
           } else {
             this.showToast('success', 'profile.success', 'profile.loadSuccess');
           }
         } else {
           this.showToast('error', 'profile.error', response.message || 'profile.loadError');
-          console.error('Invalid profile response:', response);
         }
       },
       error: (err) => {
-        const errorMessage = this.getErrorMessage(err);
-        this.showToast('error', 'profile.error', errorMessage);
-        console.error('Profile loading error:', err);
+        this.showToast('error', 'profile.error', this.getErrorMessage(err));
         if (err.status === 401) {
-          this.router.navigate(['/login']);
+          this.authService.logout();
         }
       }
     });
@@ -237,7 +239,7 @@ export class ProfileComponent implements OnInit {
     return {
       ...member,
       id: member.id,
-      createdAt: new Date(member.createdAt).toLocaleDateString(locale, dateOptions),
+      createdAt: new Date(member.createdAt || new Date()).toLocaleDateString(locale, dateOptions),
       lectureCount: member.lectureCount || 0,
       lectures: (member.lectures || []).map((lecture: any) => ({
         ...lecture,
@@ -283,14 +285,13 @@ export class ProfileComponent implements OnInit {
     this.lectureService.getLowLectureMembers().subscribe({
       next: (response: LowLectureMembersResponse) => {
         if (response.success) {
-          const userId = localStorage.getItem('userId');
+          const userId = this.authService.getUserId();
           const memberData = response.members.find(m => m.id === userId);
           this.showLectureWarning = !!memberData && memberData.lowLectureStudents.length > 0;
         }
       },
       error: (err) => {
         this.showToast('error', 'profile.error', this.getErrorMessage(err));
-        console.error('Error loading low lecture members:', err);
       }
     });
   }
@@ -300,7 +301,6 @@ export class ProfileComponent implements OnInit {
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
 
-      // Validate file size (10MB max)
       if (file.size > 10 * 1024 * 1024) {
         this.showToast('error', 'profile.error', 'profile.fileSizeError');
         this.selectedFile = null;
@@ -308,7 +308,6 @@ export class ProfileComponent implements OnInit {
         return;
       }
 
-      // Validate file type
       const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
       if (!allowedTypes.includes(file.type)) {
         this.showToast('error', 'profile.error', 'profile.invalidImageType');
@@ -365,7 +364,9 @@ export class ProfileComponent implements OnInit {
       },
       error: (err) => {
         this.showToast('error', 'profile.error', this.getErrorMessage(err));
-        console.error('Upload image error:', err);
+        if (err.status === 401) {
+          this.authService.logout();
+        }
       },
       complete: () => {
         this.isUploading = false;
@@ -403,7 +404,9 @@ export class ProfileComponent implements OnInit {
       },
       error: (err) => {
         this.showToast('error', 'profile.error', this.getErrorMessage(err));
-        console.error('Upload PDF request error:', err);
+        if (err.status === 401) {
+          this.authService.logout();
+        }
       },
       complete: () => {
         this.isUploadingPdfRequest = false;
@@ -446,7 +449,9 @@ export class ProfileComponent implements OnInit {
       error: (err) => {
         this.errorCode = err.error || 'unknown_error';
         this.showToast('error', 'profile.error', this.getErrorMessage(err));
-        console.error('Change password error:', err);
+        if (err.status === 401) {
+          this.authService.logout();
+        }
       }
     });
   }
@@ -495,7 +500,9 @@ export class ProfileComponent implements OnInit {
       },
       error: (err) => {
         this.showToast('error', 'profile.error', this.getErrorMessage(err));
-        console.error('Add meeting error:', err);
+        if (err.status === 401) {
+          this.authService.logout();
+        }
       }
     });
   }
@@ -527,7 +534,9 @@ export class ProfileComponent implements OnInit {
         },
         error: (err) => {
           this.showToast('error', 'profile.error', this.getErrorMessage(err));
-          console.error('Delete meeting error:', err);
+          if (err.status === 401) {
+            this.authService.logout();
+          }
         },
         complete: () => {
           delete this.isDeletingMeeting[meetingId];
@@ -541,6 +550,16 @@ export class ProfileComponent implements OnInit {
   }
 
   uploadLecture(): void {
+    const userId = this.authService.getUserId();
+    if (!userId) {
+      this.showToast('error', 'profile.error', 'profile.unauthorizedError');
+      this.authService.logout();
+      return;
+    }
+    if (!this.profile?.students?.length) {
+      this.showToast('error', 'profile.error', 'profile.noStudentsAvailable');
+      return;
+    }
     if (this.lectureForm.invalid) {
       this.showToast('error', 'profile.error', 'profile.fillAllFields');
       this.lectureForm.markAllAsTouched();
@@ -549,25 +568,11 @@ export class ProfileComponent implements OnInit {
 
     this.isUploadingLecture = true;
     const { studentEmail, subject, date, duration, link, name } = this.lectureForm.value;
-    const userId = localStorage.getItem('userId') || '';
 
     this.lectureService.uploadLecture(userId, studentEmail, subject, date, duration, link, name).subscribe({
       next: (response: LectureResponse) => {
         if (response.success && response.lecture && this.profile) {
-          const isRtl = this.translationService.isRtl();
-          const locale = isRtl ? 'ar-EG' : 'en-US';
-          const dateOptions: Intl.DateTimeFormatOptions = {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit'
-          };
-
-          this.profile.lectures.push({
-            ...response.lecture,
-            date: new Date(response.lecture.date).toLocaleDateString(locale, dateOptions)
-          });
-          this.profile.lectureCount = response.lectureCount || (this.profile.lectureCount || 0) + 1;
-          this.profile.volunteerHours = response.volunteerHours || this.profile.volunteerHours || 0;
+          this.loadProfile();
           this.showToast('success', 'profile.success', 'profile.lectureUploadSuccess');
           this.lectureForm.reset();
           this.loadLowLectureMembers();
@@ -577,7 +582,9 @@ export class ProfileComponent implements OnInit {
       },
       error: (err) => {
         this.showToast('error', 'profile.error', this.getErrorMessage(err));
-        console.error('Upload lecture error:', err);
+        if (err.status === 401) {
+          this.authService.logout();
+        }
       },
       complete: () => {
         this.isUploadingLecture = false;
@@ -592,6 +599,9 @@ export class ProfileComponent implements OnInit {
       date: new Date(lecture.date).toISOString().split('T')[0]
     };
     this.lectureForm.patchValue(this.editingLecture);
+    if (this.profile?.students?.length) {
+      this.lectureForm.enable();
+    }
   }
 
   updateLecture(): void {
@@ -603,7 +613,7 @@ export class ProfileComponent implements OnInit {
 
     this.isUploadingLecture = true;
     const { studentEmail, subject, date, duration, link, name } = this.lectureForm.value;
-    const userId = localStorage.getItem('userId') || '';
+    const userId = this.authService.getUserId() || '';
 
     this.lectureService.updateLecture(
       this.editingLecture._id,
@@ -644,7 +654,9 @@ export class ProfileComponent implements OnInit {
       },
       error: (err) => {
         this.showToast('error', 'profile.error', this.getErrorMessage(err));
-        console.error('Update lecture error:', err);
+        if (err.status === 401) {
+          this.authService.logout();
+        }
       },
       complete: () => {
         this.isUploadingLecture = false;
@@ -656,6 +668,9 @@ export class ProfileComponent implements OnInit {
     this.lectureEditMode = false;
     this.editingLecture = null;
     this.lectureForm.reset();
+    if (!this.profile?.students?.length) {
+      this.lectureForm.disable();
+    }
   }
 
   deleteLecture(lectureId: string): void {
@@ -679,7 +694,9 @@ export class ProfileComponent implements OnInit {
         },
         error: (err) => {
           this.showToast('error', 'profile.error', this.getErrorMessage(err));
-          console.error('Delete lecture error:', err);
+          if (err.status === 401) {
+            this.authService.logout();
+          }
         }
       });
     }
@@ -706,8 +723,10 @@ export class ProfileComponent implements OnInit {
         return 'profile.unauthorizedError';
       case 403:
         return 'profile.forbiddenError';
+      case 404:
+        return 'profile.studentEmailNotFound';
       case 400:
-        return 'profile.badRequestError';
+        return err.error?.message || 'profile.invalidLectureData';
       case 500:
         return 'profile.serverError';
       default:

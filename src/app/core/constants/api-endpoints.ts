@@ -6,18 +6,18 @@ export const ApiEndpoints = {
   auth: {
     login: `${base}/login`,
     forgotPassword: `${base}/forgot-password`,
-    resetPassword: (token: string) => `${base}/reset-password/${token}`,
+    resetPassword: (token: string) => `${base}/reset-password/${token.trim()}`,
   },
   joinRequests: {
     create: `${base}/join-requests`,
     getAll: `${base}/join-requests`,
-    approve: (id: string) => `${base}/join-requests/${id}/approve`,
-    reject: (id: string) => `${base}/join-requests/${id}/reject`,
+    approve: (id: string) => `${base}/join-requests/${id.trim()}/approve`,
+    reject: (id: string) => `${base}/join-requests/${id.trim()}/reject`,
     getApproved: `${base}/approved-members`,
-    getMember: (id: string) => `${base}/members/${id}`,
-    updateMemberDetails: (id: string) => `${base}/members/${id}/update-details`,
-    addStudent: (id: string) => `${base}/members/${id}/add-student`,
-    deleteMember: (id: string) => `${base}/members/${id}`,
+    getMember: (id: string) => `${base}/members/${id.trim()}`,
+    updateMemberDetails: (id: string) => `${base}/members/${id.trim()}/update-details`,
+    addStudent: (id: string) => `${base}/members/${id.trim()}/add-student`,
+    deleteMember: (id: string) => `${base}/members/${id.trim()}`,
   },
   profile: {
     get: `${base}/profile`,
@@ -25,27 +25,41 @@ export const ApiEndpoints = {
     updatePassword: `${base}/profile/password`,
     uploadImage: `${base}/profile/image`,
     addMeeting: `${base}/profile/meetings`,
-    updateMeeting: (meetingId: string) => `${base}/profile/meetings/${meetingId}`,
-    deleteMeeting: (meetingId: string) => `${base}/profile/meetings/${meetingId}`,
+    updateMeeting: (meetingId: string) => `${base}/profile/meetings/${meetingId.trim()}`,
+    deleteMeeting: (meetingId: string) => `${base}/profile/meetings/${meetingId.trim()}`,
   },
   lectures: {
     upload: `${base}/lectures`,
-    update: (lectureId: string) => `${base}/lectures/${lectureId}`,
-    delete: (lectureId: string) => `${base}/lectures/${lectureId}`,
+    update: (lectureId: string) => `${base}/lectures/${lectureId.trim()}`,
+    delete: (lectureId: string) => `${base}/lectures/${lectureId.trim()}`,
     list: `${base}/lectures`,
-    lowLectureMembers: `${base}/low-lecture-members`,
+    lowLectureMembers: `${base}/lectures/low-lecture-members?t=${Date.now()}`,
+    removeLowLectureMember: (memberId: string) => {
+      if (!memberId || typeof memberId !== 'string' || memberId.trim() === '' || !/^[0-9a-fA-F]{24}$/.test(memberId.trim())) {
+        throw new Error('Invalid member ID: Must be a valid MongoDB ObjectId');
+      }
+      return `${base}/lectures/low-lecture-members/${memberId.trim()}`;
+    },
+    notifications: `${base}/lectures/notifications`,
+    markNotificationsRead: `${base}/lectures/notifications/mark-read`,
+    deleteNotification: (id: string) => {
+      if (!id || typeof id !== 'string' || id.trim() === '' || !/^[0-9a-fA-F]{24}$/.test(id.trim())) {
+        throw new Error('Invalid notification ID: Must be a valid MongoDB ObjectId');
+      }
+      return `${base}/lectures/notifications/${id.trim()}`;
+    },
   },
   lectureRequests: {
     upload: `${base}/lecture-requests/upload`,
     pending: `${base}/lecture-requests/pending`,
-    action: (id: string) => `${base}/lecture-requests/${id}/action`,
-    file: (id: string) => `${base}/lecture-requests/${id}/file`,
+    action: (id: string) => `${base}/lecture-requests/${id.trim()}/action`,
+    file: (id: string) => `${base}/lecture-requests/${id.trim()}/file`,
   },
   pdf: {
     upload: `${base}/pdf/upload`,
     list: `${base}/pdf/list`,
-    delete: (id: string) => `${base}/pdf/${id}`,
-    view: (id: string) => `${base}/pdf/view/${id}`,
+    delete: (id: string) => `${base}/pdf/${id.trim()}`,
+    view: (id: string) => `${base}/pdf/view/${id.trim()}`,
   },
   leaderboard: {
     add: `${base}/leaderboard/add`,
@@ -56,15 +70,15 @@ export const ApiEndpoints = {
   testimonials: {
     create: `${base}/testimonials/create`,
     list: `${base}/testimonials/list`,
-    edit: (id: string) => `${base}/testimonials/edit/${id}`,
-    delete: (id: string) => `${base}/testimonials/delete/${id}`,
+    edit: (id: string) => `${base}/testimonials/edit/${id.trim()}`,
+    delete: (id: string) => `${base}/testimonials/delete/${id.trim()}`,
   },
   gallery: {
     getAll: `${base}/gallery/images`,
-    getById: (id: string) => `${base}/gallery/images/${id}`,
+    getById: (id: string) => `${base}/gallery/images/${id.trim()}`,
     add: `${base}/gallery/images`,
-    edit: (id: string) => `${base}/gallery/images/${id}`,
-    delete: (id: string) => `${base}/gallery/images/${id}`,
+    edit: (id: string) => `${base}/gallery/images/${id.trim()}`,
+    delete: (id: string) => `${base}/gallery/images/${id.trim()}`,
   },
   admin: {
     sendMessage: `${base}/admin/send-message`,
@@ -72,8 +86,13 @@ export const ApiEndpoints = {
     deleteMessage: `${base}/admin/delete-message`,
   },
   notifications: {
-    get: '/api/notifications',
-    markRead: '/api/notifications/mark-read',
-    delete: '/api/notifications'
-  }
+    get: `${base}/lectures/notifications`,
+    markRead: `${base}/lectures/notifications/mark-read`,
+    delete: (id: string) => {
+      if (!id || typeof id !== 'string' || id.trim() === '' || !/^[0-9a-fA-F]{24}$/.test(id.trim())) {
+        throw new Error('Invalid notification ID: Must be a valid MongoDB ObjectId');
+      }
+      return `${base}/lectures/notifications/${id.trim()}`;
+    },
+  },
 };
