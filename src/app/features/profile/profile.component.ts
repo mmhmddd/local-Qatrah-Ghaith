@@ -1,13 +1,37 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ProfileService } from '../../core/services/profile.service';
+import { ProfileService, ProfileResponse } from '../../core/services/profile.service';
 import { Router } from '@angular/router';
-import { JoinRequestService, JoinRequestResponse } from '../../core/services/join-request.service';
-import { LectureService, LectureResponse, NotificationResponse } from '../../core/services/lecture.service';
+import { JoinRequestService, JoinRequestResponse, JoinRequest, Meeting } from '../../core/services/join-request.service';
+import { LectureService, LectureResponse, LowLectureMembersResponse } from '../../core/services/lecture.service';
 import { LectureRequestService, LectureRequestData } from '../../core/services/lecture-request.service';
 import { TranslationService } from '../../core/services/translation.service';
 import { TranslatePipe } from '../../pipes/translate.pipe';
+
+interface Toast {
+  id: string;
+  type: 'success' | 'error';
+  title: string;
+  message: string;
+}
+
+interface MeetingData {
+  title: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+}
+
+interface LectureData {
+  _id?: string;
+  studentEmail: string;
+  subject: string;
+  date: string;
+  duration: number;
+  link: string;
+  name: string;
+}
 
 @Component({
   selector: 'app-profile',
@@ -17,37 +41,33 @@ import { TranslatePipe } from '../../pipes/translate.pipe';
   styleUrls: ['./profile.component.scss']
 })
 export class ProfileComponent implements OnInit {
-  profile: JoinRequestResponse['data'] | null = null;
+  profile: JoinRequest | null = null;
   activeMessage: { _id: string; content: string; displayUntil: string } | null = null;
-  toasts: { id: string; type: 'success' | 'error'; title: string; message: string }[] = [];
-  lectureForm: FormGroup;
-  pdfRequestForm: FormGroup;
-  isUploadingLecture: boolean = false;
-  isUploadingPdfRequest: boolean = false;
-  notifications: NotificationResponse['notifications'] = [];
-  unreadNotificationsCount: number = 0;
-  currentPassword: string = '';
-  newPassword: string = '';
-  showPasswordModal: boolean = false;
+  toasts: Toast[] = [];
+  lectureForm!: FormGroup;
+  pdfRequestForm!: FormGroup;
+  isUploadingLecture = false;
+  isUploadingPdfRequest = false;
+  currentPassword = '';
+  newPassword = '';
+  showPasswordModal = false;
   errorCode: string | null = null;
-  meeting: {
-    title: string;
-    date: string;
-    startTime: string;
-    endTime: string;
-  } = {
+  meeting: MeetingData = {
     title: '',
     date: '',
     startTime: '',
     endTime: ''
-  };
-  showMeetingModal: boolean = false;
+};
+  showMeetingModal = false;
   selectedFile: File | null = null;
   selectedPdfFile: File | null = null;
-  isUploading: boolean = false;
-  showUploadField: boolean = true;
-  activeSection: string = 'profile';
+  isUploading = false;
+  showUploadField = false;
+  activeSection = 'profile';
   isDeletingMeeting: { [key: string]: boolean } = {};
+  showLectureWarning = false;
+  lectureEditMode = false;
+  editingLecture: LectureData | null = null;
 
   subjects = [
     'الرياضيات', 'الفيزياء', 'الكيمياء', 'الأحياء', 'اللغة العربية',
@@ -56,11 +76,7 @@ export class ProfileComponent implements OnInit {
   ];
 
   semesters = ['الفصل الأول', 'الفصل الثاني'];
-
-  countries = [
-    'الأردن', 'فلسطين',
-  ];
-
+  countries = ['الأردن', 'فلسطين'];
   academicLevels = [
     'الثانوية العامة', 'البكالوريوس', 'الماجستير', 'الدكتوراه',
     'الدبلوم', 'الدراسات العليا'
@@ -75,10 +91,23 @@ export class ProfileComponent implements OnInit {
     private router: Router,
     private fb: FormBuilder
   ) {
+    this.initializeForms();
+  }
+
+  ngOnInit(): void {
+    this.checkAuth();
+    this.loadProfile();
+    this.loadLowLectureMembers();
+  }
+
+  private initializeForms(): void {
     this.lectureForm = this.fb.group({
-      link: ['', [Validators.required, Validators.pattern('https?://.+')]],
-      name: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(100)]],
-      subject: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(100)]]
+      studentEmail: ['', [Validators.required, Validators.email]],
+      subject: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(100)]],
+      date: ['', [Validators.required]],
+      duration: [0, [Validators.required, Validators.min(1)]],
+      link: ['', [Validators.required, Validators.pattern(/^https?:\/\/.+/)]],
+      name: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(100)]]
     });
 
     this.pdfRequestForm = this.fb.group({
@@ -92,12 +121,15 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {
-    this.loadProfile();
-    this.fetchNotifications();
+  checkAuth(): void {
+    const userId = localStorage.getItem('userId');
+    const token = localStorage.getItem('token');
+    if (!token || !userId) {
+      this.showToast('error', 'profile.error', 'profile.unauthorizedError');
+      this.router.navigate(['/login']);
+    }
   }
 
-  // Get translated subjects based on current language
   getTranslatedSubjects(): string[] {
     const currentLang = this.translationService.getCurrentLanguage();
     if (currentLang === 'en') {
@@ -110,7 +142,6 @@ export class ProfileComponent implements OnInit {
     return this.subjects;
   }
 
-  // Get translated semesters based on current language
   getTranslatedSemesters(): string[] {
     const currentLang = this.translationService.getCurrentLanguage();
     if (currentLang === 'en') {
@@ -119,7 +150,6 @@ export class ProfileComponent implements OnInit {
     return this.semesters;
   }
 
-  // Get translated countries based on current language
   getTranslatedCountries(): string[] {
     const currentLang = this.translationService.getCurrentLanguage();
     if (currentLang === 'en') {
@@ -128,7 +158,6 @@ export class ProfileComponent implements OnInit {
     return this.countries;
   }
 
-  // Get translated academic levels based on current language
   getTranslatedAcademicLevels(): string[] {
     const currentLang = this.translationService.getCurrentLanguage();
     if (currentLang === 'en') {
@@ -145,6 +174,7 @@ export class ProfileComponent implements OnInit {
     const title = this.translationService.translate(titleKey);
     const message = this.translationService.translate(messageKey);
     this.toasts.push({ id, type, title, message });
+
     setTimeout(() => this.closeToast(id), 5000);
     setTimeout(() => {
       const toastElement = document.querySelector(`.toast[id="${id}"]`);
@@ -159,96 +189,108 @@ export class ProfileComponent implements OnInit {
   }
 
   loadProfile(): void {
-    this.profileService.getProfile().subscribe({
-      next: (response) => {
-        console.log('Profile response:', response);
-        if (response.success && response.data) {
-          this.profile = {
-            ...response.data,
-            students: response.data.students.map((student: any) => ({
-              ...student,
-              grade: student.grade || '',
-              subjects: student.subjects || []
-            })),
-            meetings: response.data.meetings.map((meeting: any) => ({
-              ...meeting,
-              id: meeting.id || meeting._id
-            }))
-          };
-          // Set active message
-          const messages = response.data.messages || [];
-          const activeMessages = messages.filter((msg: { displayUntil: string | number | Date; }) => new Date(msg.displayUntil) > new Date());
-          this.activeMessage = activeMessages.length > 0 ? activeMessages[0] : null;
+    const userId = localStorage.getItem('userId') || '';
+    if (!userId) {
+      this.showToast('error', 'profile.error', 'profile.unauthorizedError');
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    this.joinRequestService.getMember(userId).subscribe({
+      next: (response: JoinRequestResponse) => {
+        if (response.success && response.member) {
+          this.profile = this.processProfileData(response.member);
+          this.setActiveMessage();
           this.showUploadField = !this.profile.profileImage;
-          console.log('Students:', this.profile.students);
-          console.log('Number of Students:', this.profile.numberOfStudents);
+
           if (this.profile.numberOfStudents > 0 && this.profile.students.length === 0) {
             this.showToast('error', 'profile.error', 'profile.studentDataMismatch');
-            console.warn('Student data mismatch');
+            console.warn('Student data mismatch:', this.profile.numberOfStudents, this.profile.students);
           } else {
             this.showToast('success', 'profile.success', 'profile.loadSuccess');
           }
         } else {
-          this.showToast('error', 'profile.error', 'profile.loadError');
+          this.showToast('error', 'profile.error', response.message || 'profile.loadError');
+          console.error('Invalid profile response:', response);
         }
       },
       error: (err) => {
-        this.showToast('error', 'profile.error', this.getErrorMessage(err));
+        const errorMessage = this.getErrorMessage(err);
+        this.showToast('error', 'profile.error', errorMessage);
         console.error('Profile loading error:', err);
+        if (err.status === 401) {
+          this.router.navigate(['/login']);
+        }
       }
     });
   }
 
-  fetchNotifications(): void {
-    this.lectureService.getNotifications().subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.notifications = response.notifications.filter(n => !n.read);
-          this.unreadNotificationsCount = this.notifications.length;
-          this.showToast('success', 'profile.success', 'profile.notificationsLoadSuccess');
-        } else {
-          this.showToast('error', 'profile.error', 'profile.notificationsLoadError');
-        }
-      },
-      error: (err) => {
-        this.showToast('error', 'profile.error', this.getErrorMessage(err));
-        console.error('Notification fetch error:', err);
-      }
-    });
+  private processProfileData(member: any): JoinRequest {
+    const isRtl = this.translationService.isRtl();
+    const locale = isRtl ? 'ar-EG' : 'en-US';
+    const dateOptions: Intl.DateTimeFormatOptions = {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    };
+
+    return {
+      ...member,
+      id: member.id,
+      createdAt: new Date(member.createdAt).toLocaleDateString(locale, dateOptions),
+      lectureCount: member.lectureCount || 0,
+      lectures: (member.lectures || []).map((lecture: any) => ({
+        ...lecture,
+        date: new Date(lecture.date).toLocaleDateString(locale, dateOptions)
+      })),
+      students: (member.students || []).map((student: any) => ({
+        ...student,
+        name: student.name || this.translationService.translate('profile.notSpecified'),
+        email: student.email || this.translationService.translate('profile.notSpecified'),
+        phone: student.phone || this.translationService.translate('profile.notSpecified'),
+        grade: student.grade || this.translationService.translate('profile.notSpecified'),
+        subjects: (student.subjects || []).map((subject: any) => ({
+          name: subject.name || this.translationService.translate('profile.notSpecified'),
+          minLectures: subject.minLectures ?? 0
+        }))
+      })),
+      meetings: (member.meetings || []).map((meeting: Meeting, index: number) => ({
+        id: meeting.id || meeting._id || `meeting-${index}-${Date.now()}`,
+        title: meeting.title || this.translationService.translate('profile.notSpecified'),
+        date: typeof meeting.date === 'string' ? meeting.date : new Date(meeting.date).toISOString().split('T')[0],
+        startTime: meeting.startTime || '',
+        endTime: meeting.endTime || ''
+      })),
+      messages: (member.messages || []).map((message: any) => ({
+        _id: message._id || '',
+        content: message.content || '',
+        createdAt: message.createdAt || new Date().toISOString(),
+        displayUntil: message.displayUntil || new Date().toISOString()
+      }))
+    };
   }
 
-  markNotificationsRead(): void {
-    this.lectureService.markNotificationsRead().subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.notifications = response.notifications.filter(n => !n.read);
-          this.unreadNotificationsCount = this.notifications.length;
-          this.showToast('success', 'profile.success', 'profile.notificationsMarkedRead');
-        } else {
-          this.showToast('error', 'profile.error', 'profile.notificationsMarkError');
-        }
-      },
-      error: (err) => {
-        this.showToast('error', 'profile.error', this.getErrorMessage(err));
-        console.error('Mark notifications read error:', err);
-      }
-    });
+  private setActiveMessage(): void {
+    if (this.profile?.messages) {
+      const activeMessages = this.profile.messages.filter(
+        msg => new Date(msg.displayUntil) > new Date()
+      );
+      this.activeMessage = activeMessages.length > 0 ? activeMessages[0] : null;
+    }
   }
 
-  deleteNotification(notificationId: string): void {
-    this.lectureService.deleteNotification(notificationId).subscribe({
-      next: (response) => {
+  loadLowLectureMembers(): void {
+    this.lectureService.getLowLectureMembers().subscribe({
+      next: (response: LowLectureMembersResponse) => {
         if (response.success) {
-          this.notifications = this.notifications.filter(n => n._id !== notificationId);
-          this.unreadNotificationsCount = this.notifications.length;
-          this.showToast('success', 'profile.success', 'profile.notificationDeleted');
-        } else {
-          this.showToast('error', 'profile.error', 'profile.notificationDeleteError');
+          const userId = localStorage.getItem('userId');
+          const memberData = response.members.find(m => m.id === userId);
+          this.showLectureWarning = !!memberData && memberData.lowLectureStudents.length > 0;
         }
       },
       error: (err) => {
         this.showToast('error', 'profile.error', this.getErrorMessage(err));
-        console.error('Delete notification error:', err);
+        console.error('Error loading low lecture members:', err);
       }
     });
   }
@@ -256,12 +298,26 @@ export class ProfileComponent implements OnInit {
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
-      this.selectedFile = input.files[0];
-      if (this.selectedFile.size > 10 * 1024 * 1024) {
+      const file = input.files[0];
+
+      // Validate file size (10MB max)
+      if (file.size > 10 * 1024 * 1024) {
         this.showToast('error', 'profile.error', 'profile.fileSizeError');
         this.selectedFile = null;
+        input.value = '';
         return;
       }
+
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        this.showToast('error', 'profile.error', 'profile.invalidImageType');
+        this.selectedFile = null;
+        input.value = '';
+        return;
+      }
+
+      this.selectedFile = file;
     }
   }
 
@@ -291,6 +347,7 @@ export class ProfileComponent implements OnInit {
       this.showToast('error', 'profile.error', 'profile.selectImageFirst');
       return;
     }
+
     this.isUploading = true;
     this.profileService.uploadProfileImage(this.selectedFile).subscribe({
       next: (response) => {
@@ -299,10 +356,11 @@ export class ProfileComponent implements OnInit {
           this.showUploadField = false;
           this.selectedFile = null;
           this.showToast('success', 'profile.success', 'profile.imageUploadSuccess');
+
           const fileInput = document.getElementById('profileImageInput') as HTMLInputElement;
           if (fileInput) fileInput.value = '';
         } else {
-          this.showToast('error', 'profile.error', 'profile.imageUploadError');
+          this.showToast('error', 'profile.error', response.message || 'profile.imageUploadError');
         }
       },
       error: (err) => {
@@ -336,11 +394,11 @@ export class ProfileComponent implements OnInit {
           this.showToast('success', 'profile.success', 'profile.pdfRequestSuccess');
           this.pdfRequestForm.reset();
           this.selectedPdfFile = null;
+
           const fileInput = document.getElementById('pdfFileInput') as HTMLInputElement;
           if (fileInput) fileInput.value = '';
-          this.fetchNotifications();
         } else {
-          this.showToast('error', 'profile.error', 'profile.pdfRequestError');
+          this.showToast('error', 'profile.error', response.message || 'profile.pdfRequestError');
         }
       },
       error: (err) => {
@@ -359,11 +417,15 @@ export class ProfileComponent implements OnInit {
 
   openPasswordModal(): void {
     this.showPasswordModal = true;
+    this.currentPassword = '';
+    this.newPassword = '';
     this.errorCode = null;
   }
 
   closePasswordModal(): void {
     this.showPasswordModal = false;
+    this.currentPassword = '';
+    this.newPassword = '';
     this.errorCode = null;
   }
 
@@ -378,15 +440,12 @@ export class ProfileComponent implements OnInit {
       next: (response) => {
         if (response.success) {
           this.showToast('success', 'profile.success', 'profile.passwordChangeSuccess');
-          this.currentPassword = '';
-          this.newPassword = '';
-          this.showPasswordModal = false;
-          this.errorCode = null;
+          this.closePasswordModal();
         }
       },
       error: (err) => {
-        this.showToast('error', 'profile.error', 'profile.passwordChangeError');
-        this.errorCode = err.error ?? 'unknown_error';
+        this.errorCode = err.error || 'unknown_error';
+        this.showToast('error', 'profile.error', this.getErrorMessage(err));
         console.error('Change password error:', err);
       }
     });
@@ -399,6 +458,7 @@ export class ProfileComponent implements OnInit {
 
   openMeetingModal(): void {
     this.showMeetingModal = true;
+    this.meeting = { title: '', date: '', startTime: '', endTime: '' };
   }
 
   closeMeetingModal(): void {
@@ -407,55 +467,70 @@ export class ProfileComponent implements OnInit {
   }
 
   addMeeting(): void {
-    if (this.meeting.title && this.meeting.date && this.meeting.startTime && this.meeting.endTime) {
-      this.profileService.addMeeting(
-        this.meeting.title,
-        this.meeting.date,
-        this.meeting.startTime,
-        this.meeting.endTime
-      ).subscribe({
-        next: (response) => {
-          if (response.success && response.data && this.profile) {
-            this.profile.meetings = response.data.meetings.map((meeting: any) => ({
-              ...meeting,
-              id: meeting.id || meeting._id
-            }));
-            this.showToast('success', 'profile.success', 'profile.meetingAddSuccess');
-            this.closeMeetingModal();
-          } else {
-            this.showToast('error', 'profile.error', 'profile.meetingAddError');
-          }
-        },
-        error: (err) => {
-          this.showToast('error', 'profile.error', this.getErrorMessage(err));
-        }
-      });
-    } else {
+    if (!this.meeting.title || !this.meeting.date || !this.meeting.startTime || !this.meeting.endTime) {
       this.showToast('error', 'profile.error', 'profile.meetingFieldsRequired');
+      return;
     }
+
+    this.profileService.addMeeting(
+      this.meeting.title,
+      this.meeting.date,
+      this.meeting.startTime,
+      this.meeting.endTime
+    ).subscribe({
+      next: (response) => {
+        if (response.success && response.data && this.profile) {
+          this.profile.meetings = (response.data.meetings || []).map((meeting: Meeting, index: number) => ({
+            id: meeting.id || meeting._id || `meeting-${index}-${Date.now()}`,
+            title: meeting.title || this.translationService.translate('profile.notSpecified'),
+            date: typeof meeting.date === 'string' ? meeting.date : new Date(meeting.date).toISOString().split('T')[0],
+            startTime: meeting.startTime || '',
+            endTime: meeting.endTime || ''
+          }));
+          this.showToast('success', 'profile.success', 'profile.meetingAddSuccess');
+          this.closeMeetingModal();
+        } else {
+          this.showToast('error', 'profile.error', response.message || 'profile.meetingAddError');
+        }
+      },
+      error: (err) => {
+        this.showToast('error', 'profile.error', this.getErrorMessage(err));
+        console.error('Add meeting error:', err);
+      }
+    });
   }
 
   deleteMeeting(meetingId: string): void {
+    if (!meetingId) {
+      this.showToast('error', 'profile.error', 'profile.invalidMeetingId');
+      return;
+    }
+
     const confirmMessage = this.translationService.translate('profile.confirmDeleteMeeting');
     if (confirm(confirmMessage)) {
       this.isDeletingMeeting[meetingId] = true;
+
       this.profileService.deleteMeeting(meetingId).subscribe({
         next: (response) => {
           if (response.success && response.data && this.profile) {
-            this.profile.meetings = response.data.meetings.map((meeting: any) => ({
-              ...meeting,
-              id: meeting.id || meeting._id
+            this.profile.meetings = (response.data.meetings || []).map((meeting: Meeting, index: number) => ({
+              id: meeting.id || meeting._id || `meeting-${index}-${Date.now()}`,
+              title: meeting.title || this.translationService.translate('profile.notSpecified'),
+              date: typeof meeting.date === 'string' ? meeting.date : new Date(meeting.date).toISOString().split('T')[0],
+              startTime: meeting.startTime || '',
+              endTime: meeting.endTime || ''
             }));
             this.showToast('success', 'profile.success', 'profile.meetingDeleteSuccess');
           } else {
-            this.showToast('error', 'profile.error', 'profile.meetingDeleteError');
+            this.showToast('error', 'profile.error', response.message || 'profile.meetingDeleteError');
           }
         },
         error: (err) => {
           this.showToast('error', 'profile.error', this.getErrorMessage(err));
+          console.error('Delete meeting error:', err);
         },
         complete: () => {
-          this.isDeletingMeeting[meetingId] = false;
+          delete this.isDeletingMeeting[meetingId];
         }
       });
     }
@@ -473,25 +548,31 @@ export class ProfileComponent implements OnInit {
     }
 
     this.isUploadingLecture = true;
-    const { link, name, subject } = this.lectureForm.value;
+    const { studentEmail, subject, date, duration, link, name } = this.lectureForm.value;
+    const userId = localStorage.getItem('userId') || '';
 
-    this.lectureService.uploadLecture(link, name, subject).subscribe({
+    this.lectureService.uploadLecture(userId, studentEmail, subject, date, duration, link, name).subscribe({
       next: (response: LectureResponse) => {
-        if (response.success && this.profile) {
+        if (response.success && response.lecture && this.profile) {
+          const isRtl = this.translationService.isRtl();
+          const locale = isRtl ? 'ar-EG' : 'en-US';
+          const dateOptions: Intl.DateTimeFormatOptions = {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+          };
+
           this.profile.lectures.push({
-            _id: response.lecture?._id || '',
-            link: response.lecture?.link || '',
-            name: response.lecture?.name || '',
-            subject: response.lecture?.subject || '',
-            createdAt: response.lecture?.createdAt || new Date().toISOString()
+            ...response.lecture,
+            date: new Date(response.lecture.date).toLocaleDateString(locale, dateOptions)
           });
           this.profile.lectureCount = response.lectureCount || (this.profile.lectureCount || 0) + 1;
-          this.profile.volunteerHours = response.volunteerHours || this.profile.volunteerHours;
+          this.profile.volunteerHours = response.volunteerHours || this.profile.volunteerHours || 0;
           this.showToast('success', 'profile.success', 'profile.lectureUploadSuccess');
           this.lectureForm.reset();
-          this.fetchNotifications();
+          this.loadLowLectureMembers();
         } else {
-          this.showToast('error', 'profile.error', 'profile.lectureUploadError');
+          this.showToast('error', 'profile.error', response.message || 'profile.lectureUploadError');
         }
       },
       error: (err) => {
@@ -504,37 +585,133 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-  private getErrorMessage(err: any): string {
-    if (err.status === 0) {
-      return 'profile.networkError';
+  startEditLecture(lecture: LectureData): void {
+    this.lectureEditMode = true;
+    this.editingLecture = {
+      ...lecture,
+      date: new Date(lecture.date).toISOString().split('T')[0]
+    };
+    this.lectureForm.patchValue(this.editingLecture);
+  }
+
+  updateLecture(): void {
+    if (this.lectureForm.invalid || !this.editingLecture || !this.editingLecture._id) {
+      this.showToast('error', 'profile.error', 'profile.fillAllFields');
+      this.lectureForm.markAllAsTouched();
+      return;
     }
-    if (err.status === 401) {
-      return 'profile.unauthorizedError';
+
+    this.isUploadingLecture = true;
+    const { studentEmail, subject, date, duration, link, name } = this.lectureForm.value;
+    const userId = localStorage.getItem('userId') || '';
+
+    this.lectureService.updateLecture(
+      this.editingLecture._id,
+      userId,
+      studentEmail,
+      subject,
+      date,
+      duration,
+      link,
+      name
+    ).subscribe({
+      next: (response: LectureResponse) => {
+        if (response.success && response.lecture && this.profile) {
+          const isRtl = this.translationService.isRtl();
+          const locale = isRtl ? 'ar-EG' : 'en-US';
+          const dateOptions: Intl.DateTimeFormatOptions = {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+          };
+
+          const index = this.profile.lectures.findIndex(l => l._id === this.editingLecture!._id);
+          if (index !== -1) {
+            this.profile.lectures[index] = {
+              ...response.lecture,
+              date: new Date(response.lecture.date).toLocaleDateString(locale, dateOptions)
+            };
+          }
+          this.profile.lectureCount = response.lectureCount || this.profile.lectureCount;
+          this.lectureEditMode = false;
+          this.editingLecture = null;
+          this.showToast('success', 'profile.success', 'profile.lectureUpdateSuccess');
+          this.lectureForm.reset();
+          this.loadLowLectureMembers();
+        } else {
+          this.showToast('error', 'profile.error', response.message || 'profile.lectureUpdateError');
+        }
+      },
+      error: (err) => {
+        this.showToast('error', 'profile.error', this.getErrorMessage(err));
+        console.error('Update lecture error:', err);
+      },
+      complete: () => {
+        this.isUploadingLecture = false;
+      }
+    });
+  }
+
+  cancelEditLecture(): void {
+    this.lectureEditMode = false;
+    this.editingLecture = null;
+    this.lectureForm.reset();
+  }
+
+  deleteLecture(lectureId: string): void {
+    if (!lectureId) {
+      this.showToast('error', 'profile.error', 'profile.invalidLectureId');
+      return;
     }
-    if (err.status === 403) {
-      return 'profile.forbiddenError';
+
+    const confirmMessage = this.translationService.translate('profile.confirmDeleteLecture');
+    if (confirm(confirmMessage)) {
+      this.lectureService.deleteLecture(lectureId).subscribe({
+        next: (response: LectureResponse) => {
+          if (response.success && this.profile) {
+            this.profile.lectures = this.profile.lectures.filter(l => l._id !== lectureId);
+            this.profile.lectureCount = response.lectureCount || Math.max((this.profile.lectureCount || 0) - 1, 0);
+            this.showToast('success', 'profile.success', 'profile.lectureDeleteSuccess');
+            this.loadLowLectureMembers();
+          } else {
+            this.showToast('error', 'profile.error', response.message || 'profile.lectureDeleteError');
+          }
+        },
+        error: (err) => {
+          this.showToast('error', 'profile.error', this.getErrorMessage(err));
+          console.error('Delete lecture error:', err);
+        }
+      });
     }
-    if (err.status === 400) {
-      return 'profile.badRequestError';
-    }
-    if (err.status === 500) {
-      return 'profile.serverError';
-    }
-    return 'profile.unexpectedError';
   }
 
   getStudentSubjects(student: any): string {
-    if (!student.subjects || !Array.isArray(student.subjects)) {
+    if (!student?.subjects || !Array.isArray(student.subjects) || student.subjects.length === 0) {
       return this.translationService.translate('profile.notSpecified');
     }
-    if (student.subjects.length === 0) {
-      return this.translationService.translate('profile.notSpecified');
-    }
-    return student.subjects.join(', ');
+    return student.subjects
+      .map((subject: any) => `${subject.name} (${subject.minLectures} ${this.translationService.translate('profile.lectures')})`)
+      .join(', ');
   }
 
-  // Helper method to get validation error message
-  getValidationError(fieldName: string, errorType: string): string {
-    return this.translationService.translate(`profile.validation.${fieldName}.${errorType}`);
+  private getErrorMessage(err: any): string {
+    if (err.error?.message) {
+      return err.error.message;
+    }
+
+    switch (err.status) {
+      case 0:
+        return 'profile.networkError';
+      case 401:
+        return 'profile.unauthorizedError';
+      case 403:
+        return 'profile.forbiddenError';
+      case 400:
+        return 'profile.badRequestError';
+      case 500:
+        return 'profile.serverError';
+      default:
+        return 'profile.unexpectedError';
+    }
   }
 }

@@ -1,14 +1,28 @@
 <div class="container">
   <app-sidebar></app-sidebar>
 
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1050;">
+    <div *ngFor="let toast of toasts"
+         class="toast show"
+         [id]="toast.id"
+         [ngClass]="{'toast-success': toast.type === 'success', 'toast-error': toast.type === 'error'}"
+         role="alert"
+         aria-live="assertive"
+         aria-atomic="true">
+      <div class="toast-header">
+        <strong class="me-auto">{{ toast.title }}</strong>
+        <button type="button" class="btn-close" (click)="closeToast(toast.id)"></button>
+      </div>
+      <div class="toast-body">
+        {{ toast.message }}
+      </div>
+    </div>
+  </div>
+
   <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
     <div class="container-fluid mt-4">
-      <div *ngIf="toastMessage" class="toast" [ngClass]="{'toast-success': toastMessage.type === 'success', 'toast-error': toastMessage.type === 'error'}">
-        {{ toastMessage.message }}
-      </div>
-
       <div *ngIf="member" class="card shadow-sm">
-        <div class="card-header text-white">
+        <div class="card-header text-white bg-primary">
           <h3 class="mb-0">تفاصيل العضو: {{ member.name }}</h3>
         </div>
         <div class="card-body">
@@ -73,16 +87,25 @@
                       <th>الهاتف</th>
                       <th>الصف</th>
                       <th>المواد</th>
+                      <th>الحد الأدنى للمحاضرات</th>
                       <th>الإجراءات</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr *ngFor="let student of editedStudents; let i = index">
-                      <td><input type="text" class="form-control" [(ngModel)]="student.name" dir="rtl"></td>
-                      <td><input type="email" class="form-control" [(ngModel)]="student.email" dir="rtl"></td>
-                      <td><input type="text" class="form-control" [(ngModel)]="student.phone" dir="rtl"></td>
+                      <td><input type="text" class="form-control" [(ngModel)]="student.name" dir="rtl" required></td>
+                      <td><input type="email" class="form-control" [(ngModel)]="student.email" dir="rtl" required></td>
+                      <td><input type="text" class="form-control" [(ngModel)]="student.phone" dir="rtl" required></td>
                       <td><input type="text" class="form-control" [(ngModel)]="student.grade" placeholder="الصف (اختياري)" dir="rtl"></td>
-                      <td><input type="text" class="form-control" [ngModel]="student.subjects.join(', ')" (ngModelChange)="updateStudentSubjects(i, $event)" placeholder="المواد (مفصولة بفواصل)" dir="rtl"></td>
+                      <td>
+                        <input type="text" class="form-control" [(ngModel)]="student.subjectsString" (ngModelChange)="updateStudentSubjects(i, $event)" placeholder="المواد (مفصولة بفواصل)" dir="rtl">
+                        <small *ngIf="student.subjectsString && !isValidSubjects(student.subjects)" class="text-danger">يرجى إدخال مواد صالحة من قائمة المواد المتاحة</small>
+                      </td>
+                      <td>
+                        <div *ngFor="let subject of student.subjects; let j = index">
+                          <input type="number" class="form-control mb-1" [(ngModel)]="student.subjects[j].minLectures" placeholder="الحد الأدنى للمحاضرات لـ {{ subject.name }}" min="0" dir="rtl" required>
+                        </div>
+                      </td>
                       <td><button class="btn btn-danger btn-sm" (click)="deleteStudent(i)">حذف</button></td>
                     </tr>
                   </tbody>
@@ -90,7 +113,7 @@
               </div>
             </div>
             <div class="button-group">
-              <button class="btn btn-primary me-2" (click)="saveChanges()">حفظ التغييرات</button>
+              <button class="btn btn-primary me-2" (click)="saveChanges()" [disabled]="!isValidEditedStudents()">حفظ التغييرات</button>
               <button class="btn btn-secondary" (click)="toggleEditMode()">إلغاء</button>
             </div>
           </div>
@@ -106,55 +129,56 @@
           <h4 class="mb-0">إضافة طالب</h4>
         </div>
         <div class="card-body">
-          <div class="row">
-            <div class="col-md-3">
-              <div class="mb-3">
-                <label for="studentName" class="form-label">الاسم</label>
-                <input type="text" class="form-control" id="studentName" [(ngModel)]="newStudent.name" dir="rtl">
+          <form #studentForm="ngForm" (ngSubmit)="addStudent(studentForm)">
+            <div class="row">
+              <div class="col-md-3">
+                <div class="mb-3">
+                  <label for="studentName" class="form-label">الاسم</label>
+                  <input type="text" class="form-control" id="studentName" [(ngModel)]="newStudent.name" name="name" dir="rtl" required>
+                  <small *ngIf="studentErrors.name" class="text-danger">{{ studentErrors.name }}</small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="mb-3">
+                  <label for="studentEmail" class="form-label">البريد الإلكتروني</label>
+                  <input type="email" class="form-control" id="studentEmail" [(ngModel)]="newStudent.email" name="email" dir="rtl" required>
+                  <small *ngIf="studentErrors.email" class="text-danger">{{ studentErrors.email }}</small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="mb-3">
+                  <label for="studentPhone" class="form-label">الهاتف</label>
+                  <input type="text" class="form-control" id="studentPhone" [(ngModel)]="newStudent.phone" name="phone" dir="rtl" required>
+                  <small *ngIf="studentErrors.phone" class="text-danger">{{ studentErrors.phone }}</small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="mb-3">
+                  <label for="studentGrade" class="form-label">الصف (اختياري)</label>
+                  <input type="text" class="form-control" id="studentGrade" [(ngModel)]="newStudent.grade" name="grade" dir="rtl">
+                  <small *ngIf="studentErrors.grade" class="text-danger">{{ studentErrors.grade }}</small>
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="mb-3">
+                  <label for="studentSubjects" class="form-label">المواد (مفصولة بفواصل)</label>
+                  <input type="text" class="form-control" id="studentSubjects" [(ngModel)]="newStudent.subjectsString" name="subjectsString" (ngModelChange)="updateNewStudentSubjects($event)" placeholder="أدخل المواد مفصولة بفواصل (مثال: رياضيات, علوم)" dir="rtl">
+                  <small *ngIf="studentErrors.subjects" class="text-danger">{{ studentErrors.subjects }}</small>
+                </div>
+                <div *ngIf="newStudent.subjects.length > 0" class="mb-3">
+                  <label class="form-label">الحد الأدنى للمحاضرات لكل مادة</label>
+                  <div *ngFor="let subject of newStudent.subjects; let i = index" class="mb-2">
+                    <label for="minLectures{{i}}" class="form-label">{{ subject }}</label>
+                    <input type="number" class="form-control" id="minLectures{{i}}" [(ngModel)]="newStudent.minLectures[i]" name="minLectures{{i}}" min="0" dir="rtl" required (ngModelChange)="validateMinLectures()">
+                    <small *ngIf="studentErrors.minLectures && studentErrors.minLectures[i]" class="text-danger">{{ studentErrors.minLectures[i] }}</small>
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="col-md-3">
-              <div class="mb-3">
-                <label for="studentEmail" class="form-label">البريد الإلكتروني</label>
-                <input type="email" class="form-control" id="studentEmail" [(ngModel)]="newStudent.email" dir="rtl">
-              </div>
+            <div class="button-group">
+              <button type="submit" class="btn btn-success" [disabled]="!isValidNewStudent()">إضافة طالب</button>
             </div>
-            <div class="col-md-3">
-              <div class="mb-3">
-                <label for="studentPhone" class="form-label">الهاتف</label>
-                <input type="text" class="form-control" id="studentPhone" [(ngModel)]="newStudent.phone" dir="rtl">
-              </div>
-            </div>
-            <div class="col-md-3">
-              <div class="mb-3">
-                <label for="studentGrade" class="form-label">الصف (اختياري)</label>
-                <input type="text" class="form-control" id="studentGrade" [(ngModel)]="newStudent.grade" dir="rtl">
-              </div>
-            </div>
-            <div class="col-md-3">
-              <div class="mb-3">
-                <label for="subjectCount" class="form-label">عدد المواد</label>
-                <select class="form-control" id="subjectCount" [(ngModel)]="subjectCount" (ngModelChange)="updateSubjectInputs()">
-                  <option value="0">0</option>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                  <option value="3">3</option>
-                  <option value="4">4</option>
-                  <option value="5">5</option>
-                </select>
-              </div>
-            </div>
-            <div class="col-md-3" *ngFor="let subjectInput of subjectInputs; let i = index; trackBy: trackByIndex" [attr.key]="i">
-              <div class="mb-3">
-                <label for="studentSubject{{i}}" class="form-label">المادة {{i + 1}}</label>
-                <input type="text" class="form-control" id="studentSubject{{i}}" [(ngModel)]="subjectInputs[i]" placeholder="أدخل اسم المادة" name="studentSubject{{i}}" dir="rtl">
-              </div>
-            </div>
-          </div>
-          <div class="button-group">
-            <button class="btn btn-success" (click)="addStudent()">إضافة طالب</button>
-            <button class="btn btn-secondary" (click)="clearSubjectInputs()">مسح المواد</button>
-          </div>
+          </form>
         </div>
       </div>
 
@@ -172,16 +196,16 @@
                   <th>البريد الإلكتروني</th>
                   <th>الهاتف</th>
                   <th>الصف</th>
-                  <th>المواد</th>
+                  <th>المواد (الحد الأدنى للمحاضرات)</th>
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let student of member.students">
-                  <td>{{ student.name }}</td>
-                  <td>{{ student.email }}</td>
-                  <td>{{ student.phone }}</td>
+                <tr *ngFor="let student of member.students; let i = index">
+                  <td>{{ student.name || 'غير محدد' }}</td>
+                  <td>{{ student.email || 'غير محدد' }}</td>
+                  <td>{{ student.phone || 'غير محدد' }}</td>
                   <td>{{ student.grade || 'غير محدد' }}</td>
-                  <td>{{ student.subjects.join(', ') || 'غير محدد' }}</td>
+                  <td>{{ getSubjectsDisplay(student.subjects) }}</td>
                 </tr>
               </tbody>
             </table>
@@ -194,8 +218,8 @@
           <h4 class="mb-0">المحاضرات</h4>
         </div>
         <div class="card-body">
-          <div *ngIf="member.showLectureWarning" class="alert alert-warning">
-            تحذير: لقد قمت برفع أقل من 2 محاضرة هذا الشهر. يرجى زيادة المحاضرات!
+          <div *ngIf="showLectureWarning" class="alert alert-warning">
+            تحذير: هذا العضو لديه طلاب بمحاضرات أقل من الحد الأدنى المطلوب.
           </div>
           <div *ngIf="member.lectures.length === 0" class="alert alert-info">لا توجد محاضرات مسجلة.</div>
           <div class="table-responsive" *ngIf="member.lectures.length > 0">
@@ -203,19 +227,25 @@
               <thead>
                 <tr>
                   <th>اسم المحاضرة</th>
+                  <th>بريد الطالب</th>
                   <th>المادة</th>
+                  <th>التاريخ</th>
+                  <th>المدة (دقائق)</th>
                   <th>الرابط</th>
-                  <th>تاريخ الإنشاء</th>
                   <th>الإجراءات</th>
                 </tr>
               </thead>
               <tbody>
                 <tr *ngFor="let lecture of member.lectures; let i = index">
                   <td>{{ lecture.name }}</td>
+                  <td>{{ lecture.studentEmail }}</td>
                   <td>{{ lecture.subject }}</td>
+                  <td>{{ lecture.date }}</td>
+                  <td>{{ lecture.duration }}</td>
                   <td><a [href]="lecture.link" target="_blank" class="text-primary">{{ lecture.link }}</a></td>
-                  <td>{{ lecture.createdAt }}</td>
-                  <td><button class="btn btn-danger btn-sm" (click)="deleteLecture(i)">حذف</button></td>
+                  <td>
+                    <button class="btn btn-danger btn-sm" (click)="deleteLecture(i)">حذف</button>
+                  </td>
                 </tr>
               </tbody>
             </table>

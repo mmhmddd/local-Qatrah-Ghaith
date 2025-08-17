@@ -13,9 +13,9 @@ export interface UserProfile {
   profileImage: string | null;
   numberOfStudents: number;
   subjects: string[];
-  students: { name: string; email: string; phone: string; grade?: string; subjects: string[] }[];
+  students: { name: string; email: string; phone: string; grade?: string; subjects: { name: string; minLectures: number }[] }[];
   meetings: { _id?: string; id?: string; title: string; date: string | Date; startTime: string; endTime: string }[];
-  lectures: { _id: string; link: string; createdAt: string }[];
+  lectures: { _id: string; studentEmail: string; subject: string; date: string; duration: number; link: string; name: string }[];
   lectureCount: number;
   messages: { _id: string; content: string; createdAt: string; displayUntil: string }[];
 }
@@ -48,7 +48,7 @@ interface MeetingResponse {
 }
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class ProfileService {
   constructor(
@@ -67,7 +67,7 @@ export class ProfileService {
       throw new Error('No token found. Redirecting to login.');
     }
     return new HttpHeaders({
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${token}`
     });
   }
 
@@ -78,14 +78,17 @@ export class ProfileService {
         if (!response.success || !response.data || !response.data.user) {
           throw new Error(response.message || 'Invalid profile data');
         }
-        // Filter out meetings without a valid _id
-        const validMeetings = response.data.user.meetings.filter(meeting => meeting._id).map(meeting => ({
-          id: meeting._id,
-          title: meeting.title,
-          date: typeof meeting.date === 'string' ? meeting.date : new Date(meeting.date).toISOString().split('T')[0],
-          startTime: meeting.startTime,
-          endTime: meeting.endTime,
-        }));
+
+        const validMeetings = response.data.user.meetings
+          .filter(meeting => meeting._id || meeting.id)
+          .map(meeting => ({
+            id: meeting._id || meeting.id,
+            title: meeting.title,
+            date: typeof meeting.date === 'string' ? meeting.date : new Date(meeting.date).toISOString().split('T')[0],
+            startTime: meeting.startTime,
+            endTime: meeting.endTime
+          }));
+
         return {
           success: true,
           message: response.message || 'تم جلب بيانات الملف الشخصي بنجاح',
@@ -95,23 +98,21 @@ export class ProfileService {
             profileImage: response.data.user.profileImage,
             numberOfStudents: response.data.user.numberOfStudents,
             subjects: response.data.user.subjects,
-            students: response.data.user.students,
+            students: response.data.user.students.map(student => ({
+              ...student,
+              subjects: student.subjects || []
+            })),
             meetings: validMeetings,
             lectures: response.data.user.lectures || [],
             lectureCount: response.data.user.lectureCount || 0,
-            messages: response.data.user.messages.map(message => ({
-              _id: message._id,
-              content: message.content,
-              createdAt: message.createdAt,
-              displayUntil: message.displayUntil
-            })) || [],
+            messages: response.data.user.messages || [],
             name: response.data.joinRequest?.name || '',
             phone: response.data.joinRequest?.phone || '',
             address: response.data.joinRequest?.address || '',
             academicSpecialization: response.data.joinRequest?.academicSpecialization || '',
             volunteerHours: response.data.joinRequest?.volunteerHours || 0,
-            status: response.data.joinRequest?.status || 'Pending',
-          },
+            status: response.data.joinRequest?.status || 'Pending'
+          }
         };
       }),
       catchError(error => {
@@ -119,7 +120,7 @@ export class ProfileService {
         return throwError(() => ({
           success: false,
           message: error.message || 'خطأ في جلب بيانات الملف الشخصي',
-          error: error.message,
+          error: error.message
         }));
       })
     );
@@ -128,13 +129,18 @@ export class ProfileService {
   uploadProfileImage(file: File): Observable<UploadImageResponse> {
     const formData = new FormData();
     formData.append('profileImage', file);
-    return this.http.post<UploadImageResponse>(ApiEndpoints.profile.uploadImage, formData, { headers: this.getHeaders() }).pipe(
+
+    return this.http.post<UploadImageResponse>(
+      ApiEndpoints.profile.uploadImage,
+      formData,
+      { headers: this.getHeaders() }
+    ).pipe(
       catchError(error => {
         console.error('Error uploading profile image:', error);
         return throwError(() => ({
           success: false,
           message: error.message || 'فشل في رفع الصورة',
-          error: error.message,
+          error: error.message
         }));
       })
     );
@@ -148,6 +154,7 @@ export class ProfileService {
         error: 'missing_fields'
       }));
     }
+
     if (currentPassword === newPassword) {
       return throwError(() => ({
         success: false,
@@ -155,7 +162,12 @@ export class ProfileService {
         error: 'same_password'
       }));
     }
-    return this.http.put<UpdatePasswordResponse>(ApiEndpoints.profile.updatePassword, { currentPassword, newPassword }, { headers: this.getHeaders() }).pipe(
+
+    return this.http.put<UpdatePasswordResponse>(
+      ApiEndpoints.profile.updatePassword,
+      { currentPassword, newPassword },
+      { headers: this.getHeaders() }
+    ).pipe(
       catchError(error => {
         console.error('Error updating password:', error);
         let errorMessage = 'فشل في تغيير كلمة المرور';
@@ -164,9 +176,6 @@ export class ProfileService {
         if (error.status === 401) {
           errorMessage = 'كلمة المرور الحالية غير صحيحة';
           errorCode = 'incorrect_password';
-        } else if (error.status === 400 && error.error?.message.includes('same password')) {
-          errorMessage = 'كلمة المرور الجديدة لا يمكن أن تكون نفس كلمة المرور الحالية';
-          errorCode = 'same_password';
         } else if (error.error?.message) {
           errorMessage = error.error.message;
           errorCode = error.error.code || 'unknown_error';
@@ -185,21 +194,26 @@ export class ProfileService {
     if (!title || !date || !startTime || !endTime) {
       return throwError(() => ({
         success: false,
-        message: 'جميع تفاصيل الموعد مطلوبة',
+        message: 'جميع تفاصيل الموعد مطلوبة'
       }));
     }
-    return this.http.post<MeetingResponse>(ApiEndpoints.profile.addMeeting, { title, date, startTime, endTime }, { headers: this.getHeaders() }).pipe(
+
+    return this.http.post<MeetingResponse>(
+      ApiEndpoints.profile.addMeeting,
+      { title, date, startTime, endTime },
+      { headers: this.getHeaders() }
+    ).pipe(
       map(response => ({
         success: true,
         data: { meetings: response.meetings },
-        message: response.message || 'تم إضافة الموعد بنجاح',
+        message: response.message || 'تم إضافة الموعد بنجاح'
       })),
       catchError(error => {
         console.error('Error adding meeting:', error);
         return throwError(() => ({
           success: false,
           message: error.message || 'فشل في إضافة الموعد',
-          error: error.message,
+          error: error.message
         }));
       })
     );
@@ -210,23 +224,27 @@ export class ProfileService {
       console.error('Invalid meetingId:', meetingId);
       return throwError(() => ({
         success: false,
-        message: 'معرف الموعد مطلوب ويجب أن يكون صالحًا',
+        message: 'معرف الموعد مطلوب ويجب أن يكون صالحًا'
       }));
     }
-    return this.http.delete<MeetingResponse>(ApiEndpoints.profile.deleteMeeting(meetingId), { headers: this.getHeaders() }).pipe(
+
+    return this.http.delete<MeetingResponse>(
+      ApiEndpoints.profile.deleteMeeting(meetingId),
+      { headers: this.getHeaders() }
+    ).pipe(
       map(response => ({
         success: true,
         data: { meetings: response.meetings },
-        message: response.message || 'تم حذف الموعد بنجاح',
-      }),
+        message: response.message || 'تم حذف الموعد بنجاح'
+      })),
       catchError(error => {
         console.error('Error deleting meeting:', error);
         return throwError(() => ({
           success: false,
           message: error.message || 'فشل في حذف الموعد',
-          error: error.message,
+          error: error.message
         }));
       })
-      ));
+    );
   }
 }

@@ -11,7 +11,7 @@ import { LectureService, LowLectureMembersResponse } from '../../core/services/l
   styleUrls: ['./low-lecture-members.component.scss'],
 })
 export class LowLectureMembersComponent implements OnInit {
-  members: { _id: string; name: string; email: string; underTargetSubjects: string[] }[] = [];
+  members: { _id: string; name: string; email: string; underTargetSubjects: { name: string; minLectures: number; deliveredLectures: number }[] }[] = [];
   error: string | null = null;
   successMessage: string | null = null;
 
@@ -29,7 +29,14 @@ export class LowLectureMembersComponent implements OnInit {
   loadLowLectureMembers(): void {
     this.lectureService.getLowLectureMembers().subscribe({
       next: (response: LowLectureMembersResponse) => {
-        this.members = response.members || [];
+        this.members = (response.members || []).map(member => ({
+          ...member,
+          underTargetSubjects: member['underTargetSubjects'].map((subject: { name: any; minLectures: any; deliveredLectures: any; }) => ({
+            name: subject.name,
+            minLectures: subject.minLectures || 2, // Default to 2 if not provided
+            deliveredLectures: subject.deliveredLectures || 0 // Default to 0 if not provided
+          }))
+        }));
         this.successMessage = response.success ? response.message : null;
         this.error = response.success ? null : response.message;
       },
@@ -42,6 +49,12 @@ export class LowLectureMembersComponent implements OnInit {
         }
       },
     });
+  }
+
+  getUnderTargetSubjectsDisplay(subjects: { name: string; minLectures: number; deliveredLectures: number }[]): string {
+    return subjects.length > 0
+      ? subjects.map(s => `${s.name} (الحد الأدنى: ${s.minLectures}, تم تسليم: ${s.deliveredLectures})`).join(', ')
+      : 'لا توجد مواد';
   }
 
   viewMember(memberId: string): void {

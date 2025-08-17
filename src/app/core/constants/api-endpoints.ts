@@ -17,7 +17,6 @@ export const ApiEndpoints = {
     getMember: (id: string) => `${base}/members/${id}`,
     updateMemberDetails: (id: string) => `${base}/members/${id}/update-details`,
     addStudent: (id: string) => `${base}/members/${id}/add-student`,
-    markNotificationRead: (id: string) => `${base}/members/${id}/mark-notification-read`,
     deleteMember: (id: string) => `${base}/members/${id}`,
   },
   profile: {
@@ -31,23 +30,16 @@ export const ApiEndpoints = {
   },
   lectures: {
     upload: `${base}/lectures`,
+    update: (lectureId: string) => `${base}/lectures/${lectureId}`,
     delete: (lectureId: string) => `${base}/lectures/${lectureId}`,
     list: `${base}/lectures`,
-    notifications: `${base}/lectures/notifications`,
-    markNotificationsRead: `${base}/lectures/notifications/mark-read`,
-    deleteNotification: (notificationId: string) => `${base}/lectures/notifications/${notificationId}`,
-    lowLectureMembers: `${base}/lectures/low-lecture-members`,
-    user: (userId: string) => `${base}/lectures/user/${userId}`,
+    lowLectureMembers: `${base}/low-lecture-members`,
   },
   lectureRequests: {
     upload: `${base}/lecture-requests/upload`,
     pending: `${base}/lecture-requests/pending`,
     action: (id: string) => `${base}/lecture-requests/${id}/action`,
-    file: (id: string) => `${base}/lecture-requests/${id}/file`, // New endpoint for fetching PDF
-  },
-  notifications: {
-    get: `${base}/lectures/notifications`,
-    markRead: `${base}/lectures/notifications/mark-read`,
+    file: (id: string) => `${base}/lecture-requests/${id}/file`,
   },
   pdf: {
     upload: `${base}/pdf/upload`,
@@ -74,9 +66,14 @@ export const ApiEndpoints = {
     edit: (id: string) => `${base}/gallery/images/${id}`,
     delete: (id: string) => `${base}/gallery/images/${id}`,
   },
-    admin: {
-    sendMessage: 'http://localhost:5000/api/admin/send-message',
-    editMessage: 'http://localhost:5000/api/admin/edit-message',
-    deleteMessage: 'http://localhost:5000/api/admin/delete-message',
+  admin: {
+    sendMessage: `${base}/admin/send-message`,
+    editMessage: `${base}/admin/edit-message`,
+    deleteMessage: `${base}/admin/delete-message`,
   },
+  notifications: {
+    get: '/api/notifications',
+    markRead: '/api/notifications/mark-read',
+    delete: '/api/notifications'
+  }
 };

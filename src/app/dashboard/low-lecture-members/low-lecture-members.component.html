@@ -29,7 +29,7 @@
           <tr *ngFor="let member of members" (click)="viewMember(member._id)" style="cursor: pointer;">
             <td>{{ member.name }}</td>
             <td>{{ member.email }}</td>
-            <td>{{ member.underTargetSubjects.join(', ') }}</td>
+            <td>{{ getUnderTargetSubjectsDisplay(member.underTargetSubjects) }}</td>
             <td>
               <button class="btn btn-primary btn-sm" (click)="viewMember(member._id); $event.stopPropagation()">عرض التفاصيل</button>
             </td>

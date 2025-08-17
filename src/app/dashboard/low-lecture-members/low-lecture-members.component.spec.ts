@@ -11,7 +11,7 @@ describe('LowLectureMembersComponent', () => {
       imports: [LowLectureMembersComponent]
     })
     .compileComponents();
-    
+
     fixture = TestBed.createComponent(LowLectureMembersComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

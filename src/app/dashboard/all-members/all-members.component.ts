@@ -3,7 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
-import { JoinRequest, JoinRequestService } from '../../core/services/join-request.service';
+import { JoinRequest, JoinRequestService, JoinRequestResponse } from '../../core/services/join-request.service';
 import { SidebarComponent } from "../../shared/sidebar/sidebar.component";
 import { FormsModule } from '@angular/forms';
 import * as XLSX from 'xlsx';
@@ -69,16 +69,30 @@ export class AllMembersComponent implements OnInit, OnDestroy {
     this.joinRequestService.getApprovedMembers()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (members) => {
-          this.approvedMembers = members;
-          this.filteredMembers = members;
-          this.errorMessage = null;
-          this.isLoading = false;
+        next: (response: JoinRequestResponse) => {
+          if (response.success && response.members) {
+            this.approvedMembers = response.members;
+            this.filteredMembers = response.members;
+            this.successMessage = response.message || 'تم جلب الأعضاء المعتمدين بنجاح';
+            this.errorMessage = null;
+            this.isLoading = false;
+          } else {
+            this.errorMessage = response.message || 'فشل في جلب الأعضاء المعتمدين';
+            this.approvedMembers = [];
+            this.filteredMembers = [];
+            this.isLoading = false;
+          }
         },
         error: (error) => {
           this.errorMessage = error.message || 'خطأ في جلب الأعضاء المعتمدين';
           this.isLoading = false;
+          this.approvedMembers = [];
+          this.filteredMembers = [];
           console.error('Error fetching approved members:', error);
+          if (error.error === 'Unauthorized') {
+            // Optionally redirect to login
+            // this.router.navigate(['/login']);
+          }
         }
       });
   }
@@ -155,7 +169,7 @@ export class AllMembersComponent implements OnInit, OnDestroy {
       'التخصص الجامعي': member.academicSpecialization || 'غير محدد',
       'ساعات التطوع': member.volunteerHours || 0,
       'عدد المحاضرات': member.lectureCount || 0,
-      'عدد المواد': member.subjectsCount || 0, // Added subjectsCount
+      'عدد المواد': member.subjectsCount || 0,
       'المواد': member.subjects.join(', ') || 'غير محدد',
       'عدد الطلاب': member.numberOfStudents || 0
     }));
@@ -171,7 +185,7 @@ export class AllMembersComponent implements OnInit, OnDestroy {
       'التخصص الجامعي': 'التخصص الجامعي',
       'ساعات التطوع': 'ساعات التطوع',
       'عدد المحاضرات': 'عدد المحاضرات',
-      'عدد المواد': 'عدد المواد', // Added subjectsCount
+      'عدد المواد': 'عدد المواد',
       'المواد': 'المواد',
       'عدد الطلاب': 'عدد الطلاب'
     };

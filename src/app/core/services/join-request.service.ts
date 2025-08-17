@@ -1,9 +1,17 @@
-// join-request.service.ts (Updated if needed, but mostly unchanged from original)
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { ApiEndpoints } from '../constants/api-endpoints';
+
+export interface Meeting {
+  id?: string;
+  _id?: string;
+  title: string;
+  date: string | Date;
+  startTime: string;
+  endTime: string;
+}
 
 export interface JoinRequestResponse {
   success: boolean;
@@ -12,13 +20,16 @@ export interface JoinRequestResponse {
   error?: string;
   email?: string;
   member?: JoinRequest;
+  members?: JoinRequest[];
 }
 
 export interface JoinRequest {
   id: string;
+  _id?: string;
   name: string;
   email: string;
   phone: string;
+  number?: string;
   academicSpecialization: string;
   address: string;
   status: 'Pending' | 'Approved' | 'Rejected';
@@ -26,13 +37,13 @@ export interface JoinRequest {
   numberOfStudents: number;
   subjects: string[];
   subjectsCount: number;
-  students: { name: string; email: string; phone: string; grade?: string; subjects: string[] }[];
-  lectures: { _id: string; link: string; name: string; subject: string; createdAt: string; hasNewLecture: boolean }[];
+  students: { name: string; email: string; phone: string; grade?: string; subjects: { name: string; minLectures: number }[] }[];
+  lectures: { _id: string; studentEmail: string; subject: string; date: string; duration: number; link: string; name: string }[];
   lectureCount: number;
   createdAt: string;
-  showLectureWarning?: boolean;
-  hasNewLecture: boolean;
-  messages: { _id: string; content: string; displayUntil: string }[]; // Added messages property
+  messages: { createdAt: string; _id: string; content: string; displayUntil: string }[];
+  meetings: Meeting[];
+  profileImage?: string;
 }
 
 interface CreateJoinRequestResponse {
@@ -49,17 +60,16 @@ interface UpdateMemberDetailsResponse {
   message: string;
   volunteerHours: number;
   numberOfStudents: number;
-  students: { name: string; email: string; phone: string; grade?: string; subjects: string[] }[];
+  students: { name: string; email: string; phone: string; grade?: string; subjects: { name: string; minLectures: number }[] }[];
   subjects: string[];
-  lectures?: { _id: string; link: string; name: string; subject: string; createdAt: string; hasNewLecture: boolean }[];
-  lectureCount?: number;
+  lectureCount: number;
 }
 
 interface AddStudentResponse {
+  students: never[];
   message: string;
-  student: { name: string; email: string; phone: string; grade?: string; subjects: string[] };
+  student: { name: string; email: string; phone: string; grade?: string; subjects: { name: string; minLectures: number }[] };
   numberOfStudents: number;
-  students: { name: string; email: string; phone: string; grade?: string; subjects: string[] }[];
   subjects: string[];
 }
 
@@ -71,15 +81,10 @@ interface DeleteMemberResponse {
   message: string;
 }
 
-interface MarkNotificationResponse {
-  success: boolean;
-  message: string;
-}
-
 interface SendMessageResponse {
   message: string;
   displayUntil: string;
-  _id?: string; // Added _id to response
+  _id?: string;
 }
 
 interface EditMessageResponse {
@@ -101,6 +106,9 @@ export class JoinRequestService {
 
   private getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');
+    if (!token) {
+      console.warn('No token found in localStorage');
+    }
     return token ? this.headers.set('Authorization', `Bearer ${token}`) : this.headers;
   }
 
@@ -122,18 +130,14 @@ export class JoinRequestService {
         message: 'البريد الإلكتروني غير صالح'
       }));
     }
-    console.log('إرسال البيانات إلى الخادم:', data);
     return this.http.post<CreateJoinRequestResponse>(ApiEndpoints.joinRequests.create, data, { headers: this.headers }).pipe(
-      map(response => {
-        console.log('استجابة الخادم:', response);
-        return {
-          success: true,
-          message: response.message || 'تم تسجيل طلب الانضمام بنجاح',
-          data: { id: response.id }
-        };
-      }),
+      map(response => ({
+        success: true,
+        message: response.message || 'تم تسجيل طلب الانضمام بنجاح',
+        data: { id: response.id }
+      })),
       catchError(error => {
-        console.error('خطأ في إرسال طلب الانضمام:', error);
+        console.error('Error creating join request:', error);
         return throwError(() => ({
           success: false,
           message: error.error?.message || 'فشل في تسجيل طلب الانضمام، تحقق من البيانات أو الاتصال بالخادم',
@@ -143,34 +147,96 @@ export class JoinRequestService {
     );
   }
 
-  getAll(): Observable<JoinRequest[]> {
-    return this.http.get<JoinRequest[]>(ApiEndpoints.joinRequests.getAll).pipe(
+  getAll(): Observable<JoinRequestResponse> {
+    return this.http.get<JoinRequest[]>(ApiEndpoints.joinRequests.getAll, { headers: this.getAuthHeaders() }).pipe(
+      map(members => ({
+        success: true,
+        message: 'تم جلب طلبات الانضمام بنجاح',
+        members: members.map(member => ({
+          id: member._id || member.id,
+          _id: member._id,
+          name: member.name || '',
+          email: member.email || '',
+          phone: member.number || member.phone || '',
+          number: member.number,
+          academicSpecialization: member.academicSpecialization || '',
+          address: member.address || '',
+          status: member.status || 'Pending',
+          volunteerHours: member.volunteerHours || 0,
+          numberOfStudents: member.numberOfStudents || 0,
+          subjects: member.subjects || [],
+          subjectsCount: member.subjects?.length || 0,
+          students: member.students || [],
+          lectures: member.lectures || [],
+          lectureCount: member.lectureCount || 0,
+          createdAt: member.createdAt || '',
+          messages: member.messages || [],
+          meetings: member.meetings || [],
+          profileImage: member.profileImage || ''
+        }))
+      }),
       catchError(error => {
-        console.error('خطأ في جلب طلبات الانضمام:', error);
+        console.error('Error fetching join requests:', error);
+        if (error.status === 401) {
+          return throwError(() => ({
+            success: false,
+            message: 'غير مسموح بالوصول. يرجى تسجيل الدخول مرة أخرى',
+            error: 'Unauthorized'
+          }));
+        }
         return throwError(() => ({
           success: false,
           message: error.error?.message || 'فشل في جلب طلبات الانضمام، تحقق من الاتصال بالخادم',
           error: error.statusText || error.message
         }));
       })
-    );
+    ));
   }
 
-  getApprovedMembers(): Observable<JoinRequest[]> {
-    return this.http.get<JoinRequest[]>(ApiEndpoints.joinRequests.getApproved).pipe(
-      map(members => members.map(member => ({
-        ...member,
-        subjectsCount: member.subjects?.length || 0
-      }))),
+  getApprovedMembers(): Observable<JoinRequestResponse> {
+    return this.http.get<JoinRequest[]>(ApiEndpoints.joinRequests.getApproved, { headers: this.getAuthHeaders() }).pipe(
+      map(members => ({
+        success: true,
+        message: 'تم جلب الأعضاء المعتمدين بنجاح',
+        members: members.map(member => ({
+          id: member._id || member.id,
+          _id: member._id,
+          name: member.name || '',
+          email: member.email || '',
+          phone: member.number || member.phone || '',
+          number: member.number,
+          academicSpecialization: member.academicSpecialization || '',
+          address: member.address || '',
+          status: member.status || 'Approved',
+          volunteerHours: member.volunteerHours || 0,
+          numberOfStudents: member.numberOfStudents || 0,
+          subjects: member.subjects || [],
+          subjectsCount: member.subjects?.length || 0,
+          students: member.students || [],
+          lectures: member.lectures || [],
+          lectureCount: member.lectureCount || 0,
+          createdAt: member.createdAt || '',
+          messages: member.messages || [],
+          meetings: member.meetings || [],
+          profileImage: member.profileImage || ''
+        }))
+      }),
       catchError(error => {
-        console.error('خطأ في جلب الأعضاء المعتمدين:', error);
+        console.error('Error fetching approved members:', error);
+        if (error.status === 401) {
+          return throwError(() => ({
+            success: false,
+            message: 'غير مسموح بالوصول. يرجى تسجيل الدخول مرة أخرى',
+            error: 'Unauthorized'
+          }));
+        }
         return throwError(() => ({
           success: false,
           message: error.error?.message || 'فشل في جلب الأعضاء المعتمدين، تحقق من الاتصال بالخادم',
           error: error.statusText || error.message
         }));
       })
-    );
+    ));
   }
 
   getMember(id: string): Observable<JoinRequestResponse> {
@@ -180,45 +246,58 @@ export class JoinRequestService {
         message: 'معرف العضو مطلوب'
       }));
     }
-    return this.http.get<JoinRequest>(ApiEndpoints.joinRequests.getMember(id)).pipe(
-      map(response => ({
+    return this.http.get<JoinRequest>(ApiEndpoints.joinRequests.getMember(id), { headers: this.getAuthHeaders() }).pipe(
+      map(member => ({
         success: true,
         message: 'تم جلب بيانات العضو بنجاح',
         member: {
-          id: response.id,
-          name: response.name,
-          email: response.email,
-          phone: response.phone,
-          academicSpecialization: response.academicSpecialization,
-          address: response.address,
-          status: response.status,
-          volunteerHours: response.volunteerHours || 0,
-          numberOfStudents: response.numberOfStudents || 0,
-          subjects: response.subjects || [],
-          subjectsCount: response.subjects?.length || 0,
-          students: response.students || [],
-          lectures: (response.lectures || []).map(lecture => ({
-            ...lecture,
-            hasNewLecture: lecture.hasNewLecture ?? false
+          id: member._id || member.id,
+          _id: member._id,
+          name: member.name || '',
+          email: member.email || '',
+          phone: member.number || member.phone || '',
+          number: member.number,
+          academicSpecialization: member.academicSpecialization || '',
+          address: member.address || '',
+          status: member.status || 'Pending',
+          volunteerHours: member.volunteerHours || 0,
+          numberOfStudents: member.numberOfStudents || 0,
+          subjects: member.subjects || [],
+          subjectsCount: member.subjects?.length || 0,
+          students: member.students || [],
+          lectures: member.lectures || [],
+          lectureCount: member.lectureCount || 0,
+          createdAt: member.createdAt || '',
+          messages: member.messages || [],
+          meetings: (member.meetings || []).map(meeting => ({
+            id: meeting.id || meeting._id || '',
+            _id: meeting._id,
+            title: meeting.title || '',
+            date: meeting.date || '',
+            startTime: meeting.startTime || '',
+            endTime: meeting.endTime || ''
           })),
-          lectureCount: response.lectureCount || 0,
-          createdAt: response.createdAt,
-          hasNewLecture: response.hasNewLecture ?? false,
-          messages: response.messages || [] // Include messages
+          profileImage: member.profileImage || ''
         }
-      })),
+      }),
       catchError(error => {
-        console.error('خطأ في جلب بيانات العضو:', error);
+        console.error('Error fetching member details:', error);
         return throwError(() => ({
           success: false,
           message: error.error?.message || 'فشل في جلب بيانات العضو، تحقق من المعرف أو الاتصال بالخادم',
           error: error.statusText || error.message
         }));
       })
-    );
+    ));
   }
 
-  updateMemberDetails(id: string, volunteerHours: number, numberOfStudents: number, students: { name: string; email: string; phone: string; grade?: string; subjects: string[] }[], subjects: string[]): Observable<JoinRequestResponse> {
+  updateMemberDetails(
+    id: string,
+    volunteerHours: number,
+    numberOfStudents: number,
+    students: { name: string; email: string; phone: string; grade?: string; subjects: { name: string; minLectures: number }[] }[],
+    subjects: string[]
+  ): Observable<JoinRequestResponse> {
     if (!id) {
       return throwError(() => ({
         success: false,
@@ -243,10 +322,16 @@ export class JoinRequestService {
         message: 'الصف يجب أن يكون بين 1 و50 حرفًا إذا تم توفيره'
       }));
     }
-    if (students.some(student => student.subjects && student.subjects.some(subject => subject.length < 1 || subject.length > 100))) {
+    if (students.some(student => student.subjects && student.subjects.some(subject => !subject.name || subject.name.length < 1 || subject.name.length > 100))) {
       return throwError(() => ({
         success: false,
-        message: 'كل مادة يجب أن تكون بين 1 و100 حرف إذا تم توفيرها'
+        message: 'كل مادة يجب أن تكون بين 1 و100 حرف'
+      }));
+    }
+    if (students.some(student => student.subjects && student.subjects.some(subject => !Number.isInteger(subject.minLectures) || subject.minLectures < 0))) {
+      return throwError(() => ({
+        success: false,
+        message: 'الحد الأدنى للمحاضرات يجب أن يكون رقمًا صحيحًا غير سالب'
       }));
     }
     return this.http.put<UpdateMemberDetailsResponse>(ApiEndpoints.joinRequests.updateMemberDetails(id), { volunteerHours, numberOfStudents, students, subjects }, { headers: this.getAuthHeaders() }).pipe(
@@ -256,21 +341,14 @@ export class JoinRequestService {
         data: {
           volunteerHours: response.volunteerHours,
           numberOfStudents: response.numberOfStudents,
-          students: response.students.map(student => ({
-            ...student,
-            subjects: student.subjects || []
-          })),
-          subjects: response.subjects || [],
+          students: response.students,
+          subjects: response.subjects,
           subjectsCount: response.subjects?.length || 0,
-          lectures: (response.lectures || []).map(lecture => ({
-            ...lecture,
-            hasNewLecture: lecture.hasNewLecture ?? false
-          })),
-          lectureCount: response.lectureCount || 0
+          lectureCount: response.lectureCount
         }
       })),
       catchError(error => {
-        console.error('خطأ في تحديث تفاصيل العضو:', error);
+        console.error('Error updating member details:', error);
         return throwError(() => ({
           success: false,
           message: error.error?.message || 'فشل في تحديث تفاصيل العضو، تحقق من البيانات أو الاتصال بالخادم',
@@ -280,7 +358,14 @@ export class JoinRequestService {
     );
   }
 
-  addStudent(id: string, name: string, email: string, phone: string, grade?: string, subjects: string[] = []): Observable<JoinRequestResponse> {
+  addStudent(
+    id: string,
+    name: string,
+    email: string,
+    phone: string,
+    grade?: string,
+    subjects: { name: string; minLectures: number }[] = []
+  ): Observable<JoinRequestResponse> {
     if (!id) {
       return throwError(() => ({
         success: false,
@@ -299,42 +384,53 @@ export class JoinRequestService {
         message: 'البريد الإلكتروني للطالب غير صالح'
       }));
     }
+    if (!/^\+?\d{10,15}$/.test(phone)) {
+      return throwError(() => ({
+        success: false,
+        message: 'رقم الهاتف غير صالح'
+      }));
+    }
     if (grade && (grade.length < 1 || grade.length > 50)) {
       return throwError(() => ({
         success: false,
         message: 'الصف يجب أن يكون بين 1 و50 حرفًا إذا تم توفيره'
       }));
     }
-    if (subjects.some(subject => subject.length < 1 || subject.length > 100)) {
+    if (subjects.some(subject => !subject.name || subject.name.length < 1 || subject.name.length > 100)) {
       return throwError(() => ({
         success: false,
-        message: 'كل مادة يجب أن تكون بين 1 و100 حرف إذا تم توفيرها'
+        message: 'كل مادة يجب أن تكون بين 1 و100 حرف'
       }));
     }
-    return this.http.post<AddStudentResponse>(ApiEndpoints.joinRequests.addStudent(id), { name, email, phone, grade, subjects }, { headers: this.getAuthHeaders() }).pipe(
-      map(response => ({
-        success: true,
-        message: response.message || 'تم إضافة الطالب بنجاح',
-        data: {
-          student: {
-            ...response.student,
-            subjects: response.student.subjects || []
-          },
-          numberOfStudents: response.numberOfStudents,
-          students: response.students.map(student => ({
-            ...student,
-            subjects: student.subjects || []
-          })),
-          subjects: response.subjects || [],
-          subjectsCount: response.subjects?.length || 0
-        }
-      })),
+    if (subjects.some(subject => !Number.isInteger(subject.minLectures) || subject.minLectures < 0)) {
+      return throwError(() => ({
+        success: false,
+        message: 'الحد الأدنى للمحاضرات يجب أن يكون رقمًا صحيحًا غير سالب'
+      }));
+    }
+    const payload = { name, email, phone, grade, subjects };
+    console.log('Sending addStudent request:', { url: ApiEndpoints.joinRequests.addStudent(id), payload });
+    return this.http.post<AddStudentResponse>(ApiEndpoints.joinRequests.addStudent(id), payload, { headers: this.getAuthHeaders() }).pipe(
+      map(response => {
+        console.log('addStudent response:', response);
+        return {
+          success: true,
+          message: response.message || 'تم إضافة الطالب بنجاح',
+          data: {
+            students: response.student ? [...(response.students || []), response.student] : response.students || [],
+            numberOfStudents: response.numberOfStudents || 0,
+            subjects: response.subjects || []
+          }
+        };
+      }),
       catchError(error => {
-        console.error('خطأ في إضافة الطالب:', error);
+        console.error('Error adding student:', error);
         return throwError(() => ({
           success: false,
           message: error.error?.message || 'فشل في إضافة الطالب، تحقق من البيانات أو الاتصال بالخادم',
-          error: error.statusText || error.message
+          error: error.statusText || error.message,
+          status: error.status,
+          errorDetails: error.error
         }));
       })
     );
@@ -354,7 +450,7 @@ export class JoinRequestService {
         email: response.email
       })),
       catchError(error => {
-        console.error('خطأ في الموافقة على الطلب:', error);
+        console.error('Error approving join request:', error);
         return throwError(() => ({
           success: false,
           message: error.error?.message || 'فشل في الموافقة على الطلب، تحقق من المعرف أو الاتصال بالخادم',
@@ -377,7 +473,7 @@ export class JoinRequestService {
         message: response.message || 'تم رفض الطلب'
       })),
       catchError(error => {
-        console.error('خطأ في رفض الطلب:', error);
+        console.error('Error rejecting join request:', error);
         return throwError(() => ({
           success: false,
           message: error.error?.message || 'فشل في رفض الطلب، تحقق من المعرف أو الاتصال بالخادم',
@@ -400,27 +496,10 @@ export class JoinRequestService {
         message: response.message || 'تم حذف العضو بنجاح'
       })),
       catchError(error => {
-        console.error('خطأ في حذف العضو:', error);
+        console.error('Error deleting member:', error);
         return throwError(() => ({
           success: false,
           message: error.error?.message || 'فشل في حذف العضو، تحقق من المعرف أو الاتصال بالخادم',
-          error: error.statusText || error.message
-        }));
-      })
-    );
-  }
-
-  markNotificationAsRead(memberId: string): Observable<MarkNotificationResponse> {
-    return this.http.post<MarkNotificationResponse>(ApiEndpoints.joinRequests.markNotificationRead(memberId), { memberId }, { headers: this.getAuthHeaders() }).pipe(
-      map(response => ({
-        success: true,
-        message: response.message || 'تم تحديث حالة الإشعار بنجاح'
-      })),
-      catchError(error => {
-        console.error('خطأ في تحديث حالة الإشعار:', error);
-        return throwError(() => ({
-          success: false,
-          message: error.error?.message || 'فشل في تحديث حالة الإشعار، تحقق من الاتصال بالخادم',
           error: error.statusText || error.message
         }));
       })
@@ -456,7 +535,7 @@ export class JoinRequestService {
         }
       })),
       catchError(error => {
-        console.error('خطأ في إرسال الرسالة:', error);
+        console.error('Error sending message:', error);
         if (error.status === 400 && error.error?.activeMessage) {
           return throwError(() => ({
             success: false,
@@ -501,7 +580,7 @@ export class JoinRequestService {
         }
       })),
       catchError(error => {
-        console.error('خطأ في تعديل الرسالة:', error);
+        console.error('Error editing message:', error);
         return throwError(() => ({
           success: false,
           message: error.error?.message || 'فشل في تعديل الرسالة، تحقق من البيانات أو الاتصال بالخادم',
@@ -524,7 +603,7 @@ export class JoinRequestService {
         message: response.message || 'تم حذف الرسالة بنجاح'
       })),
       catchError(error => {
-        console.error('خطأ في حذف الرسالة:', error);
+        console.error('Error deleting message:', error);
         return throwError(() => ({
           success: false,
           message: error.error?.message || 'فشل في حذف الرسالة، تحقق من البيانات أو الاتصال بالخادم',

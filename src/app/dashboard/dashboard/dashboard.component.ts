@@ -1,11 +1,12 @@
-import { Testimonial } from './../../core/services/testimonials.service';
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
-import { JoinRequestService } from '../../core/services/join-request.service';
-import { NotificationService, NotificationResponse } from '../../core/services/Notification.service';
-import { AddTestimonialsComponent } from '../add-testimonials/add-testimonials.component';
+import { JoinRequestService, JoinRequestResponse } from '../../core/services/join-request.service';
+import { filter } from 'rxjs/operators';
+import { HttpErrorResponse } from '@angular/common/http';
+import { NotificationResponse, AppNotification, NotificationService } from '../../core/services/Notification.service';
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -19,16 +20,19 @@ export class DashboardComponent implements OnInit {
   joinRequestsCount: number = 0;
   membersCount: number = 0;
   error: string | null = null;
-  notifications: NotificationResponse['notifications'] = [];
+  notifications: AppNotification[] = [];
   unreadNotificationsCount: number = 0;
   showNotifications: boolean = false;
 
   navItems = [
-    { label: 'عرض جميع الأعضاء', icon: 'fas fa-users', link: '/all-join-request' },
+    { label: 'عرض جميع الأعضاء', icon: 'fas fa-users', link: '/all-members' },
     { label: 'عرض جميع الطلبات', icon: 'fas fa-file-alt', link: '/requests' },
-    { label: 'إضافة كتاب', icon: 'fas fa-book', link: '/add-book' },
-    { label: 'إضافة متصدر', icon: 'fas fa-book', link: '/add-leaderboards' },
-    { label: 'إضافة صوره في معرض الصور', icon: 'fas fa-img', link: '/add-gallery' }
+    { label: 'إضافة كتاب', icon: 'fas fa-book', link: '/upload-pdf' },
+    { label: 'إضافة متصدر', icon: 'fas fa-trophy', link: '/add-leaderboards' },
+    { label: 'إضافة صورة في معرض الصور', icon: 'fas fa-image', link: '/add-gallery' },
+    { label: 'إضافة رأي', icon: 'fas fa-comment-dots', link: '/add-testimonials' },
+    { label: 'الأعضاء المقصرون', icon: 'fas fa-user-times', link: '/low-lecture-members' },
+    { label: 'طلبات pdf المحاضرات', icon: 'fas fa-file-alt', link: '/lectures-request' }
   ];
 
   constructor(
@@ -37,37 +41,59 @@ export class DashboardComponent implements OnInit {
     private notificationService: NotificationService,
     private cdr: ChangeDetectorRef
   ) {
-    this.router.events.subscribe(() => {
-      const currentRoute = this.router.url;
-      this.activeNavIndex = this.navItems.findIndex(item => item.link === currentRoute);
-    });
+    this.router.events
+      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+      .subscribe((event) => {
+        this.activeNavIndex = this.navItems.findIndex(item => item.link === event.urlAfterRedirects);
+        this.cdr.detectChanges();
+      });
   }
 
   ngOnInit(): void {
+    this.checkAuth();
     this.loadCounts();
     this.loadNotifications();
   }
 
+  checkAuth(): void {
+    if (!localStorage.getItem('token')) {
+      this.error = 'غير مسموح بالوصول. يرجى تسجيل الدخول مرة أخرى';
+      this.router.navigate(['/login']);
+      this.cdr.detectChanges();
+    }
+  }
+
   loadCounts(): void {
     this.joinRequestService.getAll().subscribe({
-      next: (requests) => {
-        this.joinRequestsCount = requests.length;
+      next: (response: JoinRequestResponse) => {
+        if (response.success) {
+          this.joinRequestsCount = response.members?.length || 0;
+        } else {
+          this.error = response.message || 'فشل في جلب عدد طلبات الانضمام';
+        }
         this.cdr.detectChanges();
       },
-      error: (err) => {
-        this.error = err.message || 'فشل في جلب عدد طلبات الانضمام';
+      error: (err: HttpErrorResponse) => {
+        this.error = err.error?.message || 'فشل في جلب عدد طلبات الانضمام';
         console.error('Error fetching join requests:', err);
         this.cdr.detectChanges();
       }
     });
 
     this.joinRequestService.getApprovedMembers().subscribe({
-      next: (members) => {
-        this.membersCount = members.length;
+      next: (response: JoinRequestResponse) => {
+        if (response.success) {
+          this.membersCount = response.members?.length || 0;
+        } else {
+          this.error = response.message || 'فشل في جلب عدد الأعضاء المعتمدين';
+        }
         this.cdr.detectChanges();
       },
-      error: (err) => {
-        this.error = err.message || 'فشل في جلب عدد الأعضاء المعتمدين';
+      error: (err: HttpErrorResponse) => {
+        this.error = err.error?.message || 'فشل في جلب عدد الأعضاء المعتمدين';
+        if (err.error === 'Unauthorized') {
+          this.router.navigate(['/login']);
+        }
         console.error('Error fetching approved members:', err);
         this.cdr.detectChanges();
       }
@@ -77,11 +103,11 @@ export class DashboardComponent implements OnInit {
   loadNotifications(): void {
     console.log('Fetching notifications...');
     this.notificationService.getNotifications().subscribe({
-      next: (response) => {
+      next: (response: NotificationResponse) => {
         console.log('Notification response:', response);
         if (response.success) {
           this.notifications = response.notifications ?? [];
-          this.unreadNotificationsCount = this.notifications.filter(n => !n.read).length;
+          this.unreadNotificationsCount = this.notifications.filter((n: AppNotification) => !n.read).length;
           console.log('Notifications loaded:', this.notifications);
           console.log('Unread count:', this.unreadNotificationsCount);
           this.cdr.detectChanges();
@@ -91,8 +117,8 @@ export class DashboardComponent implements OnInit {
           this.cdr.detectChanges();
         }
       },
-      error: (err) => {
-        this.error = err.message || 'فشل في جلب الإشعارات';
+      error: (err: HttpErrorResponse) => {
+        this.error = err.error?.message || 'فشل في جلب الإشعارات';
         console.error('Error fetching notifications:', err);
         this.cdr.detectChanges();
       }
@@ -103,7 +129,7 @@ export class DashboardComponent implements OnInit {
     this.showNotifications = !this.showNotifications;
     if (this.showNotifications && this.unreadNotificationsCount > 0 && this.notifications) {
       this.notificationService.markNotificationsAsRead().subscribe({
-        next: (response) => {
+        next: (response: NotificationResponse) => {
           console.log('Mark read response:', response);
           if (response.success) {
             this.notifications = response.notifications ?? [];
@@ -115,8 +141,8 @@ export class DashboardComponent implements OnInit {
             this.cdr.detectChanges();
           }
         },
-        error: (err) => {
-          this.error = err.message || 'فشل في تحديد الإشعارات كمقروءة';
+        error: (err: HttpErrorResponse) => {
+          this.error = err.error?.message || 'فشل في تحديد الإشعارات كمقروءة';
           console.error('Error marking notifications as read:', err);
           this.cdr.detectChanges();
         }

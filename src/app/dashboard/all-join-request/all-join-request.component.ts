@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Pipe, PipeTransform } from '@angular/core';
 import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
-import { JoinRequestService, JoinRequest } from '../../core/services/join-request.service';
+import { JoinRequestService, JoinRequest, JoinRequestResponse } from '../../core/services/join-request.service';
 import { Router } from '@angular/router';
 
 @Pipe({
@@ -64,27 +64,34 @@ export class AllJoinRequestComponent implements OnInit {
   fetchJoinRequests() {
     this.isLoading = true;
     this.joinRequestService.getAll().subscribe({
-      next: (requests: any[]) => {
-        this.joinRequests = requests.map(request => ({
-          ...request,
-          id: request._id || request.id,
-          createdAt: new Date(request.createdAt).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit'
-          }),
-          createdAtRaw: new Date(request.createdAt) // Store raw date for sorting
-        })).sort((a, b) => b.createdAtRaw.getTime() - a.createdAtRaw.getTime()); // Sort by newest first
-        this.filterRequests();
-        this.isLoading = false;
-        console.log('Fetched and sorted join requests:', this.joinRequests);
+      next: (response: JoinRequestResponse) => {
+        if (response.success && response.members) {
+          this.joinRequests = response.members.map(request => ({
+            ...request,
+            createdAt: new Date(request.createdAt).toLocaleDateString('ar-EG', {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit'
+            }),
+            createdAtRaw: new Date(request.createdAt) // Store raw date for sorting
+          })).sort((a, b) => b.createdAtRaw.getTime() - a.createdAtRaw.getTime());
+          this.filterRequests();
+          this.isLoading = false;
+          console.log('Fetched and sorted join requests:', this.joinRequests);
+        } else {
+          this.isLoading = false;
+          this.showToast(response.message || 'فشل في جلب طلبات الانضمام', 'error');
+        }
       },
-      error: (error) => {
+      error: (error: JoinRequestResponse) => {
         this.isLoading = false;
-        const errorMessage = error.status === 401
+        const errorMessage = error.error === 'Unauthorized'
           ? 'غير مصرح: يرجى تسجيل الدخول مجددًا'
           : error.message || 'فشل في جلب طلبات الانضمام';
         this.showToast(errorMessage, 'error');
+        if (error.error === 'Unauthorized') {
+          this.router.navigate(['/login']);
+        }
         console.error('Error fetching join requests:', error);
       }
     });
@@ -123,10 +130,13 @@ export class AllJoinRequestComponent implements OnInit {
       },
       error: (error) => {
         this.isLoading = false;
-        const errorMessage = error.status === 401
+        const errorMessage = error.error === 'Unauthorized'
           ? 'غير مصرح: يرجى التحقق من رمز التوثيق أو تسجيل الدخول مجددًا'
           : error.message || 'فشل في الموافقة على الطلب';
         this.showToast(errorMessage, 'error');
+        if (error.error === 'Unauthorized') {
+          this.router.navigate(['/login']);
+        }
         console.error('Error approving request:', error);
       }
     });
@@ -155,10 +165,13 @@ export class AllJoinRequestComponent implements OnInit {
       },
       error: (error) => {
         this.isLoading = false;
-        const errorMessage = error.status === 401
+        const errorMessage = error.error === 'Unauthorized'
           ? 'غير مصرح: يرجى التحقق من رمز التوثيق أو تسجيل الدخول مجددًا'
           : error.message || 'فشل في رفض الطلب';
         this.showToast(errorMessage, 'error');
+        if (error.error === 'Unauthorized') {
+          this.router.navigate(['/login']);
+        }
         console.error('Error rejecting request:', error);
       }
     });
