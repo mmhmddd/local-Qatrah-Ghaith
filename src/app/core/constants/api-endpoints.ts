@@ -84,6 +84,12 @@ export const ApiEndpoints = {
     sendMessage: `${base}/admin/send-message`,
     editMessage: `${base}/admin/edit-message`,
     deleteMessage: `${base}/admin/delete-message`,
+    getMessage: (userId: string, messageId: string) => {
+      if (!userId || !messageId || !/^[0-9a-fA-F]{24}$/.test(userId.trim()) || !/^[0-9a-fA-F]{24}$/.test(messageId.trim())) {
+        throw new Error('Invalid userId or messageId: Must be valid MongoDB ObjectIds');
+      }
+      return `${base}/admin/get-message/${userId.trim()}/${messageId.trim()}`;
+    },
   },
   notifications: {
     get: `${base}/lectures/notifications`,

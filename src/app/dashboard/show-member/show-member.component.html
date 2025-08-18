@@ -1,17 +1,18 @@
 <div class="container">
   <app-sidebar></app-sidebar>
 
+  <!-- Toast Notifications -->
   <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1050;">
     <div *ngFor="let toast of toasts"
          class="toast show"
          [id]="toast.id"
-         [ngClass]="{'toast-success': toast.type === 'success', 'toast-error': toast.type === 'error'}"
+         [ngClass]="{'bg-success text-white': toast.type === 'success', 'bg-danger text-white': toast.type === 'error'}"
          role="alert"
          aria-live="assertive"
          aria-atomic="true">
       <div class="toast-header">
         <strong class="me-auto">{{ toast.title }}</strong>
-        <button type="button" class="btn-close" (click)="closeToast(toast.id)"></button>
+        <button type="button" class="btn-close" (click)="closeToast(toast.id)" aria-label="إغلاق"></button>
       </div>
       <div class="toast-body">
         {{ toast.message }}
@@ -19,9 +20,20 @@
     </div>
   </div>
 
-  <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+  <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4" dir="rtl">
     <div class="container-fluid mt-4">
-      <div *ngIf="member" class="card shadow-sm">
+      <!-- Loading Indicator -->
+      <div *ngIf="isLoading" class="alert alert-info text-center">
+        جاري تحميل بيانات العضو...
+      </div>
+
+      <!-- No Member Found -->
+      <div *ngIf="!member && !isLoading" class="alert alert-warning text-center">
+        العضو غير موجود أو حدث خطأ.
+      </div>
+
+      <!-- Member Details Card -->
+      <div *ngIf="member && !isLoading" class="card shadow-sm">
         <div class="card-header text-white bg-primary">
           <h3 class="mb-0">تفاصيل العضو: {{ member.name }}</h3>
         </div>
@@ -30,101 +42,138 @@
             <div class="col-md-6">
               <dl class="row">
                 <dt class="col-sm-4">الاسم:</dt>
-                <dd class="col-sm-8">{{ member.name }}</dd>
+                <dd class="col-sm-8">{{ member.name || 'غير محدد' }}</dd>
                 <dt class="col-sm-4">البريد الإلكتروني:</dt>
-                <dd class="col-sm-8">{{ member.email }}</dd>
+                <dd class="col-sm-8">{{ member.email || 'غير محدد' }}</dd>
                 <dt class="col-sm-4">الهاتف:</dt>
-                <dd class="col-sm-8">{{ member.phone }}</dd>
+                <dd class="col-sm-8">{{ member.phone || 'غير محدد' }}</dd>
                 <dt class="col-sm-4">العنوان:</dt>
-                <dd class="col-sm-8">{{ member.address }}</dd>
+                <dd class="col-sm-8">{{ member.address || 'غير محدد' }}</dd>
                 <dt class="col-sm-4">التخصص الأكاديمي:</dt>
-                <dd class="col-sm-8">{{ member.academicSpecialization }}</dd>
+                <dd class="col-sm-8">{{ member.academicSpecialization || 'غير محدد' }}</dd>
               </dl>
             </div>
             <div class="col-md-6">
               <dl class="row">
                 <dt class="col-sm-4">الحالة:</dt>
-                <dd class="col-sm-8">{{ member.status }}</dd>
+                <dd class="col-sm-8">{{ member.status || 'غير محدد' }}</dd>
                 <dt class="col-sm-4">تاريخ الإنشاء:</dt>
-                <dd class="col-sm-8">{{ member.createdAt }}</dd>
+                <dd class="col-sm-8">{{ member.createdAt || 'غير متوفر' }}</dd>
                 <dt class="col-sm-4">ساعات التطوع:</dt>
-                <dd class="col-sm-8">{{ editMode ? '' : member.volunteerHours }}</dd>
+                <dd class="col-sm-8">{{ editMode ? '' : (member.volunteerHours || 0) }}</dd>
                 <dt class="col-sm-4">عدد الطلاب:</dt>
-                <dd class="col-sm-8">{{ member.numberOfStudents }}</dd>
+                <dd class="col-sm-8">{{ member.numberOfStudents || 0 }}</dd>
                 <dt class="col-sm-4">عدد المحاضرات:</dt>
-                <dd class="col-sm-8">{{ member.lectureCount }}</dd>
+                <dd class="col-sm-8">{{ member.lectureCount || 0 }}</dd>
               </dl>
             </div>
           </div>
 
-          <div *ngIf="editMode" class="mt-4">
-            <h4>تعديل التفاصيل</h4>
-            <div class="mb-3">
-              <label for="volunteerHours" class="form-label">ساعات التطوع</label>
-              <input type="number" class="form-control" id="volunteerHours" [(ngModel)]="editedVolunteerHours" min="0" dir="rtl">
-            </div>
-            <div class="mb-3">
-              <label class="form-label">المواد</label>
-              <div class="input-group mb-2">
-                <input type="text" class="form-control" #newSubject placeholder="أدخل مادة جديدة" dir="rtl">
-                <button class="btn btn-outline-secondary" (click)="addSubject(newSubject.value); newSubject.value=''">إضافة</button>
-              </div>
-              <ul class="list-group">
-                <li class="list-group-item d-flex justify-content-between align-items-center" *ngFor="let subject of editedSubjects; let i = index">
-                  {{ subject }}
-                  <button class="btn btn-sm btn-danger" (click)="removeSubject(i)">حذف</button>
-                </li>
-              </ul>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">الطلاب</label>
-              <div class="table-responsive">
-                <table class="table table-bordered">
-                  <thead>
-                    <tr>
-                      <th>الاسم</th>
-                      <th>البريد الإلكتروني</th>
-                      <th>الهاتف</th>
-                      <th>الصف</th>
-                      <th>المواد</th>
-                      <th>الحد الأدنى للمحاضرات</th>
-                      <th>الإجراءات</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr *ngFor="let student of editedStudents; let i = index">
-                      <td><input type="text" class="form-control" [(ngModel)]="student.name" dir="rtl" required></td>
-                      <td><input type="email" class="form-control" [(ngModel)]="student.email" dir="rtl" required></td>
-                      <td><input type="text" class="form-control" [(ngModel)]="student.phone" dir="rtl" required></td>
-                      <td><input type="text" class="form-control" [(ngModel)]="student.grade" placeholder="الصف (اختياري)" dir="rtl"></td>
-                      <td>
-                        <input type="text" class="form-control" [(ngModel)]="student.subjectsString" (ngModelChange)="updateStudentSubjects(i, $event)" placeholder="المواد (مفصولة بفواصل)" dir="rtl">
-                        <small *ngIf="student.subjectsString && !isValidSubjects(student.subjects)" class="text-danger">يرجى إدخال مواد صالحة من قائمة المواد المتاحة</small>
-                      </td>
-                      <td>
-                        <div *ngFor="let subject of student.subjects; let j = index">
-                          <input type="number" class="form-control mb-1" [(ngModel)]="student.subjects[j].minLectures" placeholder="الحد الأدنى للمحاضرات لـ {{ subject.name }}" min="0" dir="rtl" required>
-                        </div>
-                      </td>
-                      <td><button class="btn btn-danger btn-sm" (click)="deleteStudent(i)">حذف</button></td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <div class="button-group">
-              <button class="btn btn-primary me-2" (click)="saveChanges()" [disabled]="!isValidEditedStudents()">حفظ التغييرات</button>
-              <button class="btn btn-secondary" (click)="toggleEditMode()">إلغاء</button>
-            </div>
+          <!-- Profile Image -->
+          <div *ngIf="member.profileImage" class="mt-3">
+            <dt>الصورة الشخصية:</dt>
+            <dd><img [src]="member.profileImage" alt="صورة العضو" class="img-fluid rounded" style="max-width: 150px;"></dd>
           </div>
 
-          <div *ngIf="!editMode" class="mt-3">
-            <button class="btn btn-primary" (click)="toggleEditMode()">تعديل التفاصيل</button>
+          <!-- Lecture Warning -->
+          <div *ngIf="showLectureWarning" class="alert alert-warning mt-3">
+            تحذير: هذا العضو لديه طلاب بمحاضرات أقل من الحد الأدنى المطلوب.
+          </div>
+
+          <!-- Edit Mode Toggle -->
+          <div class="mt-3">
+            <button class="btn btn-primary" (click)="toggleEditMode()">
+              {{ editMode ? 'إلغاء التعديل' : 'تعديل التفاصيل' }}
+            </button>
+          </div>
+
+          <!-- Edit Mode Form -->
+          <div *ngIf="editMode" class="mt-4">
+            <h4>تعديل التفاصيل</h4>
+            <form>
+              <div class="mb-3">
+                <label for="volunteerHours" class="form-label">ساعات التطوع</label>
+                <input type="number" class="form-control" id="volunteerHours" [(ngModel)]="editedVolunteerHours" name="volunteerHours" min="0" dir="rtl" required>
+                <small *ngIf="editedVolunteerHours < 0" class="text-danger">ساعات التطوع يجب أن تكون غير سالبة</small>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">المواد</label>
+                <div class="input-group mb-2">
+                  <input type="text" class="form-control" #newSubject placeholder="أدخل مادة جديدة" dir="rtl">
+                  <button class="btn btn-outline-secondary" (click)="addSubject(newSubject.value); newSubject.value=''">إضافة</button>
+                </div>
+                <ul class="list-group mb-3">
+                  <li class="list-group-item d-flex justify-content-between align-items-center" *ngFor="let subject of editedSubjects; let i = index">
+                    {{ subject }}
+                    <button class="btn btn-sm btn-danger" (click)="removeSubject(i)">حذف</button>
+                  </li>
+                  <li *ngIf="editedSubjects.length === 0" class="list-group-item text-center">لا توجد مواد</li>
+                </ul>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">الطلاب</label>
+                <div class="table-responsive">
+                  <table class="table table-bordered">
+                    <thead>
+                      <tr>
+                        <th>الاسم</th>
+                        <th>البريد الإلكتروني</th>
+                        <th>الهاتف</th>
+                        <th>الصف</th>
+                        <th>المواد</th>
+                        <th>الحد الأدنى للمحاضرات</th>
+                        <th>الإجراءات</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let student of editedStudents; let i = index">
+                        <td>
+                          <input type="text" class="form-control" [(ngModel)]="student.name" [ngModelOptions]="{name: 'name' + i}" dir="rtl" required>
+                          <small *ngIf="!student.name" class="text-danger">الاسم مطلوب</small>
+                        </td>
+                        <td>
+                          <input type="email" class="form-control" [(ngModel)]="student.email" [ngModelOptions]="{name: 'email' + i}" dir="rtl" required>
+                          <small *ngIf="!student.email || !isValidEmail(student.email)" class="text-danger">بريد إلكتروني غير صالح</small>
+                        </td>
+                        <td>
+                          <input type="text" class="form-control" [(ngModel)]="student.phone" [ngModelOptions]="{name: 'phone' + i}" dir="rtl" required>
+                          <small *ngIf="!student.phone || !isValidPhone(student.phone)" class="text-danger">رقم هاتف غير صالح</small>
+                        </td>
+                        <td>
+                          <input type="text" class="form-control" [(ngModel)]="student.grade" [ngModelOptions]="{name: 'grade' + i}" placeholder="الصف (اختياري)" dir="rtl">
+                          <small *ngIf="student.grade && (student.grade.length < 1 || student.grade.length > 50)" class="text-danger">الصف يجب أن يكون بين 1 و50 حرفًا</small>
+                        </td>
+                        <td>
+                          <input type="text" class="form-control" [(ngModel)]="student.subjectsString" [ngModelOptions]="{name: 'subjects' + i}" (ngModelChange)="updateStudentSubjects(i, $event)" placeholder="المواد (مفصولة بفواصل)" dir="rtl">
+                          <small *ngIf="student.subjectsString && !isValidSubjects(student.subjects)" class="text-danger">يرجى إدخال مواد صالحة من قائمة المواد المتاحة</small>
+                        </td>
+                        <td>
+                          <div *ngFor="let subject of student.subjects; let j = index">
+                            <input type="number" class="form-control mb-1" [(ngModel)]="student.subjects[j].minLectures" [ngModelOptions]="{name: 'minLectures' + i + '_' + j}" placeholder="الحد الأدنى لـ {{ subject.name }}" min="0" dir="rtl" required>
+                          </div>
+                        </td>
+                        <td>
+                          <button class="btn btn-danger btn-sm" (click)="deleteStudent(i)">حذف</button>
+                        </td>
+                      </tr>
+                      <tr *ngIf="editedStudents.length === 0">
+                        <td colspan="7" class="text-center">لا يوجد طلاب للتعديل</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="button-group mt-3">
+                <button class="btn btn-primary me-2" (click)="saveChanges()" [disabled]="!isValidEditedStudents()">حفظ التغييرات</button>
+                <button class="btn btn-secondary" (click)="toggleEditMode()">إلغاء</button>
+              </div>
+            </form>
           </div>
         </div>
       </div>
 
-      <div class="card shadow-sm mt-4" *ngIf="member">
+      <!-- Add Student Card -->
+      <div class="card shadow-sm mt-4" *ngIf="member && !editMode">
         <div class="card-header bg-secondary text-white">
           <h4 class="mb-0">إضافة طالب</h4>
         </div>
@@ -134,55 +183,57 @@
               <div class="col-md-3">
                 <div class="mb-3">
                   <label for="studentName" class="form-label">الاسم</label>
-                  <input type="text" class="form-control" id="studentName" [(ngModel)]="newStudent.name" name="name" dir="rtl" required>
-                  <small *ngIf="studentErrors.name" class="text-danger">{{ studentErrors.name }}</small>
+                  <input type="text" class="form-control" id="studentName" [(ngModel)]="newStudent.name" name="name" dir="rtl" required #name="ngModel" [ngClass]="{'is-invalid': name.invalid && (name.dirty || name.touched)}">
+                  <div *ngIf="studentErrors.name" class="invalid-feedback">{{ studentErrors.name }}</div>
                 </div>
               </div>
               <div class="col-md-3">
                 <div class="mb-3">
                   <label for="studentEmail" class="form-label">البريد الإلكتروني</label>
-                  <input type="email" class="form-control" id="studentEmail" [(ngModel)]="newStudent.email" name="email" dir="rtl" required>
-                  <small *ngIf="studentErrors.email" class="text-danger">{{ studentErrors.email }}</small>
+                  <input type="email" class="form-control" id="studentEmail" [(ngModel)]="newStudent.email" name="email" dir="rtl" required #email="ngModel" [ngClass]="{'is-invalid': email.invalid && (email.dirty || email.touched)}">
+                  <div *ngIf="studentErrors.email" class="invalid-feedback">{{ studentErrors.email }}</div>
                 </div>
               </div>
               <div class="col-md-3">
                 <div class="mb-3">
                   <label for="studentPhone" class="form-label">الهاتف</label>
-                  <input type="text" class="form-control" id="studentPhone" [(ngModel)]="newStudent.phone" name="phone" dir="rtl" required>
-                  <small *ngIf="studentErrors.phone" class="text-danger">{{ studentErrors.phone }}</small>
+                  <input type="text" class="form-control" id="studentPhone" [(ngModel)]="newStudent.phone" name="phone" dir="rtl" required #phone="ngModel" [ngClass]="{'is-invalid': phone.invalid && (phone.dirty || phone.touched)}">
+                  <div *ngIf="studentErrors.phone" class="invalid-feedback">{{ studentErrors.phone }}</div>
                 </div>
               </div>
               <div class="col-md-3">
                 <div class="mb-3">
                   <label for="studentGrade" class="form-label">الصف (اختياري)</label>
                   <input type="text" class="form-control" id="studentGrade" [(ngModel)]="newStudent.grade" name="grade" dir="rtl">
-                  <small *ngIf="studentErrors.grade" class="text-danger">{{ studentErrors.grade }}</small>
+                  <div *ngIf="studentErrors.grade" class="invalid-feedback">{{ studentErrors.grade }}</div>
                 </div>
               </div>
               <div class="col-md-12">
                 <div class="mb-3">
                   <label for="studentSubjects" class="form-label">المواد (مفصولة بفواصل)</label>
                   <input type="text" class="form-control" id="studentSubjects" [(ngModel)]="newStudent.subjectsString" name="subjectsString" (ngModelChange)="updateNewStudentSubjects($event)" placeholder="أدخل المواد مفصولة بفواصل (مثال: رياضيات, علوم)" dir="rtl">
-                  <small *ngIf="studentErrors.subjects" class="text-danger">{{ studentErrors.subjects }}</small>
+                  <div *ngIf="studentErrors.subjects" class="invalid-feedback">{{ studentErrors.subjects }}</div>
                 </div>
                 <div *ngIf="newStudent.subjects.length > 0" class="mb-3">
                   <label class="form-label">الحد الأدنى للمحاضرات لكل مادة</label>
                   <div *ngFor="let subject of newStudent.subjects; let i = index" class="mb-2">
                     <label for="minLectures{{i}}" class="form-label">{{ subject }}</label>
-                    <input type="number" class="form-control" id="minLectures{{i}}" [(ngModel)]="newStudent.minLectures[i]" name="minLectures{{i}}" min="0" dir="rtl" required (ngModelChange)="validateMinLectures()">
-                    <small *ngIf="studentErrors.minLectures && studentErrors.minLectures[i]" class="text-danger">{{ studentErrors.minLectures[i] }}</small>
+                    <input type="number" class="form-control" id="minLectures{{i}}" [(ngModel)]="newStudent.minLectures[i]" [ngModelOptions]="{name: 'minLectures' + i}" min="0" dir="rtl" required #minLectures="ngModel" (ngModelChange)="validateMinLectures()" [ngClass]="{'is-invalid': minLectures.invalid && (minLectures.dirty || minLectures.touched)}">
+                    <div *ngIf="studentErrors.minLectures[i]" class="invalid-feedback">{{ studentErrors.minLectures[i] }}</div>
                   </div>
                 </div>
               </div>
             </div>
             <div class="button-group">
-              <button type="submit" class="btn btn-success" [disabled]="!isValidNewStudent()">إضافة طالب</button>
+              <button type="submit" class="btn btn-success" [disabled]="studentForm.invalid || !isValidNewStudent()">إضافة طالب</button>
+              <button type="button" class="btn btn-secondary ms-2" (click)="clearStudentForm(studentForm)">إعادة تعيين</button>
             </div>
           </form>
         </div>
       </div>
 
-      <div class="card shadow-sm mt-4" *ngIf="member">
+      <!-- Students List Card -->
+      <div class="card shadow-sm mt-4" *ngIf="member && !editMode">
         <div class="card-header bg-secondary text-white">
           <h4 class="mb-0">قائمة الطلاب</h4>
         </div>
@@ -213,7 +264,8 @@
         </div>
       </div>
 
-      <div class="card shadow-sm mt-4" *ngIf="member">
+      <!-- Lectures List Card -->
+      <div class="card shadow-sm mt-4" *ngIf="member && !editMode">
         <div class="card-header bg-secondary text-white">
           <h4 class="mb-0">المحاضرات</h4>
         </div>
@@ -237,12 +289,15 @@
               </thead>
               <tbody>
                 <tr *ngFor="let lecture of member.lectures; let i = index">
-                  <td>{{ lecture.name }}</td>
-                  <td>{{ lecture.studentEmail }}</td>
-                  <td>{{ lecture.subject }}</td>
-                  <td>{{ lecture.date }}</td>
-                  <td>{{ lecture.duration }}</td>
-                  <td><a [href]="lecture.link" target="_blank" class="text-primary">{{ lecture.link }}</a></td>
+                  <td>{{ lecture.name || 'غير محدد' }}</td>
+                  <td>{{ lecture.studentEmail || 'غير محدد' }}</td>
+                  <td>{{ lecture.subject || 'غير محدد' }}</td>
+                  <td>{{ lecture.date || 'غير متوفر' }}</td>
+                  <td>{{ lecture.duration || 0 }}</td>
+                  <td>
+                    <a *ngIf="lecture.link" [href]="lecture.link" target="_blank" class="text-primary">{{ lecture.link }}</a>
+                    <span *ngIf="!lecture.link">غير متوفر</span>
+                  </td>
                   <td>
                     <button class="btn btn-danger btn-sm" (click)="deleteLecture(i)">حذف</button>
                   </td>
@@ -253,7 +308,8 @@
         </div>
       </div>
 
-      <div class="card shadow-sm mt-4" *ngIf="member">
+      <!-- Subjects List Card -->
+      <div class="card shadow-sm mt-4" *ngIf="member && !editMode">
         <div class="card-header bg-secondary text-white">
           <h4 class="mb-0">المواد</h4>
         </div>
@@ -265,6 +321,7 @@
         </div>
       </div>
 
+      <!-- Messages Management Card -->
       <div class="card shadow-sm mt-4" *ngIf="member">
         <div class="card-header bg-secondary text-white">
           <h4 class="mb-0">إدارة الرسائل</h4>
@@ -273,29 +330,35 @@
           <div *ngIf="isLoadingMessages" class="alert alert-info">جاري تحميل الرسائل...</div>
           <div *ngIf="!isLoadingMessages && activeMessage" class="mb-3">
             <h5>الرسالة النشطة</h5>
-            <p><strong>المحتوى:</strong> {{ activeMessage.content }}</p>
-            <p><strong>تنتهي في:</strong> {{ activeMessage.displayUntil | date:'medium' }}</p>
+            <p><strong>المحتوى:</strong> {{ activeMessage.content || 'غير محدد' }}</p>
+            <p><strong>تنتهي في:</strong> {{ activeMessage.displayUntil | date:'medium':'ar-EG' }}</p>
             <div class="button-group">
+              <button class="btn btn-primary me-2" (click)="startEditMessage()">تعديل الرسالة</button>
               <button class="btn btn-danger" (click)="deleteMessage()">حذف الرسالة</button>
             </div>
           </div>
-          <div *ngIf="!isLoadingMessages && !activeMessage" class="mt-3">
-            <h5>إرسال رسالة جديدة</h5>
-            <div class="mb-3">
-              <label for="newMessageContent" class="form-label">نص الرسالة</label>
-              <textarea class="form-control" id="newMessageContent" [(ngModel)]="newMessage.content" rows="4" dir="rtl"></textarea>
-              <small *ngIf="messageError.content" class="text-danger">{{ messageError.content }}</small>
-            </div>
-            <div class="mb-3">
-              <label for="newMessageDisplayDays" class="form-label">مدة العرض (أيام)</label>
-              <input type="number" class="form-control" id="newMessageDisplayDays" [(ngModel)]="newMessage.displayDays" min="1" max="30" dir="rtl">
-              <small *ngIf="messageError.displayDays" class="text-danger">{{ messageError.displayDays }}</small>
-            </div>
-            <div class="button-group">
-              <button class="btn btn-success" (click)="sendMessage()" [disabled]="!newMessage.content.trim() || !newMessage.displayDays">إرسال الرسالة</button>
-            </div>
+          <div *ngIf="!isLoadingMessages && (editMessageMode || !activeMessage)" class="mt-3">
+            <h5>{{ editMessageMode ? 'تعديل الرسالة' : 'إرسال رسالة جديدة' }}</h5>
+            <form>
+              <div class="mb-3">
+                <label for="newMessageContent" class="form-label">نص الرسالة</label>
+                <textarea class="form-control" id="newMessageContent" [(ngModel)]="newMessage.content" name="newMessageContent" rows="4" dir="rtl" required #messageContent="ngModel" [ngClass]="{'is-invalid': messageContent.invalid && (messageContent.dirty || messageContent.touched)}"></textarea>
+                <div *ngIf="messageError.content" class="invalid-feedback">{{ messageError.content }}</div>
+              </div>
+              <div class="mb-3">
+                <label for="newMessageDisplayDays" class="form-label">مدة العرض (أيام)</label>
+                <input type="number" class="form-control" id="newMessageDisplayDays" [(ngModel)]="newMessage.displayDays" name="newMessageDisplayDays" min="1" max="30" dir="rtl" required #displayDays="ngModel" [ngClass]="{'is-invalid': displayDays.invalid && (displayDays.dirty || displayDays.touched)}">
+                <div *ngIf="messageError.displayDays" class="invalid-feedback">{{ messageError.displayDays }}</div>
+              </div>
+              <div class="button-group">
+                <button type="button" class="btn btn-success" (click)="editMessageMode ? updateMessage() : sendMessage()" [disabled]="!newMessage.content.trim() || !newMessage.displayDays || newMessage.displayDays < 1 || newMessage.displayDays > 30">
+                  {{ editMessageMode ? 'حفظ التغييرات' : 'إرسال الرسالة' }}
+                </button>
+                <button *ngIf="editMessageMode" type="button" class="btn btn-secondary ms-2" (click)="cancelEditMessage()">إلغاء</button>
+              </div>
+            </form>
           </div>
-          <div *ngIf="!isLoadingMessages && !activeMessage && !newMessage.content" class="alert alert-info">
+          <div *ngIf="!isLoadingMessages && !activeMessage && !editMessageMode && !newMessage.content" class="alert alert-info">
             لا توجد رسائل نشطة حاليًا. يمكنك إرسال رسالة جديدة.
           </div>
         </div>

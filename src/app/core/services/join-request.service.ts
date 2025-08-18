@@ -1,11 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { map, catchError, tap } from 'rxjs/operators';
 import { ApiEndpoints } from '../constants/api-endpoints';
 
 export interface Meeting {
-  [x: string]: any;
   id?: string;
   _id?: string;
   title: string;
@@ -67,7 +66,7 @@ interface UpdateMemberDetailsResponse {
 }
 
 interface AddStudentResponse {
-  students: never[];
+  students: { name: string; email: string; phone: string; grade?: string; subjects: { name: string; minLectures: number }[] }[];
   message: string;
   student: { name: string; email: string; phone: string; grade?: string; subjects: { name: string; minLectures: number }[] };
   numberOfStudents: number;
@@ -83,9 +82,9 @@ interface DeleteMemberResponse {
 }
 
 interface SendMessageResponse {
+  success: boolean;
   message: string;
-  displayUntil: string;
-  _id?: string;
+  data?: { _id: string; content: string; displayUntil: string };
 }
 
 interface EditMessageResponse {
@@ -95,6 +94,11 @@ interface EditMessageResponse {
 
 interface DeleteMessageResponse {
   message: string;
+}
+
+interface GetMessageResponse {
+  success: boolean;
+  message: { _id: string; content: string; displayUntil: string };
 }
 
 @Injectable({
@@ -116,6 +120,14 @@ export class JoinRequestService {
   private isValidEmail(email: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
+  }
+
+  private filterActiveMessages(messages: { createdAt: string; _id: string; content: string; displayUntil: string }[]): { createdAt: string; _id: string; content: string; displayUntil: string }[] {
+    const now = new Date();
+    return (messages || []).filter(msg => {
+      const displayUntil = new Date(msg.displayUntil);
+      return !isNaN(displayUntil.getTime()) && displayUntil > now;
+    });
   }
 
   create(data: { name: string; email: string; number: string; academicSpecialization: string; address: string; subjects?: string[] }): Observable<JoinRequestResponse> {
@@ -150,11 +162,12 @@ export class JoinRequestService {
 
   getAll(): Observable<JoinRequestResponse> {
     return this.http.get<JoinRequest[]>(ApiEndpoints.joinRequests.getAll, { headers: this.getAuthHeaders() }).pipe(
+      tap(response => console.log('Raw getAll response:', response)),
       map(members => ({
         success: true,
         message: 'تم جلب طلبات الانضمام بنجاح',
         members: members.map(member => ({
-          id: member._id || member.id,
+          id: member._id || member.id || '',
           _id: member._id,
           name: member.name || '',
           email: member.email || '',
@@ -171,11 +184,11 @@ export class JoinRequestService {
           lectures: member.lectures || [],
           lectureCount: member.lectureCount || 0,
           createdAt: member.createdAt || '',
-          messages: member.messages || [],
+          messages: this.filterActiveMessages(member.messages || []),
           meetings: member.meetings || [],
           profileImage: member.profileImage || ''
         }))
-      }),
+      })),
       catchError(error => {
         console.error('Error fetching join requests:', error);
         if (error.status === 401) {
@@ -191,16 +204,17 @@ export class JoinRequestService {
           error: error.statusText || error.message
         }));
       })
-    ));
+    );
   }
 
   getApprovedMembers(): Observable<JoinRequestResponse> {
     return this.http.get<JoinRequest[]>(ApiEndpoints.joinRequests.getApproved, { headers: this.getAuthHeaders() }).pipe(
+      tap(response => console.log('Raw getApprovedMembers response:', response)),
       map(members => ({
         success: true,
         message: 'تم جلب الأعضاء المعتمدين بنجاح',
         members: members.map(member => ({
-          id: member._id || member.id,
+          id: member._id || member.id || '',
           _id: member._id,
           name: member.name || '',
           email: member.email || '',
@@ -217,11 +231,11 @@ export class JoinRequestService {
           lectures: member.lectures || [],
           lectureCount: member.lectureCount || 0,
           createdAt: member.createdAt || '',
-          messages: member.messages || [],
+          messages: this.filterActiveMessages(member.messages || []),
           meetings: member.meetings || [],
           profileImage: member.profileImage || ''
         }))
-      }),
+      })),
       catchError(error => {
         console.error('Error fetching approved members:', error);
         if (error.status === 401) {
@@ -237,7 +251,7 @@ export class JoinRequestService {
           error: error.statusText || error.message
         }));
       })
-    ));
+    );
   }
 
   getMember(id: string): Observable<JoinRequestResponse> {
@@ -247,49 +261,74 @@ export class JoinRequestService {
         message: 'معرف العضو مطلوب'
       }));
     }
-    return this.http.get<JoinRequest>(ApiEndpoints.joinRequests.getMember(id), { headers: this.getAuthHeaders() }).pipe(
-      map(member => ({
-        success: true,
-        message: 'تم جلب بيانات العضو بنجاح',
-        member: {
-          id: member._id || member.id,
-          _id: member._id,
-          name: member.name || '',
-          email: member.email || '',
-          phone: member.number || member.phone || '',
-          number: member.number,
-          academicSpecialization: member.academicSpecialization || '',
-          address: member.address || '',
-          status: member.status || 'Pending',
-          volunteerHours: member.volunteerHours || 0,
-          numberOfStudents: member.numberOfStudents || 0,
-          subjects: member.subjects || [],
-          subjectsCount: member.subjects?.length || 0,
-          students: member.students || [],
-          lectures: member.lectures || [],
-          lectureCount: member.lectureCount || 0,
-          createdAt: member.createdAt || '',
-          messages: member.messages || [],
-          meetings: (member.meetings || []).map(meeting => ({
-            id: meeting.id || meeting._id || '',
-            _id: meeting._id,
-            title: meeting.title || '',
-            date: meeting.date || '',
-            startTime: meeting.startTime || '',
-            endTime: meeting.endTime || ''
-          })),
-          profileImage: member.profileImage || ''
+    return this.http.get<JoinRequestResponse>(ApiEndpoints.joinRequests.getMember(id), { headers: this.getAuthHeaders() }).pipe(
+      tap(response => console.log('Raw getMember response:', response)),
+      map(response => {
+        if (!response.success || !response.member) {
+          throw new Error(response.message || 'Member not found or data is incomplete');
         }
+        const member = response.member;
+        return {
+          success: true,
+          message: 'تم جلب بيانات العضو بنجاح',
+          member: {
+            id: member._id || member.id || '',
+            _id: member._id,
+            name: member.name || '',
+            email: member.email || '',
+            phone: member.number || member.phone || '',
+            number: member.number,
+            academicSpecialization: member.academicSpecialization || '',
+            address: member.address || '',
+            status: member.status || 'Pending',
+            volunteerHours: member.volunteerHours || 0,
+            numberOfStudents: member.numberOfStudents || 0,
+            subjects: member.subjects || [],
+            subjectsCount: member.subjects?.length || 0,
+            students: (member.students || []).map(student => ({
+              name: student.name || '',
+              email: student.email || '',
+              phone: student.phone || '',
+              grade: student.grade || '',
+              subjects: (student.subjects || []).map(subject => ({
+                name: subject.name || '',
+                minLectures: subject.minLectures ?? 0
+              }))
+            })),
+            lectures: (member.lectures || []).map(lecture => ({
+              _id: lecture._id || '',
+              studentEmail: lecture.studentEmail || '',
+              subject: lecture.subject || '',
+              date: lecture.date || '',
+              duration: lecture.duration || 0,
+              link: lecture.link || '',
+              name: lecture.name || ''
+            })),
+            lectureCount: member.lectureCount || 0,
+            createdAt: member.createdAt || '',
+            messages: this.filterActiveMessages(member.messages || []),
+            meetings: (member.meetings || []).map(meeting => ({
+              id: meeting.id || meeting._id || '',
+              _id: meeting._id,
+              title: meeting.title || '',
+              date: meeting.date || '',
+              startTime: meeting.startTime || '',
+              endTime: meeting.endTime || ''
+            })),
+            profileImage: member.profileImage || ''
+          }
+        };
       }),
       catchError(error => {
         console.error('Error fetching member details:', error);
         return throwError(() => ({
           success: false,
-          message: error.error?.message || 'فشل في جلب بيانات العضو، تحقق من المعرف أو الاتصال بالخادم',
-          error: error.statusText || error.message
+          message: error.message || error.error?.message || 'فشل في جلب بيانات العضو، تحقق من المعرف أو الاتصال بالخادم',
+          error: error.statusText || error.message,
+          status: error.status
         }));
       })
-    ));
+    );
   }
 
   updateMemberDetails(
@@ -412,18 +451,16 @@ export class JoinRequestService {
     const payload = { name, email, phone, grade, subjects };
     console.log('Sending addStudent request:', { url: ApiEndpoints.joinRequests.addStudent(id), payload });
     return this.http.post<AddStudentResponse>(ApiEndpoints.joinRequests.addStudent(id), payload, { headers: this.getAuthHeaders() }).pipe(
-      map(response => {
-        console.log('addStudent response:', response);
-        return {
-          success: true,
-          message: response.message || 'تم إضافة الطالب بنجاح',
-          data: {
-            students: response.student ? [...(response.students || []), response.student] : response.students || [],
-            numberOfStudents: response.numberOfStudents || 0,
-            subjects: response.subjects || []
-          }
-        };
-      }),
+      tap(response => console.log('Raw addStudent response:', response)),
+      map(response => ({
+        success: true,
+        message: response.message || 'تم إضافة الطالب بنجاح',
+        data: {
+          students: response.student ? [...(response.students || []), response.student] : response.students || [],
+          numberOfStudents: response.numberOfStudents || 0,
+          subjects: response.subjects || []
+        }
+      })),
       catchError(error => {
         console.error('Error adding student:', error);
         return throwError(() => ({
@@ -527,13 +564,15 @@ export class JoinRequestService {
       }));
     }
     return this.http.post<SendMessageResponse>(ApiEndpoints.admin.sendMessage, { userId, content, displayDays }, { headers: this.getAuthHeaders() }).pipe(
+      tap(response => console.log('Raw sendMessage response:', response)),
       map(response => ({
-        success: true,
+        success: response.success,
         message: response.message || 'تم إرسال الرسالة بنجاح',
-        data: {
-          _id: response._id,
-          displayUntil: response.displayUntil
-        }
+        data: response.data ? {
+          _id: response.data._id,
+          content: response.data.content,
+          displayUntil: response.data.displayUntil
+        } : undefined
       })),
       catchError(error => {
         console.error('Error sending message:', error);
@@ -541,7 +580,11 @@ export class JoinRequestService {
           return throwError(() => ({
             success: false,
             message: error.error.message || 'يوجد رسالة نشطة بالفعل، يرجى تعديلها أو حذفها أولاً',
-            data: error.error.activeMessage
+            data: {
+              _id: error.error.activeMessage?._id,
+              content: error.error.activeMessage?.content,
+              displayUntil: error.error.activeMessage?.displayUntil
+            }
           }));
         }
         return throwError(() => ({
@@ -609,6 +652,36 @@ export class JoinRequestService {
           success: false,
           message: error.error?.message || 'فشل في حذف الرسالة، تحقق من البيانات أو الاتصال بالخادم',
           error: error.statusText || error.message
+        }));
+      })
+    );
+  }
+
+  getMessage(userId: string, messageId: string): Observable<JoinRequestResponse> {
+    if (!userId || !messageId) {
+      return throwError(() => ({
+        success: false,
+        message: 'معرف المستخدم ومعرف الرسالة مطلوبان'
+      }));
+    }
+    return this.http.get<GetMessageResponse>(ApiEndpoints.admin.getMessage(userId, messageId), { headers: this.getAuthHeaders() }).pipe(
+      tap(response => console.log('Raw getMessage response:', response)),
+      map(response => ({
+        success: response.success,
+        message: response.message?.content || 'تم جلب الرسالة بنجاح',
+        data: response.message ? {
+          _id: response.message._id,
+          content: response.message.content,
+          displayUntil: response.message.displayUntil
+        } : undefined
+      })),
+      catchError(error => {
+        console.error('Error fetching message:', error);
+        return throwError(() => ({
+          success: false,
+          message: error.error?.message || 'فشل في جلب الرسالة، تحقق من المعرفات أو الاتصال بالخادم',
+          error: error.statusText || error.message,
+          status: error.status
         }));
       })
     );
