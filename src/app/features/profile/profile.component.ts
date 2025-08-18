@@ -24,11 +24,12 @@ interface Toast {
 }
 
 interface MeetingData {
-  id: string;
+  id: string; // Changed from optional to required
   title: string;
   date: string;
   startTime: string;
   endTime: string;
+  description?: string;
 }
 
 interface Student {
@@ -157,7 +158,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
     this.meetingForm = this.fb.group({
       title: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
-      date: ['', [Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]],
+      description: ['', [Validators.maxLength(500)]],
+      date: ['', [Validators.required]],
       startTime: ['', [Validators.required, Validators.pattern(/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/)]],
       endTime: ['', [Validators.required, Validators.pattern(/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/)]]
     });
@@ -365,7 +367,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
         }))
       })),
       meetings: (member.meetings || []).map((meeting: Meeting, index: number) => ({
-        id: meeting.id || meeting._id || `meeting-${index}-${Date.now()}`,
+        id: meeting.id || meeting._id || `meeting-${index}-${Date.now()}`, // Ensure id is always defined
         title: meeting.title || this.translationService.translate('profile.notSpecified'),
         date: typeof meeting.date === 'string' ? meeting.date : new Date(meeting.date).toISOString().split('T')[0],
         startTime: meeting.startTime || '',
@@ -394,7 +396,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
       this.calendarOptions = {
         ...this.calendarOptions,
         events: this.profile.meetings.map(meeting => ({
-          id: meeting.id,
+          id: meeting.id, // Safe because id is now required
           title: meeting.title,
           start: `${meeting.date}T${meeting.startTime}`,
           end: `${meeting.date}T${meeting.endTime}`,
@@ -642,64 +644,38 @@ export class ProfileComponent implements OnInit, OnDestroy {
   addMeeting(): void {
     if (this.meetingForm.invalid) {
       this.meetingForm.markAllAsTouched();
-      this.showToast('error', 'profile.error', 'يجب إدخال جميع الحقول المطلوبة بصيغة صحيحة', 'addMeeting');
+      this.showToast('error', 'profile.error', 'profile.formInvalid', 'addMeeting');
       return;
     }
 
-    const { title, date, startTime, endTime } = this.meetingForm.value;
-
-    // التحقق من صلاحية التاريخ
-    const parsedDate = new Date(date);
-    if (isNaN(parsedDate.getTime())) {
-      this.showToast('error', 'profile.error', 'صيغة التاريخ غير صالحة، يجب أن تكون YYYY-MM-DD', 'addMeeting');
-      return;
-    }
-
-    // التحقق من أن وقت الانتهاء بعد وقت البدء
-    const startMinutes = parseInt(startTime.split(':')[0]) * 60 + parseInt(startTime.split(':')[1]);
-    const endMinutes = parseInt(endTime.split(':')[0]) * 60 + parseInt(endTime.split(':')[1]);
-    if (endMinutes <= startMinutes) {
-      this.showToast('error', 'profile.error', 'وقت الانتهاء يجب أن يكون بعد وقت البدء', 'addMeeting');
-      return;
-    }
-
+    const { title, date, startTime, endTime, description } = this.meetingForm.value;
     this.isAddingMeeting = true;
+
     this.profileService.addMeeting(title, date, startTime, endTime).subscribe({
       next: (response: { success: boolean; data: { meetings: any }; message?: string }) => {
-        if (response.success && response.data && this.profile) {
-          this.profile.meetings = response.data.meetings.map((meeting: { _id: string; title: string; date: string; startTime: string; endTime: string; reminded: boolean }) => ({
-            id: meeting._id,
-            title: meeting.title,
-            date: meeting.date,
-            startTime: meeting.startTime,
-            endTime: meeting.endTime
-          }));
-          this.updateCalendarEvents();
+        if (response.success && response.data) {
+          if (this.profile) {
+            this.profile.meetings = response.data.meetings.map((meeting: { _id: string; title: string; date: string | Date; startTime: string; endTime: string }) => ({
+              id: meeting._id,
+              title: meeting.title,
+              date: typeof meeting.date === 'string' ? meeting.date : new Date(meeting.date).toISOString().split('T')[0],
+              startTime: meeting.startTime,
+              endTime: meeting.endTime,
+              description: description || ''
+            }));
+            this.updateCalendarEvents();
+          }
           this.meetingForm.reset();
           this.closeMeetingModal();
-          this.showToast('success', 'profile.success', response.message || 'تم إضافة الموعد بنجاح', 'addMeeting');
+          this.showToast('success', 'profile.success', response.message || 'profile.meeting_add_success', 'addMeeting');
         } else {
-          this.showToast('error', 'profile.error', response.message || 'خطأ في إضافة الموعد', 'addMeeting');
+          this.showToast('error', 'profile.error', response.message || 'profile.meeting_add_error', 'addMeeting');
         }
         this.isAddingMeeting = false;
       },
       error: (err: any) => {
         console.error('ProfileComponent: Error adding meeting:', err);
-        let message = 'خطأ في إضافة الموعد';
-        if (err.message) {
-          if (err.message.includes('يجب إدخال العنوان، التاريخ، وقت البدء، ووقت الانتهاء')) {
-            message = 'يجب إدخال جميع الحقول المطلوبة';
-          } else if (err.message.includes('صيغة التاريخ غير صالحة')) {
-            message = 'صيغة التاريخ غير صالحة، يجب أن تكون YYYY-MM-DD';
-          } else if (err.message.includes('وقت الانتهاء يجب أن يكون بعد وقت البدء')) {
-            message = 'وقت الانتهاء يجب أن يكون بعد وقت البدء';
-          } else if (err.message.includes('غير مصرح')) {
-            message = 'غير مصرح، يرجى تسجيل الدخول';
-          } else if (err.message.includes('المستخدم غير موجود')) {
-            message = 'المستخدم غير موجود';
-          }
-        }
-        this.showToast('error', 'profile.error', message, 'addMeeting');
+        this.showToast('error', 'profile.error', this.getErrorMessage(err), 'addMeeting');
         this.isAddingMeeting = false;
         if (err.error === 'unauthorized' || err.error === 'no_token' || err.error === 'invalid_headers') {
           this.authService.logout();
@@ -725,7 +701,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
               title: meeting.title,
               date: typeof meeting.date === 'string' ? meeting.date : new Date(meeting.date).toISOString().split('T')[0],
               startTime: meeting.startTime,
-              endTime: meeting.endTime
+              endTime: meeting.endTime,
+              description: ''
             }));
             this.updateCalendarEvents();
           }

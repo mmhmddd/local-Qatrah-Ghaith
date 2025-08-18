@@ -3,6 +3,7 @@
 </div>
 
 <div class="gallery-container" [attr.dir]="translationService.isRtl() ? 'rtl' : 'ltr'" id="gallerysection">
+  <!-- Header -->
   <header class="gallery-header">
     <h1 class="gallery-title">{{ 'gallery.title' | translate }}</h1>
     <p class="gallery-subtitle">{{ 'gallery.subtitle' | translate }}</p>
@@ -28,22 +29,13 @@
                      simulate-touch="true"
                      grab-cursor="true"
                      breakpoints='{
-                       "320": {
-                         "slidesPerView": 1,
-                         "spaceBetween": 10
-                       },
-                       "768": {
-                         "slidesPerView": 2,
-                         "spaceBetween": 15
-                       },
-                       "992": {
-                         "slidesPerView": 3,
-                         "spaceBetween": 20
-                       }
+                       "320": { "slidesPerView": 1, "spaceBetween": 10 },
+                       "768": { "slidesPerView": 2, "spaceBetween": 15 },
+                       "992": { "slidesPerView": 3, "spaceBetween": 20 }
                      }'>
-      <swiper-slide *ngFor="let image of featuredImages">
+      <swiper-slide *ngFor="let image of featuredImages; let i = index">
         <div class="hero-slide">
-          <img [src]="getImageUrl(image.imagePath)" [alt]="image.title" class="hero-image" loading="lazy">
+          <img [src]="getImageUrl(image.imagePath)" [alt]="image.title" class="hero-image" loading="lazy" (click)="openModal(image, 'featured', i)">
           <div class="hero-caption">
             <h3>{{ image.title }}</h3>
             <p>{{ image.description }}</p>
@@ -58,9 +50,9 @@
     <h2 class="section-title">{{ 'gallery.latestEvents' | translate }}</h2>
     <p class="section-description">{{ 'gallery.latestEventsDescription' | translate }}</p>
     <div class="gallery-grid">
-      <div *ngFor="let image of latestImages" class="gallery-card">
+      <div *ngFor="let image of latestImages; let i = index" class="gallery-card">
         <div class="image-wrapper">
-          <img [src]="getImageUrl(image.imagePath)" [alt]="image.title" class="gallery-image" loading="lazy">
+          <img [src]="getImageUrl(image.imagePath)" [alt]="image.title" class="gallery-image" loading="lazy" (click)="openModal(image, 'latest', i)">
           <div class="image-overlay">
             <h3 class="image-title">{{ image.title }}</h3>
             <p class="image-description">{{ image.description }}</p>
@@ -87,8 +79,8 @@
                          touch-angle="45"
                          simulate-touch="true"
                          grab-cursor="true">
-          <swiper-slide *ngFor="let image of popularImages">
-            <img [src]="getImageUrl(image.imagePath)" [alt]="image.title" class="popular-image" loading="lazy">
+          <swiper-slide *ngFor="let image of popularImages; let i = index">
+            <img [src]="getImageUrl(image.imagePath)" [alt]="image.title" class="popular-image" loading="lazy" (click)="openModal(image, 'popular', i)">
             <div class="popular-caption">
               <h3>{{ image.title }}</h3>
               <p>{{ image.description }}</p>
@@ -111,9 +103,9 @@
     <h2 class="section-title">{{ 'gallery.allImages' | translate }}</h2>
     <p class="section-description">{{ 'gallery.allImagesDescription' | translate }}</p>
     <div class="gallery-grid">
-      <div *ngFor="let image of allImages" class="gallery-card">
+      <div *ngFor="let image of allImages; let i = index" class="gallery-card">
         <div class="image-wrapper">
-          <img [src]="getImageUrl(image.imagePath)" [alt]="image.title" class="gallery-image" loading="lazy">
+          <img [src]="getImageUrl(image.imagePath)" [alt]="image.title" class="gallery-image" loading="lazy" (click)="openModal(image, 'all', i)">
           <div class="image-overlay">
             <h3 class="image-title">{{ image.title }}</h3>
             <p class="image-description">{{ image.description }}</p>
@@ -122,4 +114,18 @@
       </div>
     </div>
   </section>
+
+  <!-- Modal -->
+  <div class="modal" *ngIf="showModal && currentImage" (click)="closeModal($event)">
+    <div class="modal-content">
+      <span class="modal-close" (click)="closeModal()">&times;</span>
+      <img [src]="getImageUrl(currentImage.imagePath)" [alt]="currentImage.title || ''" class="modal-image">
+      <div class="modal-caption">
+        <h3>{{ currentImage.title || '' }}</h3>
+        <p>{{ currentImage.description || '' }}</p>
+      </div>
+      <button class="modal-next" (click)="prevImage()" [disabled]="!hasPrevImage()">❮</button>
+      <button class="modal-prev" (click)="nextImage()" [disabled]="!hasNextImage()">❯</button>
+    </div>
+  </div>
 </div>
