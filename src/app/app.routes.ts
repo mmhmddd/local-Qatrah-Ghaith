@@ -78,13 +78,8 @@ export const routes: Routes = [
   {
     path: 'low-lecture-members',
     loadComponent: () => import('./dashboard/low-lecture-members/low-lecture-members.component').then(m => m.LowLectureMembersComponent),
+  },
 
-  },
-  {
-    path: 'member/:id',
-    loadComponent: () => import('./dashboard/show-member/show-member.component').then(m => m.ShowMemberComponent),
-    canActivate: [AuthGuard, AdminGuard]
-  },
   {
     path: 'login',
     loadComponent: () => import('./auth/login/login.component').then(m => m.LoginComponent)
@@ -102,10 +97,10 @@ export const routes: Routes = [
     path: 'reset-password/:token',
     loadComponent: () => import('./shared/reset-password-component/reset-password-component.component').then(m => m.ResetPasswordComponent)
   },
-{
-  path: 'tree',
-  loadComponent: () => import('./features/tree/tree.component').then(m => m.TreeComponent)
-},
+  {
+    path: 'tree',
+    loadComponent: () => import('./features/tree/tree.component').then(m => m.TreeComponent)
+  },
   {
     path: '',
     redirectTo: '/home',

@@ -24,12 +24,10 @@ interface Toast {
 }
 
 interface MeetingData {
-  id: string; // Changed from optional to required
   title: string;
   date: string;
   startTime: string;
   endTime: string;
-  description?: string;
 }
 
 interface Student {
@@ -158,11 +156,10 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
     this.meetingForm = this.fb.group({
       title: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
-      description: ['', [Validators.maxLength(500)]],
       date: ['', [Validators.required]],
       startTime: ['', [Validators.required, Validators.pattern(/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/)]],
       endTime: ['', [Validators.required, Validators.pattern(/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/)]]
-    });
+    }, { validators: this.meetingFormValidator.bind(this) });
   }
 
   ngOnInit(): void {
@@ -217,6 +214,23 @@ export class ProfileComponent implements OnInit, OnDestroy {
     return null;
   }
 
+  meetingFormValidator(form: FormGroup): { [key: string]: any } | null {
+    const date = form.get('date')?.value;
+    const startTime = form.get('startTime')?.value;
+    const endTime = form.get('endTime')?.value;
+    const today = new Date().toISOString().split('T')[0];
+
+    if (date && date < today) {
+      return { invalidDate: true };
+    }
+
+    if (startTime && endTime && startTime >= endTime) {
+      return { invalidTimeOrder: true };
+    }
+
+    return null;
+  }
+
   getTranslatedSubjects(): string[] {
     const currentLang = this.translationService.getCurrentLanguage();
     return this.subjectsTranslations[currentLang as keyof typeof this.subjectsTranslations] || this.subjectsTranslations.en;
@@ -237,6 +251,28 @@ export class ProfileComponent implements OnInit, OnDestroy {
     return currentLang === 'en'
       ? ['High School', "Bachelor's Degree", "Master's Degree", 'PhD', 'Diploma', 'Graduate Studies']
       : this.academicLevels;
+  }
+
+  getMinDate(): string {
+    return new Date().toISOString().split('T')[0];
+  }
+
+  getMaxDate(): string {
+    const maxDate = new Date();
+    maxDate.setFullYear(maxDate.getFullYear() + 1);
+    return maxDate.toISOString().split('T')[0];
+  }
+
+  getStudentSubjects(student: Student): string {
+    if (!student.subjects || student.subjects.length === 0) {
+      return this.translationService.translate('profile.notSpecified');
+    }
+    const currentLang = this.translationService.getCurrentLanguage();
+    const translations = this.subjectsTranslations[currentLang as keyof typeof this.subjectsTranslations] || this.subjectsTranslations.en;
+    return student.subjects.map(subject => {
+      const index = this.subjectKeys.indexOf(subject.name);
+      return index !== -1 ? translations[index] : subject.name;
+    }).join(', ');
   }
 
   private showToast(type: 'success' | 'error' | 'info', titleKey: string, messageKey: string, source?: string): void {
@@ -367,11 +403,11 @@ export class ProfileComponent implements OnInit, OnDestroy {
         }))
       })),
       meetings: (member.meetings || []).map((meeting: Meeting, index: number) => ({
-        id: meeting.id || meeting._id || `meeting-${index}-${Date.now()}`, // Ensure id is always defined
+        id: meeting.id || meeting._id || `meeting-${index}-${Date.now()}`,
         title: meeting.title || this.translationService.translate('profile.notSpecified'),
         date: typeof meeting.date === 'string' ? meeting.date : new Date(meeting.date).toISOString().split('T')[0],
         startTime: meeting.startTime || '',
-        endTime: meeting.endTime || '',
+        endTime: meeting.endTime || ''
       })),
       messages: (member.messages || []).map((message: any) => ({
         _id: message._id || '',
@@ -396,12 +432,10 @@ export class ProfileComponent implements OnInit, OnDestroy {
       this.calendarOptions = {
         ...this.calendarOptions,
         events: this.profile.meetings.map(meeting => ({
-          id: meeting.id, // Safe because id is now required
+          id: meeting.id,
           title: meeting.title,
           start: `${meeting.date}T${meeting.startTime}`,
-          end: `${meeting.date}T${meeting.endTime}`,
-          extendedProps: {
-          }
+          end: `${meeting.date}T${meeting.endTime}`
         }))
       };
     }
@@ -432,6 +466,17 @@ export class ProfileComponent implements OnInit, OnDestroy {
         }
       }
     });
+  }
+
+  private getErrorMessage(err: any): string {
+    if (err.status === 401 || err.error === 'no_token' || err.error === 'invalid_headers') {
+      return 'profile.unauthorizedError';
+    } else if (err.status === 400) {
+      return err.error?.message || 'profile.invalidRequest';
+    } else if (err.status === 500) {
+      return 'profile.serverError';
+    }
+    return 'profile.networkError';
   }
 
   onFileSelected(event: Event): void {
@@ -603,6 +648,11 @@ export class ProfileComponent implements OnInit, OnDestroy {
       this.showToast('error', 'profile.error', 'profile.same_password', 'changePassword');
       return;
     }
+    if (this.newPassword.length < 6) {
+      this.errorCode = 'password_too_short';
+      this.showToast('error', 'profile.error', 'profile.validation.password.minlength', 'changePassword');
+      return;
+    }
 
     this.profileService.updatePassword(this.currentPassword, this.newPassword).subscribe({
       next: (response: UpdatePasswordResponse) => {
@@ -610,14 +660,15 @@ export class ProfileComponent implements OnInit, OnDestroy {
           this.showToast('success', 'profile.success', 'profile.passwordChanged', 'changePassword');
           this.closePasswordModal();
         } else {
-          this.showToast('error', 'profile.error', response.message || 'profile.password_change_error', 'changePassword');
+          this.errorCode = response.message || 'profile.password_change_error';
+          this.showToast('error', 'profile.error', this.errorCode, 'changePassword');
         }
       },
       error: (err: any) => {
         console.error('ProfileComponent: Error changing password:', err);
-        this.errorCode = err.error || 'unknown_error';
-        this.showToast('error', 'profile.error', this.getErrorMessage(err), 'changePassword');
-        if (err.error === 'unauthorized') {
+        this.errorCode = this.getErrorMessage(err);
+        this.showToast('error', 'profile.error', this.errorCode, 'changePassword');
+        if (err.status === 401 || err.error === 'no_token' || err.error === 'invalid_headers') {
           this.authService.logout();
           this.router.navigate(['/login']);
         }
@@ -630,9 +681,16 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.router.navigate(['/forgot-password']);
   }
 
-  openMeetingModal(): void {
+  setActiveSection(section: string): void {
+    this.activeSection = section;
+  }
+
+  openMeetingModal(date: string = ''): void {
     this.showMeetingModal = true;
     this.meetingForm.reset();
+    if (date) {
+      this.meetingForm.patchValue({ date });
+    }
   }
 
   closeMeetingModal(): void {
@@ -648,28 +706,17 @@ export class ProfileComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const { title, date, startTime, endTime, description } = this.meetingForm.value;
-    this.isAddingMeeting = true;
+    const { title, date, startTime, endTime } = this.meetingForm.value;
 
+    this.isAddingMeeting = true;
     this.profileService.addMeeting(title, date, startTime, endTime).subscribe({
-      next: (response: { success: boolean; data: { meetings: any }; message?: string }) => {
-        if (response.success && response.data) {
-          if (this.profile) {
-            this.profile.meetings = response.data.meetings.map((meeting: { _id: string; title: string; date: string | Date; startTime: string; endTime: string }) => ({
-              id: meeting._id,
-              title: meeting.title,
-              date: typeof meeting.date === 'string' ? meeting.date : new Date(meeting.date).toISOString().split('T')[0],
-              startTime: meeting.startTime,
-              endTime: meeting.endTime,
-              description: description || ''
-            }));
-            this.updateCalendarEvents();
-          }
-          this.meetingForm.reset();
+      next: (response: any) => {
+        if (response.success) {
+          this.showToast('success', 'profile.success', 'profile.meetingAdded', 'addMeeting');
           this.closeMeetingModal();
-          this.showToast('success', 'profile.success', response.message || 'profile.meeting_add_success', 'addMeeting');
+          this.loadProfile();
         } else {
-          this.showToast('error', 'profile.error', response.message || 'profile.meeting_add_error', 'addMeeting');
+          this.showToast('error', 'profile.error', response.message || 'profile.meetingAddError', 'addMeeting');
         }
         this.isAddingMeeting = false;
       },
@@ -677,10 +724,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
         console.error('ProfileComponent: Error adding meeting:', err);
         this.showToast('error', 'profile.error', this.getErrorMessage(err), 'addMeeting');
         this.isAddingMeeting = false;
-        if (err.error === 'unauthorized' || err.error === 'no_token' || err.error === 'invalid_headers') {
-          this.authService.logout();
-          this.router.navigate(['/login']);
-        }
       }
     });
   }
@@ -693,22 +736,12 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
     this.isDeletingMeeting[meetingId] = true;
     this.profileService.deleteMeeting(meetingId).subscribe({
-      next: (response: { success: boolean; data: { meetings: any }; message?: string }) => {
-        if (response.success && response.data) {
-          if (this.profile) {
-            this.profile.meetings = response.data.meetings.map((meeting: { _id: string; title: string; date: string | Date; startTime: string; endTime: string }) => ({
-              id: meeting._id,
-              title: meeting.title,
-              date: typeof meeting.date === 'string' ? meeting.date : new Date(meeting.date).toISOString().split('T')[0],
-              startTime: meeting.startTime,
-              endTime: meeting.endTime,
-              description: ''
-            }));
-            this.updateCalendarEvents();
-          }
-          this.showToast('success', 'profile.success', response.message || 'profile.meeting_delete_success', 'deleteMeeting');
+      next: (response: any) => {
+        if (response.success) {
+          this.showToast('success', 'profile.success', 'profile.meetingDeleted', 'deleteMeeting');
+          this.loadProfile();
         } else {
-          this.showToast('error', 'profile.error', response.message || 'profile.meeting_delete_error', 'deleteMeeting');
+          this.showToast('error', 'profile.error', response.message || 'profile.meetingDeleteError', 'deleteMeeting');
         }
         this.isDeletingMeeting[meetingId] = false;
       },
@@ -716,71 +749,23 @@ export class ProfileComponent implements OnInit, OnDestroy {
         console.error('ProfileComponent: Error deleting meeting:', err);
         this.showToast('error', 'profile.error', this.getErrorMessage(err), 'deleteMeeting');
         this.isDeletingMeeting[meetingId] = false;
-        if (err.error === 'unauthorized' || err.error === 'no_token' || err.error === 'invalid_headers') {
-          this.authService.logout();
-          this.router.navigate(['/login']);
-        }
       }
     });
   }
 
   handleEventClick(arg: EventClickArg): void {
     const meetingId = arg.event.id;
-    if (meetingId) {
-      this.showToast('info', 'profile.info', 'profile.meetingClicked', 'handleEventClick');
+    const meeting = this.profile?.meetings.find(m => m.id === meetingId);
+    if (meeting) {
+      this.showToast('info', 'profile.meetingDetails',
+        `${meeting.title}: ${meeting.date} ${meeting.startTime}-${meeting.endTime}`,
+        'handleEventClick'
+      );
     }
   }
 
   handleDateClick(arg: DateClickArg): void {
-    this.openMeetingModal();
-    this.meetingForm.patchValue({
-      date: arg.dateStr
-    });
-  }
-
-  setActiveSection(section: string): void {
-    this.activeSection = section;
-  }
-
-  getStudentSubjects(student: Student): string {
-    if (!student.subjects || student.subjects.length === 0) {
-      return this.translationService.translate('profile.notSpecified');
-    }
-    const currentLang = this.translationService.getCurrentLanguage();
-    const subjectNames = student.subjects.map((s: { name: string; minLectures: number }) => {
-      const index = this.subjectKeys.indexOf(s.name);
-      return index !== -1 ? this.getTranslatedSubjects()[index] : s.name;
-    });
-    return subjectNames.join(', ');
-  }
-
-  getMaxDate(): string {
-    const today = new Date();
-    return today.toISOString().split('T')[0];
-  }
-
-  private getErrorMessage(err: any): string {
-    if (err.status === 401 || err.error === 'no_token' || err.error === 'invalid_headers') {
-      return 'profile.unauthorizedError';
-    }
-    if (err.status === 400) {
-      if (err.error?.message?.includes('العنوان، التاريخ، وقت البدء، ووقت الانتهاء مطلوبة')) {
-        return 'profile.meeting_fields_required';
-      }
-      if (err.error?.message?.includes('صيغة التاريخ غير صالحة')) {
-        return 'profile.validation.date.format';
-      }
-      if (err.error?.message?.includes('معرف الموعد غير صالح')) {
-        return 'profile.invalid_meeting_id';
-      }
-      return err.error?.message || 'profile.badRequestError';
-    }
-    if (err.status === 404) {
-      return 'profile.profile_not_found';
-    }
-    if (err.status === 500) {
-      return 'profile.serverError';
-    }
-    return err.message || 'profile.unknownError';
+    const selectedDate = arg.date.toISOString().split('T')[0];
+    this.openMeetingModal(selectedDate);
   }
 }

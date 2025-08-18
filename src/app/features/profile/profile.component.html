@@ -1,833 +1,840 @@
-<div class="container-fluid p-0" [dir]="translationService.isRtl() ? 'rtl' : 'ltr'">
-  <main class="main-content container">
-    <!-- Toast Container for Notifications -->
-    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1050;">
-      <div *ngFor="let toast of toasts"
-           class="toast"
-           [id]="toast.id"
-           [ngClass]="{'toast-success': toast.type === 'success', 'toast-error': toast.type === 'error', 'toast-info': toast.type === 'info'}"
-           role="alert"
-           aria-live="assertive"
-           aria-atomic="true">
-        <div class="toast-header">
-          <strong class="me-auto">{{ toast.title }}</strong>
-          <button type="button" class="btn-close" (click)="closeToast(toast.id)" [attr.aria-label]="translationService.translate('common.close')"></button>
-        </div>
-        <div class="toast-body">
-          {{ toast.message }}
-        </div>
-      </div>
-    </div>
-
-    <!-- Loading State -->
-    <div *ngIf="!profile" class="d-flex justify-content-center my-5">
-      <div class="spinner-border" role="status">
-        <span class="visually-hidden">{{ translationService.translate('common.loading') }}</span>
-      </div>
-    </div>
-
-    <!-- Profile Content -->
-    <div *ngIf="profile" class="profile-content">
-      <!-- Profile Header -->
-      <div class="profile-header card shadow-sm mb-4">
-        <div class="card-body profile-header-content d-flex flex-column flex-md-row align-items-center">
-          <div class="profile-image-container me-md-4 mb-3 mb-md-0">
-            <img *ngIf="profile.profileImage"
-                 [src]="profile.profileImage"
-                 [alt]="translationService.translate('profile.profileImage')"
-                 class="profile-image rounded-circle"
-                 style="width: 150px; height: 150px; object-fit: cover;">
-            <img *ngIf="!profile.profileImage"
-                 src="/assets/default-profile.png"
-                 [alt]="translationService.translate('profile.defaultImage')"
-                 class="profile-image rounded-circle"
-                 style="width: 150px; height: 150px; object-fit: cover;">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+  <div class="container-fluid p-0" [dir]="translationService.isRtl() ? 'rtl' : 'ltr'">
+    <main class="main-content container">
+      <!-- Toast Container for Notifications -->
+      <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1050;">
+        <div *ngFor="let toast of toasts"
+             class="toast"
+             [id]="toast.id"
+             [ngClass]="{'toast-success': toast.type === 'success', 'toast-error': toast.type === 'error', 'toast-info': toast.type === 'info'}"
+             role="alert"
+             aria-live="assertive"
+             aria-atomic="true">
+          <div class="toast-header">
+            <strong class="me-auto">{{ toast.title }}</strong>
+            <button type="button" class="btn-close" (click)="closeToast(toast.id)" [attr.aria-label]="translationService.translate('common.close')"></button>
           </div>
-          <div class="profile-details-container flex-grow-1">
-            <h2 class="profile-name mb-3">{{ profile.name || translationService.translate('profile.notSpecified') }}</h2>
-            <button class="btn btn-outline-primary change-image-btn mb-3"
-                    (click)="changeImage()"
-                    [attr.aria-label]="translationService.translate('profile.changeImage')">
-              {{ translationService.translate('profile.changeImage') }}
-            </button>
+          <div class="toast-body">
+            {{ toast.message }}
+          </div>
+        </div>
+      </div>
 
-            <!-- Upload Section -->
-            <div *ngIf="showUploadField" class="upload-section">
-              <input type="file"
-                     id="profileImageInput"
-                     class="form-control mb-2"
-                     accept="image/jpeg,image/png,image/gif,image/webp"
-                     (change)="onFileSelected($event)"
-                     [attr.aria-label]="translationService.translate('profile.selectImage')">
-              <button [disabled]="isUploading || !selectedFile"
-                      class="btn btn-primary"
-                      (click)="uploadProfileImage()"
-                      [attr.aria-label]="translationService.translate('profile.uploadImage')">
-                <span *ngIf="isUploading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                {{ isUploading ? translationService.translate('profile.uploading') : translationService.translate('profile.uploadImage') }}
+      <!-- Loading State -->
+      <div *ngIf="!profile" class="d-flex justify-content-center my-5">
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">{{ translationService.translate('common.loading') }}</span>
+        </div>
+      </div>
+
+      <!-- Profile Content -->
+      <div *ngIf="profile" class="profile-content">
+        <!-- Profile Header -->
+        <div class="profile-header card shadow-sm mb-4">
+          <div class="card-body profile-header-content d-flex flex-column flex-md-row align-items-center">
+            <div class="profile-image-container me-md-4 mb-3 mb-md-0">
+              <img *ngIf="profile.profileImage"
+                   [src]="profile.profileImage"
+                   [alt]="translationService.translate('profile.profileImage')"
+                   class="profile-image rounded-circle"
+                   style="width: 150px; height: 150px; object-fit: cover;">
+              <img *ngIf="!profile.profileImage"
+                   src="/assets/default-profile.png"
+                   [alt]="translationService.translate('profile.defaultImage')"
+                   class="profile-image rounded-circle"
+                   style="width: 150px; height: 150px; object-fit: cover;">
+            </div>
+            <div class="profile-details-container flex-grow-1">
+              <h2 class="profile-name mb-3">{{ profile.name || translationService.translate('profile.notSpecified') }}</h2>
+              <button class="btn btn-outline-primary change-image-btn mb-3"
+                      (click)="changeImage()"
+                      [attr.aria-label]="translationService.translate('profile.changeImage')">
+                {{ translationService.translate('profile.changeImage') }}
               </button>
-            </div>
 
-            <!-- Admin Message -->
-            <div *ngIf="activeMessage" class="message-section mt-3">
-              <h4 class="message-title">{{ translationService.translate('profile.adminMessage') }}</h4>
-              <p class="message-content">{{ activeMessage.content }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Navigation Tabs -->
-      <div class="nav-tabs d-flex flex-wrap justify-content-center mb-4">
-        <button class="nav-tab btn btn-outline-secondary m-1"
-                [ngClass]="{'active': activeSection === 'profile'}"
-                (click)="setActiveSection('profile')"
-                [attr.aria-label]="translationService.translate('profile.profileTab')">
-          {{ translationService.translate('profile.profileTab') }}
-        </button>
-        <button class="nav-tab btn btn-outline-secondary m-1"
-                [ngClass]="{'active': activeSection === 'students'}"
-                (click)="setActiveSection('students')"
-                [attr.aria-label]="translationService.translate('profile.studentsTab')">
-          {{ translationService.translate('profile.studentsTab') }}
-        </button>
-        <button class="nav-tab btn btn-outline-secondary m-1"
-                [ngClass]="{'active': activeSection === 'meetings'}"
-                (click)="setActiveSection('meetings')"
-                [attr.aria-label]="translationService.translate('profile.meetingsTab')">
-          {{ translationService.translate('profile.meetingsTab') }}
-        </button>
-        <button class="nav-tab btn btn-outline-secondary m-1"
-                [ngClass]="{'active': activeSection === 'pdf-request'}"
-                (click)="setActiveSection('pdf-request')"
-                [attr.aria-label]="translationService.translate('profile.pdfRequestTab')">
-          {{ translationService.translate('profile.pdfRequestTab') }}
-        </button>
-        <button class="nav-tab btn btn-outline-secondary m-1"
-                (click)="openPasswordModal()"
-                [attr.aria-label]="translationService.translate('profile.changePasswordTab')">
-          {{ translationService.translate('profile.changePasswordTab') }}
-        </button>
-      </div>
-
-      <!-- Profile Section -->
-      <div id="profile-section" *ngIf="activeSection === 'profile'" class="card shadow-sm">
-        <div class="card-header">
-          <h3 class="mb-0">{{ translationService.translate('profile.profileTab') }}</h3>
-        </div>
-        <div class="card-body">
-          <!-- Low Lecture Warning -->
-          <div *ngIf="showLectureWarning" class="alert alert-warning" role="alert">
-            {{ translationService.translate('profile.lowLectureWarning') }}
-          </div>
-
-          <!-- Profile Information -->
-          <div class="row">
-            <div class="col-md-6">
-              <dl class="row mb-0">
-                <dt class="col-sm-4">{{ translationService.translate('profile.name') }}:</dt>
-                <dd class="col-sm-8">{{ profile.name || translationService.translate('profile.notSpecified') }}</dd>
-                <dt class="col-sm-4">{{ translationService.translate('profile.email') }}:</dt>
-                <dd class="col-sm-8">{{ profile.email || translationService.translate('profile.notSpecified') }}</dd>
-                <dt class="col-sm-4">{{ translationService.translate('profile.phone') }}:</dt>
-                <dd class="col-sm-8">{{ profile.phone || translationService.translate('profile.notSpecified') }}</dd>
-                <dt class="col-sm-4">{{ translationService.translate('profile.address') }}:</dt>
-                <dd class="col-sm-8">{{ profile.address || translationService.translate('profile.notSpecified') }}</dd>
-              </dl>
-            </div>
-            <div class="col-md-6">
-              <dl class="row mb-0">
-                <dt class="col-sm-4">{{ translationService.translate('profile.academicSpecialization') }}:</dt>
-                <dd class="col-sm-8">{{ profile.academicSpecialization || translationService.translate('profile.notSpecified') }}</dd>
-                <dt class="col-sm-4">{{ translationService.translate('profile.volunteerHours') }}:</dt>
-                <dd class="col-sm-8">{{ profile.volunteerHours || translationService.translate('profile.notSpecified') }}</dd>
-                <dt class="col-sm-4">{{ translationService.translate('profile.numberOfStudents') }}:</dt>
-                <dd class="col-sm-8">{{ profile.numberOfStudents || translationService.translate('profile.notSpecified') }}</dd>
-                <dt class="col-sm-4">{{ translationService.translate('profile.subjects') }}:</dt>
-                <dd class="col-sm-8">{{ profile.subjects?.length ? profile.subjects.join(', ') : translationService.translate('profile.notSpecified') }}</dd>
-                <dt class="col-sm-4">{{ translationService.translate('profile.lectureCount') }}:</dt>
-                <dd class="col-sm-8">{{ profile.lectureCount || translationService.translate('profile.notSpecified') }}</dd>
-              </dl>
-            </div>
-          </div>
-
-          <!-- Add Lecture Section -->
-          <div class="upload-section mt-4">
-            <h4>{{ translationService.translate('profile.addLecture') }}</h4>
-            <div *ngIf="!profile?.students?.length" class="alert alert-warning mt-3" role="alert">
-              {{ translationService.translate('profile.noStudentsAvailable') }}
-            </div>
-            <form [formGroup]="lectureForm" (ngSubmit)="onSubmitLecture()" class="row g-3">
-              <div class="col-md-4">
-                <div class="form-floating">
-                  <select id="lectureStudentEmail"
-                          formControlName="studentEmail"
-                          class="form-control"
-                          [class.is-invalid]="lectureForm.get('studentEmail')?.invalid && lectureForm.get('studentEmail')?.touched"
-                          [attr.aria-label]="translationService.translate('profile.lectureStudentEmail')"
-                          [attr.aria-describedby]="lectureForm.get('studentEmail')?.invalid && lectureForm.get('studentEmail')?.touched ? 'studentEmailError' : null">
-                    <option value="" disabled>{{ translationService.translate('profile.selectStudent') }}</option>
-                    <option *ngFor="let student of profile.students" [value]="student.email">
-                      {{ student.email }} ({{ student.name }})
-                    </option>
-                  </select>
-                  <label for="lectureStudentEmail">{{ translationService.translate('profile.lectureStudentEmail') }}</label>
-                  <div *ngIf="lectureForm.get('studentEmail')?.invalid && lectureForm.get('studentEmail')?.touched"
-                       id="studentEmailError"
-                       class="invalid-feedback">
-                    <span *ngIf="lectureForm.get('studentEmail')?.errors?.['required']">
-                      {{ translationService.translate('profile.validation.studentEmail.required') }}
-                    </span>
-                    <span *ngIf="lectureForm.get('studentEmail')?.errors?.['email']">
-                      {{ translationService.translate('profile.validation.studentEmail.email') }}
-                    </span>
-                    <span *ngIf="lectureForm.get('studentEmail')?.errors?.['invalidStudent']">
-                      {{ translationService.translate('profile.validation.studentEmail.invalid') }}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-4">
-                <div class="form-floating">
-                  <select id="lectureSubject"
-                          formControlName="subject"
-                          class="form-control"
-                          [class.is-invalid]="lectureForm.get('subject')?.invalid && lectureForm.get('subject')?.touched"
-                          [attr.aria-label]="translationService.translate('profile.lectureSubject')"
-                          [attr.aria-describedby]="lectureForm.get('subject')?.invalid && lectureForm.get('subject')?.touched ? 'subjectError' : null">
-                    <option value="" disabled>{{ translationService.translate('profile.selectSubject') }}</option>
-                    <option *ngFor="let subject of subjectKeys; let i = index" [value]="subject">
-                      {{ getTranslatedSubjects()[i] }}
-                    </option>
-                  </select>
-                  <label for="lectureSubject">{{ translationService.translate('profile.lectureSubject') }}</label>
-                  <div *ngIf="lectureForm.get('subject')?.invalid && lectureForm.get('subject')?.touched"
-                       id="subjectError"
-                       class="invalid-feedback">
-                    <span *ngIf="lectureForm.get('subject')?.errors?.['required']">
-                      {{ translationService.translate('profile.validation.subject.required') }}
-                    </span>
-                    <span *ngIf="lectureForm.get('subject')?.errors?.['invalidSubject']">
-                      {{ translationService.translate('profile.validation.subject.invalid') }}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-4">
-                <div class="form-floating">
-                  <input id="lectureDate"
-                         formControlName="date"
-                         type="date"
-                         class="form-control"
-                         [class.is-invalid]="lectureForm.get('date')?.invalid && lectureForm.get('date')?.touched"
-                         [attr.aria-label]="translationService.translate('profile.lectureDate')"
-                         [attr.aria-describedby]="lectureForm.get('date')?.invalid && lectureForm.get('date')?.touched ? 'dateError' : null"
-                         [max]="getMaxDate()" />
-                  <label for="lectureDate">{{ translationService.translate('profile.lectureDate') }}</label>
-                  <div *ngIf="lectureForm.get('date')?.invalid && lectureForm.get('date')?.touched"
-                       id="dateError"
-                       class="invalid-feedback">
-                    <span *ngIf="lectureForm.get('date')?.errors?.['required']">
-                      {{ translationService.translate('profile.validation.date.required') }}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-4">
-                <div class="form-floating">
-                  <input id="lectureDuration"
-                         formControlName="duration"
-                         type="number"
-                         class="form-control"
-                         min="1"
-                         [class.is-invalid]="lectureForm.get('duration')?.invalid && lectureForm.get('duration')?.touched"
-                         [attr.aria-label]="translationService.translate('profile.lectureDuration')"
-                         [attr.aria-describedby]="lectureForm.get('duration')?.invalid && lectureForm.get('duration')?.touched ? 'durationError' : null"
-                         placeholder="Enter duration in minutes" />
-                  <label for="lectureDuration">{{ translationService.translate('profile.lectureDuration') }}</label>
-                  <div *ngIf="lectureForm.get('duration')?.invalid && lectureForm.get('duration')?.touched"
-                       id="durationError"
-                       class="invalid-feedback">
-                    <span *ngIf="lectureForm.get('duration')?.errors?.['required']">
-                      {{ translationService.translate('profile.validation.duration.required') }}
-                    </span>
-                    <span *ngIf="lectureForm.get('duration')?.errors?.['min']">
-                      {{ translationService.translate('profile.validation.duration.min') }}
-                    </span>
-                    <span *ngIf="lectureForm.get('duration')?.errors?.['pattern']">
-                      {{ translationService.translate('profile.validation.duration.pattern') }}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-4">
-                <div class="form-floating">
-                  <input id="lectureLink"
-                         formControlName="link"
-                         type="url"
-                         class="form-control"
-                         [class.is-invalid]="lectureForm.get('link')?.invalid && lectureForm.get('link')?.touched"
-                         [attr.aria-label]="translationService.translate('profile.lectureLink')"
-                         [attr.aria-describedby]="lectureForm.get('link')?.invalid && lectureForm.get('link')?.touched ? 'linkError' : null"
-                         placeholder="https://example.com" />
-                  <label for="lectureLink">{{ translationService.translate('profile.lectureLink') }}</label>
-                  <div *ngIf="lectureForm.get('link')?.invalid && lectureForm.get('link')?.touched"
-                       id="linkError"
-                       class="invalid-feedback">
-                    <span *ngIf="lectureForm.get('link')?.errors?.['required']">
-                      {{ translationService.translate('profile.validation.link.required') }}
-                    </span>
-                    <span *ngIf="lectureForm.get('link')?.errors?.['pattern']">
-                      {{ translationService.translate('profile.validation.link.pattern') }}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-4">
-                <div class="form-floating">
-                  <input id="lectureName"
-                         formControlName="name"
-                         type="text"
-                         class="form-control"
-                         [class.is-invalid]="lectureForm.get('name')?.invalid && lectureForm.get('name')?.touched"
-                         [attr.aria-label]="translationService.translate('profile.lectureName')"
-                         [attr.aria-describedby]="lectureForm.get('name')?.invalid && lectureForm.get('name')?.touched ? 'nameError' : null" />
-                  <label for="lectureName">{{ translationService.translate('profile.lectureName') }}</label>
-                  <div *ngIf="lectureForm.get('name')?.invalid && lectureForm.get('name')?.touched"
-                       id="nameError"
-                       class="invalid-feedback">
-                    <span *ngIf="lectureForm.get('name')?.errors?.['required']">
-                      {{ translationService.translate('profile.validation.name.required') }}
-                    </span>
-                    <span *ngIf="lectureForm.get('name')?.errors?.['minlength']">
-                      {{ translationService.translate('profile.validation.name.minlength') }}
-                    </span>
-                    <span *ngIf="lectureForm.get('name')?.errors?.['maxlength']">
-                      {{ translationService.translate('profile.validation.name.maxlength') }}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="d-flex justify-content-center mt-3 col-12">
-                <button type="submit"
-                        class="btn btn-success"
-                        [disabled]="isUploadingLecture || lectureForm.invalid || !profile.students?.length"
-                        [attr.aria-label]="translationService.translate('profile.uploadLecture')">
-                  <span *ngIf="isUploadingLecture" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                  {{ isUploadingLecture ?
-                    translationService.translate('profile.uploadingLecture') :
-                    translationService.translate('profile.uploadLecture') }}
+              <!-- Upload Section -->
+              <div *ngIf="showUploadField" class="upload-section">
+                <input type="file"
+                       id="profileImageInput"
+                       class="form-control mb-2"
+                       accept="image/jpeg,image/png,image/gif,image/webp"
+                       (change)="onFileSelected($event)"
+                       [attr.aria-label]="translationService.translate('profile.selectImage')">
+                <button [disabled]="isUploading || !selectedFile"
+                        class="btn btn-primary"
+                        (click)="uploadProfileImage()"
+                        [attr.aria-label]="translationService.translate('profile.uploadImage')">
+                  <span *ngIf="isUploading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  {{ isUploading ? translationService.translate('profile.uploading') : translationService.translate('profile.uploadImage') }}
                 </button>
               </div>
-            </form>
-          </div>
-        </div>
-      </div>
 
-      <!-- Students Section -->
-      <div id="students-section" *ngIf="activeSection === 'students'" class="card shadow-sm mt-4">
-        <div class="card-header">
-          <h3 class="mb-0">{{ translationService.translate('profile.studentsTitle') }}</h3>
-        </div>
-        <div class="card-body">
-          <div *ngIf="profile.numberOfStudents > 0 && (!profile.students || profile.students.length === 0)"
-               class="alert alert-warning"
-               role="alert">
-            {{ translationService.translate('profile.studentDataMismatch') }}
-          </div>
-
-          <div *ngIf="profile.numberOfStudents === 0 && (!profile.students || profile.students.length === 0)"
-               class="alert alert-info"
-               role="alert">
-            {{ translationService.translate('profile.noStudents') }}
-          </div>
-
-          <div class="table-responsive" *ngIf="profile.students && profile.students.length > 0">
-            <table class="table table-hover">
-              <thead>
-                <tr>
-                  <th scope="col">{{ translationService.translate('profile.studentName') }}</th>
-                  <th scope="col">{{ translationService.translate('profile.studentEmail') }}</th>
-                  <th scope="col">{{ translationService.translate('profile.studentPhone') }}</th>
-                  <th scope="col">{{ translationService.translate('profile.studentGrade') }}</th>
-                  <th scope="col">{{ translationService.translate('profile.studentSubjects') }}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let student of profile.students">
-                  <td>{{ student.name || translationService.translate('profile.notAvailable') }}</td>
-                  <td>{{ student.email || translationService.translate('profile.notAvailable') }}</td>
-                  <td>{{ student.phone || translationService.translate('profile.notAvailable') }}</td>
-                  <td>{{ student.grade || translationService.translate('profile.notSpecified') }}</td>
-                  <td>{{ getStudentSubjects(student) }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- Meetings Section -->
-<!-- Meetings Section -->
-<div id="meetings-section" *ngIf="activeSection === 'meetings'" class="card shadow-sm mt-4 mb-4">
-  <div class="card-header d-flex justify-content-between align-items-center">
-    <h3 class="mb-0">{{ translationService.translate('profile.meetingsTitle') }}</h3>
-    <button class="btn btn-primary"
-            (click)="openMeetingModal()"
-            [attr.aria-label]="translationService.translate('profile.addMeeting')">
-      <i class="fas fa-plus me-2"></i>
-      {{ translationService.translate('profile.addMeeting') }}
-    </button>
-  </div>
-  <div class="card-body">
-    <!-- Calendar -->
-    <full-calendar [options]="calendarOptions"></full-calendar>
-
-    <!-- Meetings List -->
-    <div *ngIf="profile.meetings && profile.meetings.length > 0" class="mt-4">
-      <h4>{{ translationService.translate('profile.meetingsList') }}</h4>
-      <div class="table-responsive">
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th scope="col">{{ translationService.translate('profile.meetingTitle') }}</th>
-              <th scope="col">{{ translationService.translate('profile.meetingDate') }}</th>
-              <th scope="col">{{ translationService.translate('profile.meetingStartTime') }}</th>
-              <th scope="col">{{ translationService.translate('profile.meetingEndTime') }}</th>
-              <th scope="col">{{ translationService.translate('profile.actions') }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let meeting of profile.meetings">
-              <td>{{ meeting.title || translationService.translate('profile.notSpecified') }}</td>
-              <td>{{ meeting.date || translationService.translate('profile.notSpecified') }}</td>
-              <td>{{ meeting.startTime || translationService.translate('profile.notSpecified') }}</td>
-              <td>{{ meeting.endTime || translationService.translate('profile.notSpecified') }}</td>
-              <td>
-                <button *ngIf="meeting.id" class="btn btn-danger btn-sm"
-                        [disabled]="isDeletingMeeting[meeting.id]"
-                        (click)="deleteMeeting(meeting.id)"
-                        [attr.aria-label]="translationService.translate('profile.deleteMeeting')">
-                  <span *ngIf="isDeletingMeeting[meeting.id]" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                  {{ isDeletingMeeting[meeting.id] ?
-                    translationService.translate('profile.deleting') :
-                    translationService.translate('profile.deleteMeeting') }}
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <div *ngIf="!profile.meetings || profile.meetings.length === 0" class="alert alert-info mt-3" role="alert">
-      {{ translationService.translate('profile.noMeetings') }}
-    </div>
-  </div>
-</div>
-
-      <!-- PDF Request Section -->
-      <div id="pdf-request-section" *ngIf="activeSection === 'pdf-request'" class="card shadow-sm mt-4">
-        <div class="card-header">
-          <h3 class="mb-0">{{ translationService.translate('profile.pdfRequestTab') }}</h3>
-        </div>
-        <div class="card-body">
-          <form [formGroup]="pdfRequestForm" (ngSubmit)="uploadPdfRequest()" class="row g-3">
-            <div class="col-md-6">
-              <div class="form-floating">
-                <input id="pdfTitle"
-                       formControlName="title"
-                       type="text"
-                       class="form-control"
-                       [class.is-invalid]="pdfRequestForm.get('title')?.invalid && pdfRequestForm.get('title')?.touched"
-                       [attr.aria-label]="translationService.translate('profile.pdfTitle')"
-                       [attr.aria-describedby]="pdfRequestForm.get('title')?.invalid && pdfRequestForm.get('title')?.touched ? 'pdfTitleError' : null" />
-                <label for="pdfTitle">{{ translationService.translate('profile.pdfTitle') }}</label>
-                <div *ngIf="pdfRequestForm.get('title')?.invalid && pdfRequestForm.get('title')?.touched"
-                     id="pdfTitleError"
-                     class="invalid-feedback">
-                  <span *ngIf="pdfRequestForm.get('title')?.errors?.['required']">
-                    {{ translationService.translate('profile.validation.title.required') }}
-                  </span>
-                  <span *ngIf="pdfRequestForm.get('title')?.errors?.['minlength']">
-                    {{ translationService.translate('profile.validation.title.minlength') }}
-                  </span>
-                  <span *ngIf="pdfRequestForm.get('title')?.errors?.['maxlength']">
-                    {{ translationService.translate('profile.validation.title.maxlength') }}
-                  </span>
-                </div>
+              <!-- Admin Message -->
+              <div *ngIf="activeMessage" class="message-section mt-3">
+                <h4 class="message-title">{{ translationService.translate('profile.adminMessage') }}</h4>
+                <p class="message-content">{{ activeMessage.content }}</p>
               </div>
-            </div>
-
-            <div class="col-md-6">
-              <div class="form-floating">
-                <textarea id="pdfDescription"
-                          formControlName="description"
-                          class="form-control"
-                          style="height: 100px"
-                          [class.is-invalid]="pdfRequestForm.get('description')?.invalid && pdfRequestForm.get('description')?.touched"
-                          [attr.aria-label]="translationService.translate('profile.pdfDescription')"
-                          [attr.aria-describedby]="pdfRequestForm.get('description')?.invalid && pdfRequestForm.get('description')?.touched ? 'pdfDescriptionError' : null"></textarea>
-                <label for="pdfDescription">{{ translationService.translate('profile.pdfDescription') }}</label>
-                <div *ngIf="pdfRequestForm.get('description')?.invalid && pdfRequestForm.get('description')?.touched"
-                     id="pdfDescriptionError"
-                     class="invalid-feedback">
-                  <span *ngIf="pdfRequestForm.get('description')?.errors?.['required']">
-                    {{ translationService.translate('profile.validation.description.required') }}
-                  </span>
-                  <span *ngIf="pdfRequestForm.get('description')?.errors?.['minlength']">
-                    {{ translationService.translate('profile.validation.description.minlength') }}
-                  </span>
-                  <span *ngIf="pdfRequestForm.get('description')?.errors?.['maxlength']">
-                    {{ translationService.translate('profile.validation.description.maxlength') }}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-md-6">
-              <div class="form-floating">
-                <input id="pdfCreatorName"
-                       formControlName="creatorName"
-                       type="text"
-                       class="form-control"
-                       [class.is-invalid]="pdfRequestForm.get('creatorName')?.invalid && pdfRequestForm.get('creatorName')?.touched"
-                       [attr.aria-label]="translationService.translate('profile.pdfCreatorName')"
-                       [attr.aria-describedby]="pdfRequestForm.get('creatorName')?.invalid && pdfRequestForm.get('creatorName')?.touched ? 'pdfCreatorNameError' : null" />
-                <label for="pdfCreatorName">{{ translationService.translate('profile.pdfCreatorName') }}</label>
-                <div *ngIf="pdfRequestForm.get('creatorName')?.invalid && pdfRequestForm.get('creatorName')?.touched"
-                     id="pdfCreatorNameError"
-                     class="invalid-feedback">
-                  <span *ngIf="pdfRequestForm.get('creatorName')?.errors?.['required']">
-                    {{ translationService.translate('profile.validation.creatorName.required') }}
-                  </span>
-                  <span *ngIf="pdfRequestForm.get('creatorName')?.errors?.['minlength']">
-                    {{ translationService.translate('profile.validation.creatorName.minlength') }}
-                  </span>
-                  <span *ngIf="pdfRequestForm.get('creatorName')?.errors?.['maxlength']">
-                    {{ translationService.translate('profile.validation.creatorName.maxlength') }}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-md-6">
-              <div class="form-floating">
-                <select id="pdfSubject"
-                        formControlName="subject"
-                        class="form-control"
-                        [class.is-invalid]="pdfRequestForm.get('subject')?.invalid && pdfRequestForm.get('subject')?.touched"
-                        [attr.aria-label]="translationService.translate('profile.pdfSubject')"
-                        [attr.aria-describedby]="pdfRequestForm.get('subject')?.invalid && pdfRequestForm.get('subject')?.touched ? 'pdfSubjectError' : null">
-                  <option value="" disabled>{{ translationService.translate('profile.selectSubject') }}</option>
-                  <option *ngFor="let subject of subjectKeys; let i = index" [value]="subject">
-                    {{ getTranslatedSubjects()[i] }}
-                  </option>
-                </select>
-                <label for="pdfSubject">{{ translationService.translate('profile.pdfSubject') }}</label>
-                <div *ngIf="pdfRequestForm.get('subject')?.invalid && pdfRequestForm.get('subject')?.touched"
-                     id="pdfSubjectError"
-                     class="invalid-feedback">
-                  <span *ngIf="pdfRequestForm.get('subject')?.errors?.['required']">
-                    {{ translationService.translate('profile.validation.subject.required') }}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-md-6">
-              <div class="form-floating">
-                <select id="pdfSemester"
-                        formControlName="semester"
-                        class="form-control"
-                        [class.is-invalid]="pdfRequestForm.get('semester')?.invalid && pdfRequestForm.get('semester')?.touched"
-                        [attr.aria-label]="translationService.translate('profile.pdfSemester')"
-                        [attr.aria-describedby]="pdfRequestForm.get('semester')?.invalid && pdfRequestForm.get('semester')?.touched ? 'pdfSemesterError' : null">
-                  <option value="" disabled>{{ translationService.translate('profile.selectSemester') }}</option>
-                  <option *ngFor="let semester of getTranslatedSemesters()" [value]="semester">
-                    {{ semester }}
-                  </option>
-                </select>
-                <label for="pdfSemester">{{ translationService.translate('profile.pdfSemester') }}</label>
-                <div *ngIf="pdfRequestForm.get('semester')?.invalid && pdfRequestForm.get('semester')?.touched"
-                     id="pdfSemesterError"
-                     class="invalid-feedback">
-                  <span *ngIf="pdfRequestForm.get('semester')?.errors?.['required']">
-                    {{ translationService.translate('profile.validation.semester.required') }}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-md-6">
-              <div class="form-floating">
-                <select id="pdfCountry"
-                        formControlName="country"
-                        class="form-control"
-                        [class.is-invalid]="pdfRequestForm.get('country')?.invalid && pdfRequestForm.get('country')?.touched"
-                        [attr.aria-label]="translationService.translate('profile.pdfCountry')"
-                        [attr.aria-describedby]="pdfRequestForm.get('country')?.invalid && pdfRequestForm.get('country')?.touched ? 'pdfCountryError' : null">
-                  <option value="" disabled>{{ translationService.translate('profile.selectCountry') }}</option>
-                  <option *ngFor="let country of getTranslatedCountries()" [value]="country">
-                    {{ country }}
-                  </option>
-                </select>
-                <label for="pdfCountry">{{ translationService.translate('profile.pdfCountry') }}</label>
-                <div *ngIf="pdfRequestForm.get('country')?.invalid && pdfRequestForm.get('country')?.touched"
-                     id="pdfCountryError"
-                     class="invalid-feedback">
-                  <span *ngIf="pdfRequestForm.get('country')?.errors?.['required']">
-                    {{ translationService.translate('profile.validation.country.required') }}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-md-6">
-              <div class="form-floating">
-                <select id="pdfAcademicLevel"
-                        formControlName="academicLevel"
-                        class="form-control"
-                        [class.is-invalid]="pdfRequestForm.get('academicLevel')?.invalid && pdfRequestForm.get('academicLevel')?.touched"
-                        [attr.aria-label]="translationService.translate('profile.pdfAcademicLevel')"
-                        [attr.aria-describedby]="pdfRequestForm.get('academicLevel')?.invalid && pdfRequestForm.get('academicLevel')?.touched ? 'pdfAcademicLevelError' : null">
-                  <option value="" disabled>{{ translationService.translate('profile.selectAcademicLevel') }}</option>
-                  <option *ngFor="let level of getTranslatedAcademicLevels()" [value]="level">
-                    {{ level }}
-                  </option>
-                </select>
-                <label for="pdfAcademicLevel">{{ translationService.translate('profile.pdfAcademicLevel') }}</label>
-                <div *ngIf="pdfRequestForm.get('academicLevel')?.invalid && pdfRequestForm.get('academicLevel')?.touched"
-                     id="pdfAcademicLevelError"
-                     class="invalid-feedback">
-                  <span *ngIf="pdfRequestForm.get('academicLevel')?.errors?.['required']">
-                    {{ translationService.translate('profile.validation.academicLevel.required') }}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-md-6">
-              <input type="file"
-                     id="pdfFileInput"
-                     class="form-control"
-                     accept="application/pdf"
-                     (change)="onPdfFileSelected($event)"
-                     [attr.aria-label]="translationService.translate('profile.selectPdfFile')"
-                     [attr.aria-describedby]="!selectedPdfFile && pdfRequestForm.touched ? 'pdfFileError' : null">
-              <div *ngIf="!selectedPdfFile && pdfRequestForm.touched"
-                   id="pdfFileError"
-                   class="invalid-feedback d-block">
-                {{ translationService.translate('profile.validation.pdfFile.required') }}
-              </div>
-            </div>
-
-            <div class="d-flex justify-content-center mt-3 col-12">
-              <button type="submit"
-                      class="btn btn-success"
-                      [disabled]="isUploadingPdfRequest || pdfRequestForm.invalid || !selectedPdfFile"
-                      [attr.aria-label]="translationService.translate('profile.uploadPdfRequest')">
-                <span *ngIf="isUploadingPdfRequest" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                {{ isUploadingPdfRequest ?
-                  translationService.translate('profile.uploadingPdfRequest') :
-                  translationService.translate('profile.uploadPdfRequest') }}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <!-- Change Password Modal -->
-      <div *ngIf="showPasswordModal" class="modal fade show d-block" tabindex="-1" role="dialog" aria-labelledby="passwordModalLabel" style="background-color: rgba(0,0,0,0.5);">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="passwordModalLabel">{{ translationService.translate('profile.changePassword') }}</h5>
-              <button type="button" class="btn-close" (click)="closePasswordModal()" [attr.aria-label]="translationService.translate('common.close')"></button>
-            </div>
-            <div class="modal-body">
-              <div class="mb-3">
-                <label for="currentPassword" class="form-label">{{ translationService.translate('profile.currentPassword') }}</label>
-                <input id="currentPassword"
-                       type="password"
-                       class="form-control"
-                       [(ngModel)]="currentPassword"
-                       [ngModelOptions]="{standalone: true}"
-                       [class.is-invalid]="errorCode && (errorCode === 'missing_fields' || errorCode === 'incorrect_password')"
-                       required
-                       minlength="6"
-                       [attr.aria-label]="translationService.translate('profile.currentPassword')"
-                       [attr.aria-describedby]="errorCode && (errorCode === 'missing_fields' || errorCode === 'incorrect_password') ? 'currentPasswordError' : null" />
-                <div *ngIf="errorCode === 'missing_fields' && !currentPassword" id="currentPasswordError" class="invalid-feedback">
-                  {{ translationService.translate('profile.validation.currentPassword.required') }}
-                </div>
-                <div *ngIf="errorCode === 'incorrect_password'" id="currentPasswordError" class="invalid-feedback">
-                  {{ translationService.translate('profile.incorrect_password') }}
-                </div>
-              </div>
-              <div class="mb-3">
-                <label for="newPassword" class="form-label">{{ translationService.translate('profile.newPassword') }}</label>
-                <input id="newPassword"
-                       type="password"
-                       class="form-control"
-                       [(ngModel)]="newPassword"
-                       [ngModelOptions]="{standalone: true}"
-                       [class.is-invalid]="errorCode && (errorCode === 'missing_fields' || errorCode === 'password_too_short' || errorCode === 'same_password')"
-                       required
-                       minlength="6"
-                       [attr.aria-label]="translationService.translate('profile.newPassword')"
-                       [attr.aria-describedby]="errorCode && (errorCode === 'missing_fields' || errorCode === 'password_too_short' || errorCode === 'same_password') ? 'newPasswordError' : null" />
-                <div *ngIf="errorCode === 'missing_fields' && !newPassword" id="newPasswordError" class="invalid-feedback">
-                  {{ translationService.translate('profile.validation.newPassword.required') }}
-                </div>
-                <div *ngIf="errorCode === 'password_too_short'" id="newPasswordError" class="invalid-feedback">
-                  {{ translationService.translate('profile.validation.password.minlength') }}
-                </div>
-                <div *ngIf="errorCode === 'same_password'" id="newPasswordError" class="invalid-feedback">
-                  {{ translationService.translate('profile.same_password') }}
-                </div>
-              </div>
-              <div *ngIf="errorCode && errorCode !== 'missing_fields' && errorCode !== 'incorrect_password' && errorCode !== 'password_too_short' && errorCode !== 'same_password'"
-                   class="alert alert-danger">
-                {{ translationService.translate(errorCode) || translationService.translate('profile.password_change_error') }}
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" (click)="closePasswordModal()">{{ translationService.translate('common.cancel') }}</button>
-              <button type="button" class="btn btn-primary" (click)="changePassword()" [disabled]="!currentPassword || !newPassword || newPassword.length < 6">
-                {{ translationService.translate('profile.saveChanges') }}
-              </button>
-              <button type="button" class="btn btn-link" (click)="navigateToForgotPassword()">{{ translationService.translate('profile.forgotPassword') }}</button>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Meeting Modal -->
-      <div *ngIf="showMeetingModal" class="modal fade show d-block" tabindex="-1" role="dialog" aria-labelledby="meetingModalLabel" style="background-color: rgba(0,0,0,0.5);">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="meetingModalLabel">{{ translationService.translate('profile.addMeeting') }}</h5>
-              <button type="button" class="btn-close" (click)="closeMeetingModal()" [attr.aria-label]="translationService.translate('common.close')"></button>
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs d-flex flex-wrap justify-content-center mb-4">
+          <button class="nav-tab btn btn-outline-secondary m-1"
+                  [ngClass]="{'active': activeSection === 'profile'}"
+                  (click)="setActiveSection('profile')"
+                  [attr.aria-label]="translationService.translate('profile.profileTab')">
+            {{ translationService.translate('profile.profileTab') }}
+          </button>
+          <button class="nav-tab btn btn-outline-secondary m-1"
+                  [ngClass]="{'active': activeSection === 'students'}"
+                  (click)="setActiveSection('students')"
+                  [attr.aria-label]="translationService.translate('profile.studentsTab')">
+            {{ translationService.translate('profile.studentsTab') }}
+          </button>
+          <button class="nav-tab btn btn-outline-secondary m-1"
+                  [ngClass]="{'active': activeSection === 'meetings'}"
+                  (click)="setActiveSection('meetings')"
+                  [attr.aria-label]="translationService.translate('profile.meetingsTab')">
+            {{ translationService.translate('profile.meetingsTab') }}
+          </button>
+          <button class="nav-tab btn btn-outline-secondary m-1"
+                  [ngClass]="{'active': activeSection === 'pdf-request'}"
+                  (click)="setActiveSection('pdf-request')"
+                  [attr.aria-label]="translationService.translate('profile.pdfRequestTab')">
+            {{ translationService.translate('profile.pdfRequestTab') }}
+          </button>
+          <button class="nav-tab btn btn-outline-secondary m-1"
+                  (click)="openPasswordModal()"
+                  [attr.aria-label]="translationService.translate('profile.changePasswordTab')">
+            {{ translationService.translate('profile.changePasswordTab') }}
+          </button>
+        </div>
+
+        <!-- Profile Section -->
+        <div id="profile-section" *ngIf="activeSection === 'profile'" class="card shadow-sm">
+          <div class="card-header">
+            <h3 class="mb-0">{{ translationService.translate('profile.profileTab') }}</h3>
+          </div>
+          <div class="card-body">
+            <!-- Low Lecture Warning -->
+            <div *ngIf="showLectureWarning" class="alert alert-warning" role="alert">
+              {{ translationService.translate('profile.lowLectureWarning') }}
             </div>
-            <div class="modal-body">
-              <form [formGroup]="meetingForm" (ngSubmit)="addMeeting()">
-                <div class="mb-3">
-                  <label for="meetingTitle" class="form-label">{{ translationService.translate('profile.meetingTitle') }}</label>
-                  <input id="meetingTitle"
-                         formControlName="title"
-                         type="text"
-                         class="form-control"
-                         [class.is-invalid]="meetingForm.get('title')?.invalid && meetingForm.get('title')?.touched"
-                         [attr.aria-label]="translationService.translate('profile.meetingTitle')"
-                         [attr.aria-describedby]="meetingForm.get('title')?.invalid && meetingForm.get('title')?.touched ? 'meetingTitleError' : null" />
-                  <div *ngIf="meetingForm.get('title')?.invalid && meetingForm.get('title')?.touched"
-                       id="meetingTitleError"
-                       class="invalid-feedback">
-                    <span *ngIf="meetingForm.get('title')?.errors?.['required']">
-                      {{ translationService.translate('profile.validation.title.required') }}
-                    </span>
-                    <span *ngIf="meetingForm.get('title')?.errors?.['minlength']">
-                      {{ translationService.translate('profile.validation.title.minlength') }}
-                    </span>
-                    <span *ngIf="meetingForm.get('title')?.errors?.['maxlength']">
-                      {{ translationService.translate('profile.validation.title.maxlength') }}
-                    </span>
-                  </div>
-                </div>
-                <div class="mb-3">
-                  <label for="meetingDate" class="form-label">{{ translationService.translate('profile.meetingDate') }}</label>
-                  <input id="meetingDate"
-                         formControlName="date"
-                         type="date"
-                         class="form-control"
-                         [class.is-invalid]="(meetingForm.get('date')?.invalid && meetingForm.get('date')?.touched) || meetingForm.errors?.['invalidDate']"
-                         [attr.aria-label]="translationService.translate('profile.meetingDate')"
-                         [attr.aria-describedby]="(meetingForm.get('date')?.invalid && meetingForm.get('date')?.touched) || meetingForm.errors?.['invalidDate'] ? 'meetingDateError' : null"
-                         [max]="getMaxDate()" />
-                  <div *ngIf="meetingForm.get('date')?.invalid && meetingForm.get('date')?.touched"
-                       id="meetingDateError"
-                       class="invalid-feedback">
-                    <span *ngIf="meetingForm.get('date')?.errors?.['required']">
-                      {{ translationService.translate('profile.validation.date.required') }}
-                    </span>
-                    <span *ngIf="meetingForm.get('date')?.errors?.['pattern']">
-                      {{ translationService.translate('profile.validation.date.format') }}
-                    </span>
-                  </div>
-                  <div *ngIf="meetingForm.errors?.['invalidDate']" id="meetingDateError" class="invalid-feedback">
-                    {{ translationService.translate('profile.validation.date.format') }}
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-md-6 mb-3">
-                    <label for="meetingStartTime" class="form-label">{{ translationService.translate('profile.meetingStartTime') }}</label>
-                    <input id="meetingStartTime"
-                           formControlName="startTime"
-                           type="time"
-                           class="form-control"
-                           [class.is-invalid]="(meetingForm.get('startTime')?.invalid && meetingForm.get('startTime')?.touched) || meetingForm.errors?.['invalidTimeOrder']"
-                           [attr.aria-label]="translationService.translate('profile.meetingStartTime')"
-                           [attr.aria-describedby]="(meetingForm.get('startTime')?.invalid && meetingForm.get('startTime')?.touched) || meetingForm.errors?.['invalidTimeOrder'] ? 'meetingStartTimeError' : null" />
-                    <div *ngIf="meetingForm.get('startTime')?.invalid && meetingForm.get('startTime')?.touched"
-                         id="meetingStartTimeError"
+
+            <!-- Profile Information -->
+            <div class="row">
+              <div class="col-md-6">
+                <dl class="row mb-0">
+                  <dt class="col-sm-4">{{ translationService.translate('profile.name') }}:</dt>
+                  <dd class="col-sm-8">{{ profile.name || translationService.translate('profile.notSpecified') }}</dd>
+                  <dt class="col-sm-4">{{ translationService.translate('profile.email') }}:</dt>
+                  <dd class="col-sm-8">{{ profile.email || translationService.translate('profile.notSpecified') }}</dd>
+                  <dt class="col-sm-4">{{ translationService.translate('profile.phone') }}:</dt>
+                  <dd class="col-sm-8">{{ profile.phone || translationService.translate('profile.notSpecified') }}</dd>
+                  <dt class="col-sm-4">{{ translationService.translate('profile.address') }}:</dt>
+                  <dd class="col-sm-8">{{ profile.address || translationService.translate('profile.notSpecified') }}</dd>
+                </dl>
+              </div>
+              <div class="col-md-6">
+                <dl class="row mb-0">
+                  <dt class="col-sm-4">{{ translationService.translate('profile.academicSpecialization') }}:</dt>
+                  <dd class="col-sm-8">{{ profile.academicSpecialization || translationService.translate('profile.notSpecified') }}</dd>
+                  <dt class="col-sm-4">{{ translationService.translate('profile.volunteerHours') }}:</dt>
+                  <dd class="col-sm-8">{{ profile.volunteerHours || translationService.translate('profile.notSpecified') }}</dd>
+                  <dt class="col-sm-4">{{ translationService.translate('profile.numberOfStudents') }}:</dt>
+                  <dd class="col-sm-8">{{ profile.numberOfStudents || translationService.translate('profile.notSpecified') }}</dd>
+                  <dt class="col-sm-4">{{ translationService.translate('profile.subjects') }}:</dt>
+                  <dd class="col-sm-8">{{ profile.subjects?.length ? profile.subjects.join(', ') : translationService.translate('profile.notSpecified') }}</dd>
+                  <dt class="col-sm-4">{{ translationService.translate('profile.lectureCount') }}:</dt>
+                  <dd class="col-sm-8">{{ profile.lectureCount || translationService.translate('profile.notSpecified') }}</dd>
+                </dl>
+              </div>
+            </div>
+
+            <!-- Add Lecture Section -->
+            <div class="upload-section mt-4">
+              <h4>{{ translationService.translate('profile.addLecture') }}</h4>
+              <div *ngIf="!profile?.students?.length" class="alert alert-warning mt-3" role="alert">
+                {{ translationService.translate('profile.noStudentsAvailable') }}
+              </div>
+              <form [formGroup]="lectureForm" (ngSubmit)="onSubmitLecture()" class="row g-3">
+                <div class="col-md-4">
+                  <div class="form-floating">
+                    <select id="lectureStudentEmail"
+                            formControlName="studentEmail"
+                            class="form-control"
+                            [class.is-invalid]="lectureForm.get('studentEmail')?.invalid && lectureForm.get('studentEmail')?.touched"
+                            [attr.aria-label]="translationService.translate('profile.lectureStudentEmail')"
+                            [attr.aria-describedby]="lectureForm.get('studentEmail')?.invalid && lectureForm.get('studentEmail')?.touched ? 'studentEmailError' : null">
+                      <option value="" disabled>{{ translationService.translate('profile.selectStudent') }}</option>
+                      <option *ngFor="let student of profile.students" [value]="student.email">
+                        {{ student.email }} ({{ student.name }})
+                      </option>
+                    </select>
+                    <label for="lectureStudentEmail">{{ translationService.translate('profile.lectureStudentEmail') }}</label>
+                    <div *ngIf="lectureForm.get('studentEmail')?.invalid && lectureForm.get('studentEmail')?.touched"
+                         id="studentEmailError"
                          class="invalid-feedback">
-                      <span *ngIf="meetingForm.get('startTime')?.errors?.['required']">
-                        {{ translationService.translate('profile.validation.startTime.required') }}
+                      <span *ngIf="lectureForm.get('studentEmail')?.errors?.['required']">
+                        {{ translationService.translate('profile.validation.studentEmail.required') }}
                       </span>
-                      <span *ngIf="meetingForm.get('startTime')?.errors?.['pattern']">
-                        {{ translationService.translate('profile.validation.time.format') }}
+                      <span *ngIf="lectureForm.get('studentEmail')?.errors?.['email']">
+                        {{ translationService.translate('profile.validation.studentEmail.email') }}
                       </span>
-                    </div>
-                    <div *ngIf="meetingForm.errors?.['invalidTimeOrder']" id="meetingStartTimeError" class="invalid-feedback">
-                      {{ translationService.translate('profile.validation.time.order') }}
-                    </div>
-                  </div>
-                  <div class="col-md-6 mb-3">
-                    <label for="meetingEndTime" class="form-label">{{ translationService.translate('profile.meetingEndTime') }}</label>
-                    <input id="meetingEndTime"
-                           formControlName="endTime"
-                           type="time"
-                           class="form-control"
-                           [class.is-invalid]="(meetingForm.get('endTime')?.invalid && meetingForm.get('endTime')?.touched) || meetingForm.errors?.['invalidTimeOrder']"
-                           [attr.aria-label]="translationService.translate('profile.meetingEndTime')"
-                           [attr.aria-describedby]="(meetingForm.get('endTime')?.invalid && meetingForm.get('endTime')?.touched) || meetingForm.errors?.['invalidTimeOrder'] ? 'meetingEndTimeError' : null" />
-                    <div *ngIf="meetingForm.get('endTime')?.invalid && meetingForm.get('endTime')?.touched"
-                         id="meetingEndTimeError"
-                         class="invalid-feedback">
-                      <span *ngIf="meetingForm.get('endTime')?.errors?.['required']">
-                        {{ translationService.translate('profile.validation.endTime.required') }}
+                      <span *ngIf="lectureForm.get('studentEmail')?.errors?.['invalidStudent']">
+                        {{ translationService.translate('profile.validation.studentEmail.invalid') }}
                       </span>
-                      <span *ngIf="meetingForm.get('endTime')?.errors?.['pattern']">
-                        {{ translationService.translate('profile.validation.time.format') }}
-                      </span>
-                    </div>
-                    <div *ngIf="meetingForm.errors?.['invalidTimeOrder']" id="meetingEndTimeError" class="invalid-feedback">
-                      {{ translationService.translate('profile.validation.time.order') }}
                     </div>
                   </div>
                 </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" (click)="closeMeetingModal()">{{ translationService.translate('common.cancel') }}</button>
-                  <button type="submit" class="btn btn-primary" [disabled]="isAddingMeeting || meetingForm.invalid">
-                    <span *ngIf="isAddingMeeting" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                    {{ isAddingMeeting ?
-                      translationService.translate('profile.saving') :
-                      translationService.translate('profile.saveMeeting') }}
+
+                <div class="col-md-4">
+                  <div class="form-floating">
+                    <select id="lectureSubject"
+                            formControlName="subject"
+                            class="form-control"
+                            [class.is-invalid]="lectureForm.get('subject')?.invalid && lectureForm.get('subject')?.touched"
+                            [attr.aria-label]="translationService.translate('profile.lectureSubject')"
+                            [attr.aria-describedby]="lectureForm.get('subject')?.invalid && lectureForm.get('subject')?.touched ? 'subjectError' : null">
+                      <option value="" disabled>{{ translationService.translate('profile.selectSubject') }}</option>
+                      <option *ngFor="let subject of subjectKeys; let i = index" [value]="subject">
+                        {{ getTranslatedSubjects()[i] }}
+                      </option>
+                    </select>
+                    <label for="lectureSubject">{{ translationService.translate('profile.lectureSubject') }}</label>
+                    <div *ngIf="lectureForm.get('subject')?.invalid && lectureForm.get('subject')?.touched"
+                         id="subjectError"
+                         class="invalid-feedback">
+                      <span *ngIf="lectureForm.get('subject')?.errors?.['required']">
+                        {{ translationService.translate('profile.validation.subject.required') }}
+                      </span>
+                      <span *ngIf="lectureForm.get('subject')?.errors?.['invalidSubject']">
+                        {{ translationService.translate('profile.validation.subject.invalid') }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <div class="form-floating">
+                    <input id="lectureDate"
+                           formControlName="date"
+                           type="date"
+                           class="form-control"
+                           [class.is-invalid]="lectureForm.get('date')?.invalid && lectureForm.get('date')?.touched"
+                           [attr.aria-label]="translationService.translate('profile.lectureDate')"
+                           [attr.aria-describedby]="lectureForm.get('date')?.invalid && lectureForm.get('date')?.touched ? 'dateError' : null"
+                           [max]="getMaxDate()" />
+                    <label for="lectureDate">{{ translationService.translate('profile.lectureDate') }}</label>
+                    <div *ngIf="lectureForm.get('date')?.invalid && lectureForm.get('date')?.touched"
+                         id="dateError"
+                         class="invalid-feedback">
+                      <span *ngIf="lectureForm.get('date')?.errors?.['required']">
+                        {{ translationService.translate('profile.validation.date.required') }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <div class="form-floating">
+                    <input id="lectureDuration"
+                           formControlName="duration"
+                           type="number"
+                           class="form-control"
+                           min="1"
+                           [class.is-invalid]="lectureForm.get('duration')?.invalid && lectureForm.get('duration')?.touched"
+                           [attr.aria-label]="translationService.translate('profile.lectureDuration')"
+                           [attr.aria-describedby]="lectureForm.get('duration')?.invalid && lectureForm.get('duration')?.touched ? 'durationError' : null"
+                           placeholder="Enter duration in minutes" />
+                    <label for="lectureDuration">{{ translationService.translate('profile.lectureDuration') }}</label>
+                    <div *ngIf="lectureForm.get('duration')?.invalid && lectureForm.get('duration')?.touched"
+                         id="durationError"
+                         class="invalid-feedback">
+                      <span *ngIf="lectureForm.get('duration')?.errors?.['required']">
+                        {{ translationService.translate('profile.validation.duration.required') }}
+                      </span>
+                      <span *ngIf="lectureForm.get('duration')?.errors?.['min']">
+                        {{ translationService.translate('profile.validation.duration.min') }}
+                      </span>
+                      <span *ngIf="lectureForm.get('duration')?.errors?.['pattern']">
+                        {{ translationService.translate('profile.validation.duration.pattern') }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <div class="form-floating">
+                    <input id="lectureLink"
+                           formControlName="link"
+                           type="url"
+                           class="form-control"
+                           [class.is-invalid]="lectureForm.get('link')?.invalid && lectureForm.get('link')?.touched"
+                           [attr.aria-label]="translationService.translate('profile.lectureLink')"
+                           [attr.aria-describedby]="lectureForm.get('link')?.invalid && lectureForm.get('link')?.touched ? 'linkError' : null"
+                           placeholder="https://example.com" />
+                    <label for="lectureLink">{{ translationService.translate('profile.lectureLink') }}</label>
+                    <div *ngIf="lectureForm.get('link')?.invalid && lectureForm.get('link')?.touched"
+                         id="linkError"
+                         class="invalid-feedback">
+                      <span *ngIf="lectureForm.get('link')?.errors?.['required']">
+                        {{ translationService.translate('profile.validation.link.required') }}
+                      </span>
+                      <span *ngIf="lectureForm.get('link')?.errors?.['pattern']">
+                        {{ translationService.translate('profile.validation.link.pattern') }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <div class="form-floating">
+                    <input id="lectureName"
+                           formControlName="name"
+                           type="text"
+                           class="form-control"
+                           [class.is-invalid]="lectureForm.get('name')?.invalid && lectureForm.get('name')?.touched"
+                           [attr.aria-label]="translationService.translate('profile.lectureName')"
+                           [attr.aria-describedby]="lectureForm.get('name')?.invalid && lectureForm.get('name')?.touched ? 'nameError' : null" />
+                    <label for="lectureName">{{ translationService.translate('profile.lectureName') }}</label>
+                    <div *ngIf="lectureForm.get('name')?.invalid && lectureForm.get('name')?.touched"
+                         id="nameError"
+                         class="invalid-feedback">
+                      <span *ngIf="lectureForm.get('name')?.errors?.['required']">
+                        {{ translationService.translate('profile.validation.name.required') }}
+                      </span>
+                      <span *ngIf="lectureForm.get('name')?.errors?.['minlength']">
+                        {{ translationService.translate('profile.validation.name.minlength') }}
+                      </span>
+                      <span *ngIf="lectureForm.get('name')?.errors?.['maxlength']">
+                        {{ translationService.translate('profile.validation.name.maxlength') }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="d-flex justify-content-center mt-3 col-12">
+                  <button type="submit"
+                          class="btn btn-success"
+                          [disabled]="isUploadingLecture || lectureForm.invalid || !profile.students?.length"
+                          [attr.aria-label]="translationService.translate('profile.uploadLecture')">
+                    <span *ngIf="isUploadingLecture" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    {{ isUploadingLecture ?
+                      translationService.translate('profile.uploadingLecture') :
+                      translationService.translate('profile.uploadLecture') }}
                   </button>
                 </div>
               </form>
             </div>
           </div>
         </div>
+
+        <!-- Students Section -->
+        <div id="students-section" *ngIf="activeSection === 'students'" class="card shadow-sm mt-4">
+          <div class="card-header">
+            <h3 class="mb-0">{{ translationService.translate('profile.studentsTitle') }}</h3>
+          </div>
+          <div class="card-body">
+            <div *ngIf="profile.numberOfStudents > 0 && (!profile.students || profile.students.length === 0)"
+                 class="alert alert-warning"
+                 role="alert">
+              {{ translationService.translate('profile.studentDataMismatch') }}
+            </div>
+
+            <div *ngIf="profile.numberOfStudents === 0 && (!profile.students || profile.students.length === 0)"
+                 class="alert alert-info"
+                 role="alert">
+              {{ translationService.translate('profile.noStudents') }}
+            </div>
+
+            <div class="table-responsive" *ngIf="profile.students && profile.students.length > 0">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th scope="col">{{ translationService.translate('profile.studentName') }}</th>
+                    <th scope="col">{{ translationService.translate('profile.studentEmail') }}</th>
+                    <th scope="col">{{ translationService.translate('profile.studentPhone') }}</th>
+                    <th scope="col">{{ translationService.translate('profile.studentGrade') }}</th>
+                    <th scope="col">{{ translationService.translate('profile.studentSubjects') }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let student of profile.students">
+                    <td>{{ student.name || translationService.translate('profile.notAvailable') }}</td>
+                    <td>{{ student.email || translationService.translate('profile.notAvailable') }}</td>
+                    <td>{{ student.phone || translationService.translate('profile.notAvailable') }}</td>
+                    <td>{{ student.grade || translationService.translate('profile.notSpecified') }}</td>
+                    <td>{{ getStudentSubjects(student) }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Meetings Section -->
+        <div id="meetings-section" *ngIf="activeSection === 'meetings'" class="card shadow-sm mt-4 mb-4">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="mb-0">{{ translationService.translate('profile.meetingsTitle') }}</h3>
+            <button class="btn btn-primary"
+                    [disabled]="isAddingMeeting"
+                    (click)="openMeetingModal()"
+                    [attr.aria-label]="translationService.translate('profile.addMeeting')">
+              <i class="fas fa-plus me-2"></i>
+              {{ translationService.translate('profile.addMeeting') }}
+            </button>
+          </div>
+          <div class="card-body">
+            <!-- Calendar -->
+            <full-calendar [options]="calendarOptions"></full-calendar>
+
+            <!-- Meetings List -->
+            <div *ngIf="profile.meetings && profile.meetings.length > 0" class="mt-4">
+              <h4>{{ translationService.translate('profile.meetingsList') }}</h4>
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th scope="col">{{ translationService.translate('profile.meetingTitle') }}</th>
+                      <th scope="col">{{ translationService.translate('profile.meetingDate') }}</th>
+                      <th scope="col">{{ translationService.translate('profile.meetingStartTime') }}</th>
+                      <th scope="col">{{ translationService.translate('profile.meetingEndTime') }}</th>
+                      <th scope="col">{{ translationService.translate('profile.actions') }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let meeting of profile.meetings">
+                      <td>{{ meeting.title || translationService.translate('profile.notSpecified') }}</td>
+                      <td>{{ meeting.date || translationService.translate('profile.notSpecified') }}</td>
+                      <td>{{ meeting.startTime || translationService.translate('profile.notSpecified') }}</td>
+                      <td>{{ meeting.endTime || translationService.translate('profile.notSpecified') }}</td>
+                      <td>
+                        <button *ngIf="meeting.id" class="btn btn-danger btn-sm"
+                                [disabled]="isDeletingMeeting[meeting.id]"
+                                (click)="deleteMeeting(meeting.id)"
+                                [attr.aria-label]="translationService.translate('profile.deleteMeeting')">
+                          <span *ngIf="isDeletingMeeting[meeting.id]" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                          {{ isDeletingMeeting[meeting.id] ?
+                            translationService.translate('profile.deleting') :
+                            translationService.translate('profile.deleteMeeting') }}
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div *ngIf="!profile.meetings || profile.meetings.length === 0" class="alert alert-info mt-4" role="alert">
+              {{ translationService.translate('profile.noMeetings') }}
+            </div>
+          </div>
+        </div>
+
+        <!-- PDF Request Section -->
+        <div id="pdf-request-section" *ngIf="activeSection === 'pdf-request'" class="card shadow-sm mt-4">
+          <div class="card-header">
+            <h3 class="mb-0">{{ translationService.translate('profile.pdfRequestTab') }}</h3>
+          </div>
+          <div class="card-body">
+            <form [formGroup]="pdfRequestForm" (ngSubmit)="uploadPdfRequest()" class="row g-3">
+              <div class="col-md-6">
+                <div class="form-floating">
+                  <input id="pdfTitle"
+                         formControlName="title"
+                         type="text"
+                         class="form-control"
+                         [class.is-invalid]="pdfRequestForm.get('title')?.invalid && pdfRequestForm.get('title')?.touched"
+                         [attr.aria-label]="translationService.translate('profile.pdfTitle')"
+                         [attr.aria-describedby]="pdfRequestForm.get('title')?.invalid && pdfRequestForm.get('title')?.touched ? 'titleError' : null" />
+                  <label for="pdfTitle">{{ translationService.translate('profile.pdfTitle') }}</label>
+                  <div *ngIf="pdfRequestForm.get('title')?.invalid && pdfRequestForm.get('title')?.touched"
+                       id="titleError"
+                       class="invalid-feedback">
+                    <span *ngIf="pdfRequestForm.get('title')?.errors?.['required']">
+                      {{ translationService.translate('profile.validation.title.required') }}
+                    </span>
+                    <span *ngIf="pdfRequestForm.get('title')?.errors?.['minlength']">
+                      {{ translationService.translate('profile.validation.title.minlength') }}
+                    </span>
+                    <span *ngIf="pdfRequestForm.get('title')?.errors?.['maxlength']">
+                      {{ translationService.translate('profile.validation.title.maxlength') }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-floating">
+                  <input id="pdfCreatorName"
+                         formControlName="creatorName"
+                         type="text"
+                         class="form-control"
+                         [class.is-invalid]="pdfRequestForm.get('creatorName')?.invalid && pdfRequestForm.get('creatorName')?.touched"
+                         [attr.aria-label]="translationService.translate('profile.pdfCreatorName')"
+                         [attr.aria-describedby]="pdfRequestForm.get('creatorName')?.invalid && pdfRequestForm.get('creatorName')?.touched ? 'creatorNameError' : null" />
+                  <label for="pdfCreatorName">{{ translationService.translate('profile.pdfCreatorName') }}</label>
+                  <div *ngIf="pdfRequestForm.get('creatorName')?.invalid && pdfRequestForm.get('creatorName')?.touched"
+                       id="creatorNameError"
+                       class="invalid-feedback">
+                    <span *ngIf="pdfRequestForm.get('creatorName')?.errors?.['required']">
+                      {{ translationService.translate('profile.validation.creatorName.required') }}
+                    </span>
+                    <span *ngIf="pdfRequestForm.get('creatorName')?.errors?.['minlength']">
+                      {{ translationService.translate('profile.validation.creatorName.minlength') }}
+                    </span>
+                    <span *ngIf="pdfRequestForm.get('creatorName')?.errors?.['maxlength']">
+                      {{ translationService.translate('profile.validation.creatorName.maxlength') }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-floating">
+                  <textarea id="pdfDescription"
+                            formControlName="description"
+                            class="form-control"
+                            style="height: 100px;"
+                            [class.is-invalid]="pdfRequestForm.get('description')?.invalid && pdfRequestForm.get('description')?.touched"
+                            [attr.aria-label]="translationService.translate('profile.pdfDescription')"
+                            [attr.aria-describedby]="pdfRequestForm.get('description')?.invalid && pdfRequestForm.get('description')?.touched ? 'descriptionError' : null"></textarea>
+                  <label for="pdfDescription">{{ translationService.translate('profile.pdfDescription') }}</label>
+                  <div *ngIf="pdfRequestForm.get('description')?.invalid && pdfRequestForm.get('description')?.touched"
+                       id="descriptionError"
+                       class="invalid-feedback">
+                    <span *ngIf="pdfRequestForm.get('description')?.errors?.['required']">
+                      {{ translationService.translate('profile.validation.description.required') }}
+                    </span>
+                    <span *ngIf="pdfRequestForm.get('description')?.errors?.['minlength']">
+                      {{ translationService.translate('profile.validation.description.minlength') }}
+                    </span>
+                    <span *ngIf="pdfRequestForm.get('description')?.errors?.['maxlength']">
+                      {{ translationService.translate('profile.validation.description.maxlength') }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-floating">
+                  <select id="pdfSubject"
+                          formControlName="subject"
+                          class="form-control"
+                          [class.is-invalid]="pdfRequestForm.get('subject')?.invalid && pdfRequestForm.get('subject')?.touched"
+                          [attr.aria-label]="translationService.translate('profile.pdfSubject')"
+                          [attr.aria-describedby]="pdfRequestForm.get('subject')?.invalid && pdfRequestForm.get('subject')?.touched ? 'subjectError' : null">
+                    <option value="" disabled>{{ translationService.translate('profile.selectSubject') }}</option>
+                    <option *ngFor="let subject of subjectKeys; let i = index" [value]="subject">
+                      {{ getTranslatedSubjects()[i] }}
+                    </option>
+                  </select>
+                  <label for="pdfSubject">{{ translationService.translate('profile.pdfSubject') }}</label>
+                  <div *ngIf="pdfRequestForm.get('subject')?.invalid && pdfRequestForm.get('subject')?.touched"
+                       id="subjectError"
+                       class="invalid-feedback">
+                    <span *ngIf="pdfRequestForm.get('subject')?.errors?.['required']">
+                      {{ translationService.translate('profile.validation.subject.required') }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-floating">
+                  <select id="pdfSemester"
+                          formControlName="semester"
+                          class="form-control"
+                          [class.is-invalid]="pdfRequestForm.get('semester')?.invalid && pdfRequestForm.get('semester')?.touched"
+                          [attr.aria-label]="translationService.translate('profile.pdfSemester')"
+                          [attr.aria-describedby]="pdfRequestForm.get('semester')?.invalid && pdfRequestForm.get('semester')?.touched ? 'semesterError' : null">
+                    <option value="" disabled>{{ translationService.translate('profile.selectSemester') }}</option>
+                    <option *ngFor="let semester of getTranslatedSemesters()" [value]="semester">
+                      {{ semester }}
+                    </option>
+                  </select>
+                  <label for="pdfSemester">{{ translationService.translate('profile.pdfSemester') }}</label>
+                  <div *ngIf="pdfRequestForm.get('semester')?.invalid && pdfRequestForm.get('semester')?.touched"
+                       id="semesterError"
+                       class="invalid-feedback">
+                    <span *ngIf="pdfRequestForm.get('semester')?.errors?.['required']">
+                      {{ translationService.translate('profile.validation.semester.required') }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-floating">
+                  <select id="pdfCountry"
+                          formControlName="country"
+                          class="form-control"
+                          [class.is-invalid]="pdfRequestForm.get('country')?.invalid && pdfRequestForm.get('country')?.touched"
+                          [attr.aria-label]="translationService.translate('profile.pdfCountry')"
+                          [attr.aria-describedby]="pdfRequestForm.get('country')?.invalid && pdfRequestForm.get('country')?.touched ? 'countryError' : null">
+                    <option value="" disabled>{{ translationService.translate('profile.selectCountry') }}</option>
+                    <option *ngFor="let country of getTranslatedCountries()" [value]="country">
+                      {{ country }}
+                    </option>
+                  </select>
+                  <label for="pdfCountry">{{ translationService.translate('profile.pdfCountry') }}</label>
+                  <div *ngIf="pdfRequestForm.get('country')?.invalid && pdfRequestForm.get('country')?.touched"
+                       id="countryError"
+                       class="invalid-feedback">
+                    <span *ngIf="pdfRequestForm.get('country')?.errors?.['required']">
+                      {{ translationService.translate('profile.validation.country.required') }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-floating">
+                  <select id="pdfAcademicLevel"
+                          formControlName="academicLevel"
+                          class="form-control"
+                          [class.is-invalid]="pdfRequestForm.get('academicLevel')?.invalid && pdfRequestForm.get('academicLevel')?.touched"
+                          [attr.aria-label]="translationService.translate('profile.pdfAcademicLevel')"
+                          [attr.aria-describedby]="pdfRequestForm.get('academicLevel')?.invalid && pdfRequestForm.get('academicLevel')?.touched ? 'academicLevelError' : null">
+                    <option value="" disabled>{{ translationService.translate('profile.selectAcademicLevel') }}</option>
+                    <option *ngFor="let level of getTranslatedAcademicLevels()" [value]="level">
+                      {{ level }}
+                    </option>
+                  </select>
+                  <label for="pdfAcademicLevel">{{ translationService.translate('profile.pdfAcademicLevel') }}</label>
+                  <div *ngIf="pdfRequestForm.get('academicLevel')?.invalid && pdfRequestForm.get('academicLevel')?.touched"
+                       id="academicLevelError"
+                       class="invalid-feedback">
+                    <span *ngIf="pdfRequestForm.get('academicLevel')?.errors?.['required']">
+                      {{ translationService.translate('profile.validation.academicLevel.required') }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <div class="form-group">
+                  <label for="pdfFileInput">{{ translationService.translate('profile.pdfFile') }}</label>
+                  <input type="file"
+                         id="pdfFileInput"
+                         class="form-control"
+                         accept="application/pdf"
+                         (change)="onPdfFileSelected($event)"
+                         [attr.aria-label]="translationService.translate('profile.selectPdfFile')">
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-center mt-3 col-12">
+                <button type="submit"
+                        class="btn btn-success"
+                        [disabled]="isUploadingPdfRequest || pdfRequestForm.invalid || !selectedPdfFile"
+                        [attr.aria-label]="translationService.translate('profile.uploadPdfRequest')">
+                  <span *ngIf="isUploadingPdfRequest" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  {{ isUploadingPdfRequest ?
+                    translationService.translate('profile.uploadingPdfRequest') :
+                    translationService.translate('profile.uploadPdfRequest') }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Password Modal -->
+        <div *ngIf="showPasswordModal" class="modal fade show d-block" tabindex="-1" role="dialog" aria-labelledby="passwordModalLabel">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="passwordModalLabel">{{ translationService.translate('profile.changePassword') }}</h5>
+                <button type="button" class="btn-close" (click)="closePasswordModal()" [attr.aria-label]="translationService.translate('common.close')"></button>
+              </div>
+              <div class="modal-body">
+                <div class="mb-3">
+                  <label for="currentPassword" class="form-label">{{ translationService.translate('profile.currentPassword') }}</label>
+                  <input type="password"
+                         id="currentPassword"
+                         class="form-control"
+                         [(ngModel)]="currentPassword"
+                         [class.is-invalid]="errorCode === 'missing_fields' || errorCode === 'same_password'"
+                         [attr.aria-label]="translationService.translate('profile.currentPassword')"
+                         [attr.aria-describedby]="errorCode ? 'currentPasswordError' : null">
+                  <div *ngIf="errorCode === 'missing_fields' || errorCode === 'same_password'"
+                       id="currentPasswordError"
+                       class="invalid-feedback">
+                    {{ translationService.translate('profile.' + errorCode) }}
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label for="newPassword" class="form-label">{{ translationService.translate('profile.newPassword') }}</label>
+                  <input type="password"
+                         id="newPassword"
+                         class="form-control"
+                         [(ngModel)]="newPassword"
+                         [class.is-invalid]="errorCode === 'missing_fields' || errorCode === 'same_password' || errorCode === 'password_too_short'"
+                         [attr.aria-label]="translationService.translate('profile.newPassword')"
+                         [attr.aria-describedby]="errorCode ? 'newPasswordError' : null">
+                  <div *ngIf="errorCode === 'missing_fields' || errorCode === 'same_password' || errorCode === 'password_too_short'"
+                       id="newPasswordError"
+                       class="invalid-feedback">
+                    {{ translationService.translate('profile.' + errorCode) }}
+                  </div>
+                </div>
+                <div class="text-center">
+                  <a href="javascript:void(0)" (click)="navigateToForgotPassword()" [attr.aria-label]="translationService.translate('profile.forgotPassword')">
+                    {{ translationService.translate('profile.forgotPassword') }}
+                  </a>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="closePasswordModal()" [attr.aria-label]="translationService.translate('common.cancel')">
+                  {{ translationService.translate('common.cancel') }}
+                </button>
+                <button type="button" class="btn btn-primary" (click)="changePassword()" [attr.aria-label]="translationService.translate('profile.changePassword')">
+                  {{ translationService.translate('profile.changePassword') }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Meeting Modal -->
+        <div *ngIf="showMeetingModal" class="modal fade show d-block" tabindex="-1" role="dialog" aria-labelledby="meetingModalLabel">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="meetingModalLabel">{{ translationService.translate('profile.addMeeting') }}</h5>
+                <button type="button" class="btn-close" (click)="closeMeetingModal()" [attr.aria-label]="translationService.translate('common.close')"></button>
+              </div>
+              <div class="modal-body">
+                <form [formGroup]="meetingForm" (ngSubmit)="addMeeting()">
+                  <div class="mb-3">
+                    <div class="form-floating">
+                      <input id="meetingTitle"
+                             formControlName="title"
+                             type="text"
+                             class="form-control"
+                             [class.is-invalid]="meetingForm.get('title')?.invalid && meetingForm.get('title')?.touched"
+                             [attr.aria-label]="translationService.translate('profile.meetingTitle')"
+                             [attr.aria-describedby]="meetingForm.get('title')?.invalid && meetingForm.get('title')?.touched ? 'titleError' : null" />
+                      <label for="meetingTitle">{{ translationService.translate('profile.meetingTitle') }}</label>
+                      <div *ngIf="meetingForm.get('title')?.invalid && meetingForm.get('title')?.touched"
+                           id="titleError"
+                           class="invalid-feedback">
+                        <span *ngIf="meetingForm.get('title')?.errors?.['required']">
+                          {{ translationService.translate('profile.validation.title.required') }}
+                        </span>
+                        <span *ngIf="meetingForm.get('title')?.errors?.['minlength']">
+                          {{ translationService.translate('profile.validation.title.minlength') }}
+                        </span>
+                        <span *ngIf="meetingForm.get('title')?.errors?.['maxlength']">
+                          {{ translationService.translate('profile.validation.title.maxlength') }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <div class="form-floating">
+                      <input id="meetingDate"
+                             formControlName="date"
+                             type="date"
+                             class="form-control"
+                             [class.is-invalid]="(meetingForm.get('date')?.invalid && meetingForm.get('date')?.touched) || meetingForm.errors?.['invalidDate']"
+                             [attr.aria-label]="translationService.translate('profile.meetingDate')"
+                             [attr.aria-describedby]="(meetingForm.get('date')?.invalid && meetingForm.get('date')?.touched) || meetingForm.errors?.['invalidDate'] ? 'dateError' : null"
+                             [min]="getMinDate()"
+                             [max]="getMaxDate()" />
+                      <label for="meetingDate">{{ translationService.translate('profile.meetingDate') }}</label>
+                      <div *ngIf="meetingForm.get('date')?.invalid && meetingForm.get('date')?.touched"
+                           id="dateError"
+                           class="invalid-feedback">
+                        <span *ngIf="meetingForm.get('date')?.errors?.['required']">
+                          {{ translationService.translate('profile.validation.date.required') }}
+                        </span>
+                      </div>
+                      <div *ngIf="meetingForm.errors?.['invalidDate']" id="dateError" class="invalid-feedback">
+                        {{ translationService.translate('profile.validation.date.invalid') }}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <div class="form-floating">
+                        <input id="meetingStartTime"
+                               formControlName="startTime"
+                               type="time"
+                               class="form-control"
+                               [class.is-invalid]="(meetingForm.get('startTime')?.invalid && meetingForm.get('startTime')?.touched) || meetingForm.errors?.['invalidTimeOrder']"
+                               [attr.aria-label]="translationService.translate('profile.meetingStartTime')"
+                               [attr.aria-describedby]="(meetingForm.get('startTime')?.invalid && meetingForm.get('startTime')?.touched) || meetingForm.errors?.['invalidTimeOrder'] ? 'startTimeError' : null" />
+                        <label for="meetingStartTime">{{ translationService.translate('profile.meetingStartTime') }}</label>
+                        <div *ngIf="meetingForm.get('startTime')?.invalid && meetingForm.get('startTime')?.touched"
+                             id="startTimeError"
+                             class="invalid-feedback">
+                          <span *ngIf="meetingForm.get('startTime')?.errors?.['required']">
+                            {{ translationService.translate('profile.validation.startTime.required') }}
+                          </span>
+                          <span *ngIf="meetingForm.get('startTime')?.errors?.['pattern']">
+                            {{ translationService.translate('profile.validation.time.format') }}
+                          </span>
+                        </div>
+                        <div *ngIf="meetingForm.errors?.['invalidTimeOrder']" id="startTimeError" class="invalid-feedback">
+                          {{ translationService.translate('profile.validation.time.order') }}
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <div class="form-floating">
+                        <input id="meetingEndTime"
+                               formControlName="endTime"
+                               type="time"
+                               class="form-control"
+                               [class.is-invalid]="(meetingForm.get('endTime')?.invalid && meetingForm.get('endTime')?.touched) || meetingForm.errors?.['invalidTimeOrder']"
+                               [attr.aria-label]="translationService.translate('profile.meetingEndTime')"
+                               [attr.aria-describedby]="(meetingForm.get('endTime')?.invalid && meetingForm.get('endTime')?.touched) || meetingForm.errors?.['invalidTimeOrder'] ? 'endTimeError' : null" />
+                        <label for="meetingEndTime">{{ translationService.translate('profile.meetingEndTime') }}</label>
+                        <div *ngIf="meetingForm.get('endTime')?.invalid && meetingForm.get('endTime')?.touched"
+                             id="endTimeError"
+                             class="invalid-feedback">
+                          <span *ngIf="meetingForm.get('endTime')?.errors?.['required']">
+                            {{ translationService.translate('profile.validation.endTime.required') }}
+                          </span>
+                          <span *ngIf="meetingForm.get('endTime')?.errors?.['pattern']">
+                            {{ translationService.translate('profile.validation.time.format') }}
+                          </span>
+                        </div>
+                        <div *ngIf="meetingForm.errors?.['invalidTimeOrder']" id="endTimeError" class="invalid-feedback">
+                          {{ translationService.translate('profile.validation.time.order') }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="closeMeetingModal()"
+                        [disabled]="isAddingMeeting"
+                        [attr.aria-label]="translationService.translate('common.cancel')">
+                  {{ translationService.translate('common.cancel') }}
+                </button>
+                <button type="button" class="btn btn-primary" (click)="addMeeting()"
+                        [disabled]="isAddingMeeting || meetingForm.invalid"
+                        [attr.aria-label]="translationService.translate('profile.saveMeeting')">
+                  <span *ngIf="isAddingMeeting" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  {{ isAddingMeeting ? translationService.translate('profile.saving') : translationService.translate('profile.saveMeeting') }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  </main>
-</div>
+    </main>
+  </div>
+</body>
+</html>
