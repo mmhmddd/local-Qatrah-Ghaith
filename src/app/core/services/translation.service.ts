@@ -430,167 +430,39 @@ export class TranslationService {
         login: 'Login',
         logout: 'Logout'
       },
-      profile: {
-        title: 'Profile',
-        personalInfo: 'Personal Information',
-        name: 'Name',
-        email: 'Email',
-        phone: 'Phone',
-        address: 'Address',
-        academicSpecialization: 'Academic Specialization',
-        volunteerHours: 'Volunteer Hours',
-        numberOfStudents: 'Number of Students',
-        subjects: 'Subjects',
-        lectureCount: 'Lecture Count',
-        notSpecified: 'Not specified',
-        profileImage: 'Profile Picture',
-        defaultImage: 'Default Image',
-        changeImage: 'Change Image',
-        uploadImage: 'Upload Image',
-        uploading: 'Uploading...',
-        adminMessage: 'Message from Administration',
-        profileTab: 'Profile',
-        studentsTab: 'Students',
-        meetingsTab: 'Meetings',
-        pdfRequestTab: 'Upload PDF Lecture',
-        notificationsTab: 'Notifications',
-        changePasswordTab: 'Change Password',
-        studentsTitle: 'Students',
-        noStudents: 'No students registered.',
-        studentDataMismatch: 'There are registered students, but student details are not currently available. Please contact the administration.',
-        studentName: 'Name',
-        studentEmail: 'Email',
-        studentPhone: 'Phone',
-        studentGrade: 'Grade',
-        studentSubjects: 'Subjects',
-        notAvailable: 'Not available',
-        meetingsTitle: 'Meetings',
-        addMeeting: 'Add Meeting',
-        noMeetings: 'No meetings scheduled.',
-        meetingTitle: 'Title',
-        meetingDate: 'Date',
-        startTime: 'Start Time',
-        endTime: 'End Time',
-        actions: 'Actions',
-        delete: 'Delete',
-        deleting: 'Deleting...',
-        confirmDeleteMeeting: 'Are you sure you want to delete this meeting?',
-        close: 'Close',
-        saveMeeting: 'Save Meeting',
-        addLecture: 'Add Lecture',
-        lectureLink: 'Lecture Link',
-        lectureLinkPlaceholder: 'Enter lecture link (example: https://example.com)',
-        lectureName: 'Lecture Name',
-        lectureNamePlaceholder: 'Enter lecture name',
-        lectureSubject: 'Subject',
-        selectSubject: 'Select Subject',
-        uploadLecture: 'Upload Lecture',
-        uploadingLecture: 'Uploading...',
-        pdfRequestTitle: 'Upload PDF Lecture Request',
-        pdfTitle: 'Lecture Title',
-        pdfTitlePlaceholder: 'Enter lecture title',
-        pdfDescription: 'Lecture Description',
-        pdfDescriptionPlaceholder: 'Enter detailed lecture description',
-        pdfCreatorName: 'Lecture Creator Name',
-        pdfCreatorNamePlaceholder: 'Enter lecture creator name',
-        pdfFile: 'Lecture File (PDF)',
-        pdfFileNote: 'Maximum file size: 10 MB, Supported format: PDF only',
-        semester: 'Semester',
-        selectSemester: 'Select Semester',
-        country: 'Country',
-        selectCountry: 'Select Country',
-        academicLevel: 'Academic Level',
-        selectAcademicLevel: 'Select Academic Level',
-        submitPdfRequest: 'Submit Lecture Upload Request',
-        submittingPdfRequest: 'Submitting request...',
-        importantNotes: 'Important Notes:',
-        note1: 'Your request will be reviewed by the administration before approval for publication',
-        note2: 'Please ensure all entered information is correct',
-        note3: 'The uploaded file must be in PDF format only',
-        note4: 'The maximum file size is 10 MB',
-        note5: 'You will receive a notification when the request is approved or rejected',
-        notificationsTitle: 'Notifications',
-        noNotifications: 'No new notifications.',
-        markAllRead: 'Mark All as Read',
-        changePassword: 'Change Password',
-        currentPassword: 'Current Password',
-        newPassword: 'New Password',
-        saveChanges: 'Save Changes',
-        forgotPassword: 'Forgot Password?',
-        success: 'Success',
-        error: 'Error',
-        loadSuccess: 'Profile data loaded successfully',
-        loadError: 'Failed to load profile data',
-        imageUploadSuccess: 'Image uploaded successfully',
-        imageUploadError: 'Failed to upload image',
-        lectureUploadSuccess: 'Lecture uploaded successfully',
-        lectureUploadError: 'Failed to upload lecture',
-        pdfRequestSuccess: 'PDF lecture request submitted successfully',
-        pdfRequestError: 'Failed to submit PDF lecture request',
-        meetingAddSuccess: 'Meeting added successfully',
-        meetingAddError: 'Failed to add meeting',
-        meetingDeleteSuccess: 'Meeting deleted successfully',
-        meetingDeleteError: 'Failed to delete meeting',
-        passwordChangeSuccess: 'Password changed successfully',
-        passwordChangeError: 'Failed to change password',
-        notificationsLoadSuccess: 'Notifications loaded successfully',
-        notificationsLoadError: 'Failed to load notifications',
-        notificationsMarkedRead: 'Notifications marked as read',
-        notificationsMarkError: 'Failed to mark notifications as read',
-        notificationDeleted: 'Notification deleted successfully',
-        notificationDeleteError: 'Failed to delete notification',
-        networkError: 'Failed to connect to server. Please check your internet connection.',
-        unauthorizedError: 'Unauthorized. Please log in again.',
-        forbiddenError: 'You do not have permission to perform this action.',
-        badRequestError: 'Invalid request. Please check the entered data.',
-        serverError: 'Server error. Please try again later.',
-        unexpectedError: 'An unexpected error occurred.',
-        fileSizeError: 'File size too large. Maximum 10 MB',
-        pdfFileTypeError: 'Only PDF files are allowed',
-        selectImageFirst: 'Please select an image first',
-        selectPdfFile: 'Please select a PDF file to upload',
-        fillAllFields: 'Please fill all fields correctly',
-        passwordFieldsRequired: 'Please enter current and new password',
-        meetingFieldsRequired: 'Please enter all meeting details',
-        validation: {
-          link: {
-            required: 'Lecture link is required',
-            pattern: 'Please enter a valid link'
-          },
-          name: {
-            required: 'Lecture name is required',
-            minlength: 'Lecture name is too short',
-            maxlength: 'Lecture name is too long (maximum 100 characters)'
-          },
-          subject: {
-            required: 'Subject name is required'
-          },
-          title: {
-            required: 'Lecture title is required',
-            minlength: 'Title is too short (minimum 3 characters)',
-            maxlength: 'Title is too long (maximum 100 characters)'
-          },
-          description: {
-            required: 'Lecture description is required',
-            minlength: 'Description is too short (minimum 10 characters)',
-            maxlength: 'Description is too long (maximum 500 characters)'
-          },
-          creatorName: {
-            required: 'Lecture creator name is required',
-            minlength: 'Name is too short (minimum 2 characters)',
-            maxlength: 'Name is too long (maximum 50 characters)'
-          },
-          semester: {
-            required: 'Semester is required'
-          },
-          country: {
-            required: 'Country is required'
-          },
-          academicLevel: {
-            required: 'Academic level is required'
-          }
-        }
-      },
+  profile: {
+    "unauthorizedError": "You are not authorized to access this page.",
+    "studentDataMismatch": "Mismatch in student data. Please contact support.",
+    "loadError": "Failed to load profile.",
+    "unexpectedError": "An unexpected error occurred.",
+    "lowLectureWarning": "Some students have low lecture counts.",
+    "lowLectureLoadError": "Failed to load low lecture members.",
+    "fileSizeError": "File size exceeds 10MB limit.",
+    "invalidImageType": "Invalid image type. Please upload JPEG, PNG, GIF, or WebP.",
+    "pdfFileTypeError": "Invalid file type. Please upload a PDF.",
+    "selectImageFirst": "Please select an image to upload.",
+    "imageUploadSuccess": "Profile image uploaded successfully.",
+    "imageUploadError": "Failed to upload profile image.",
+    "fillAllFields": "Please fill in all required fields.",
+    "selectPdfFile": "Please select a PDF file to upload.",
+    "pdfRequestSuccess": "PDF request submitted successfully.",
+    "pdfRequestError": "Failed to submit PDF request.",
+    "passwordFieldsRequired": "Both current and new passwords are required.",
+    "passwordChangeSuccess": "Password changed successfully.",
+    "passwordChangeError": "Failed to change password.",
+    "meetingFieldsRequired": "All meeting fields are required.",
+    "meetingAddSuccess": "Meeting added successfully.",
+    "meetingAddError": "Failed to add meeting.",
+    "invalidMeetingId": "Invalid meeting ID.",
+    "meetingDeleteSuccess": "Meeting deleted successfully.",
+    "meetingDeleteError": "Failed to delete meeting.",
+    "studentEmailNotFound": "Student email not found.",
+    "validation": {
+      "subject": {
+        "invalid": "Invalid subject selected."
+      }
+    }
+},
       home: {
         heroTitle: 'Remote E-Learning Initiative',
         heroSubtitle: 'Qatrah Ghaith',
@@ -826,23 +698,48 @@ export class TranslationService {
   }
 
   setLanguage(language: string): void {
-    if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem('selectedLanguage', language);
-      this.updateBodyDirection(language);
+    if (['ar', 'en'].includes(language)) {
+      if (isPlatformBrowser(this.platformId)) {
+        localStorage.setItem('selectedLanguage', language);
+        this.updateBodyDirection(language);
+      }
+      this.currentLanguageSubject.next(language);
+    } else {
+      console.warn(`Unsupported language: ${language}. Defaulting to 'ar'.`);
+      this.setLanguage('ar');
     }
-    this.currentLanguageSubject.next(language);
   }
 
   translate(key: string): string {
-    const language = this.getCurrentLanguage();
-    const keys = key.split('.');
-    let value: any = this.translations[language as keyof Translations];
-
-    for (const k of keys) {
-      value = value?.[k];
+    if (!key) {
+      console.warn('Translation key is empty or undefined');
+      return '';
     }
 
-    return value || key;
+    const language = this.getCurrentLanguage();
+    if (!this.translations[language as keyof Translations]) {
+      console.warn(`Translation for language "${language}" not found`);
+      return '';
+    }
+
+    const keys = key.split('.');
+    let current: any = this.translations[language as keyof Translations];
+
+    for (const k of keys) {
+      if (current && typeof current === 'object' && k in current) {
+        current = current[k];
+      } else {
+        console.warn(`Translation key "${key}" not found for language "${language}"`);
+        return '';
+      }
+    }
+
+    if (typeof current !== 'string') {
+      console.warn(`Translation for key "${key}" in language "${language}" is not a string`);
+      return '';
+    }
+
+    return current;
   }
 
   private updateBodyDirection(language: string): void {
@@ -866,3 +763,4 @@ export class TranslationService {
     return this.getCurrentLanguage() === 'ar';
   }
 }
+

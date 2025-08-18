@@ -33,7 +33,12 @@
     "swiper": "^11.2.10",
     "tslib": "^2.3.0",
     "xlsx": "^0.18.5",
-    "zone.js": "~0.14.3"
+    "zone.js": "~0.14.3",
+    "@fullcalendar/angular": "^6.1.10",
+    "@fullcalendar/core": "^6.1.10",
+    "@fullcalendar/daygrid": "^6.1.10",
+    "@fullcalendar/timegrid": "^6.1.10",
+    "@fullcalendar/interaction": "^6.1.10"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^17.3.17",

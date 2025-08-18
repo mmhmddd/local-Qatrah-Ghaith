@@ -5,6 +5,7 @@ import { map, catchError } from 'rxjs/operators';
 import { ApiEndpoints } from '../constants/api-endpoints';
 
 export interface Meeting {
+  [x: string]: any;
   id?: string;
   _id?: string;
   title: string;
