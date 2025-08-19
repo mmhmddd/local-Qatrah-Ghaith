@@ -14,6 +14,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin, { DateClickArg } from '@fullcalendar/interaction';
 import { CalendarOptions, EventClickArg } from '@fullcalendar/core';
+import { Toast as BootstrapToast } from 'bootstrap'; // Import Bootstrap Toast
 
 interface Toast {
   id: string;
@@ -294,40 +295,52 @@ export class ProfileComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Validate translation keys
     if (!titleKey || titleKey.trim() === '') {
       console.error(`ProfileComponent: Invalid title key (source: ${source || 'unknown'})`, { titleKey });
-      return;
+      titleKey = 'profile.error';
     }
     if (!messageKey || messageKey.trim() === '') {
       console.error(`ProfileComponent: Invalid message key (source: ${source || 'unknown'})`, { messageKey });
-      return;
+      messageKey = 'profile.unknownError';
     }
 
-    const title = this.translationService.translate(titleKey) || 'Error';
-    const message = this.translationService.translate(messageKey) || 'An unknown error occurred';
+    // Translate title and message
+    const title = this.translationService.translate(titleKey) || 'Notification';
+    const message = this.translationService.translate(messageKey) || 'تمت العمليه بنجاح';
 
+    // Fallback for empty translations
     if (!message || message.trim() === '') {
       console.error(`ProfileComponent: Translated message is empty (source: ${source || 'unknown'})`, { messageKey, translated: message });
       return;
     }
 
-    if (this.toasts.some(toast => toast.message === message && toast.source === source)) {
+    // Prevent duplicate toasts
+    if (this.toasts.some(toast => toast.message === message && toast.source === source && toast.type === type)) {
       console.log(`ProfileComponent: Ignoring duplicate toast (source: ${source || 'unknown'}):`, { type, title, message });
       return;
     }
 
+    // Generate unique toast ID
     const id = Math.random().toString(36).substr(2, 9);
-    this.toasts.push({ id, type, title, message, source });
+    this.toasts = [...this.toasts, { id, type, title, message, source }];
     console.log(`ProfileComponent: Showing toast (source: ${source || 'unknown'}):`, { id, type, title, message });
 
-    setTimeout(() => {
-      this.closeToast(id);
-    }, 5000);
-
+    // Initialize and show Bootstrap toast
     setTimeout(() => {
       const toastElement = document.querySelector(`.toast[id="${id}"]`);
       if (toastElement) {
-        toastElement.classList.add('show');
+        const bootstrapToast = new BootstrapToast(toastElement, {
+          autohide: true,
+          delay: 5000
+        });
+        toastElement.addEventListener('hidden.bs.toast', () => {
+          this.closeToast(id);
+        });
+        bootstrapToast.show();
+      } else {
+        console.error(`ProfileComponent: Toast element not found for ID: ${id}`);
+        this.closeToast(id); // Clean up if element not found
       }
     }, 100);
   }
