@@ -138,8 +138,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.lectureForm = this.fb.group({
       studentEmail: ['', [Validators.required, Validators.email, this.studentEmailValidator.bind(this)]],
       subject: ['', [Validators.required, this.subjectValidator.bind(this)]],
-      date: ['', [Validators.required]],
-      duration: ['', [Validators.required, Validators.min(1), Validators.pattern(/^[1-9]\d*$/)]],
+      date: ['', [Validators.required, this.dateValidator.bind(this)]],
+      duration: ['', [Validators.required, Validators.min(1), Validators.max(180), Validators.pattern(/^[1-9]\d*$/)]],
       link: ['', [Validators.required, Validators.pattern(/^https?:\/\/[^\s/$.?#].[^\s]*$/)]],
       name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]]
     });
@@ -210,6 +210,19 @@ export class ProfileComponent implements OnInit, OnDestroy {
   subjectValidator(control: AbstractControl): { [key: string]: any } | null {
     if (!this.subjectKeys.includes(control.value)) {
       return { invalidSubject: true };
+    }
+    return null;
+  }
+
+  dateValidator(control: AbstractControl): { [key: string]: any } | null {
+    const date = control.value;
+    const today = new Date().toISOString().split('T')[0];
+    const maxDate = new Date();
+    maxDate.setFullYear(maxDate.getFullYear() + 1);
+    const maxDateStr = maxDate.toISOString().split('T')[0];
+
+    if (date < today || date > maxDateStr) {
+      return { invalidDate: true };
     }
     return null;
   }
@@ -448,7 +461,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
         if (response.success) {
           const userId = this.authService.getUserId();
           const memberData = response.members.find(m => m.id === userId);
-          this.showLectureWarning = !!memberData && memberData.lowLectureStudents.length > 0;
+          this.showLectureWarning = !!memberData && memberData.underTargetStudents.length > 0;
           if (this.showLectureWarning && !this.isInitialLoad) {
             this.showToast('error', 'profile.warning', 'profile.lowLectureWarning', 'loadLowLectureMembers');
           }
@@ -558,23 +571,59 @@ export class ProfileComponent implements OnInit, OnDestroy {
       this.showToast('error', 'profile.error', 'profile.formInvalid', 'onSubmitLecture');
       return;
     }
+    if (!this.profile?.students?.length) {
+      this.showToast('error', 'profile.error', 'profile.noStudentsAvailable', 'onSubmitLecture');
+      return;
+    }
     this.submitSubject.next();
   }
 
   uploadLecture(): void {
     if (!this.profile?.students?.length) {
       this.showToast('error', 'profile.error', 'profile.noStudentsAvailable', 'uploadLecture');
+      this.isUploadingLecture = false;
       return;
     }
 
     const lectureData = this.lectureForm.value;
     const { studentEmail, subject, date, duration, link, name } = lectureData;
 
+    // Additional validation for lecture data
+    const selectedStudent = this.profile.students.find(student => student.email === studentEmail);
+    if (!selectedStudent) {
+      this.showToast('error', 'profile.error', 'profile.invalidStudent', 'uploadLecture');
+      this.isUploadingLecture = false;
+      return;
+    }
+    if (!this.subjectKeys.includes(subject)) {
+      this.showToast('error', 'profile.error', 'profile.invalidSubject', 'uploadLecture');
+      this.isUploadingLecture = false;
+      return;
+    }
+    const today = new Date().toISOString().split('T')[0];
+    const maxDate = new Date();
+    maxDate.setFullYear(maxDate.getFullYear() + 1);
+    const maxDateStr = maxDate.toISOString().split('T')[0];
+    if (date < today || date > maxDateStr) {
+      this.showToast('error', 'profile.error', 'profile.invalidDate', 'uploadLecture');
+      this.isUploadingLecture = false;
+      return;
+    }
+    if (duration < 1 || duration > 180) {
+      this.showToast('error', 'profile.error', 'profile.invalidDuration', 'uploadLecture');
+      this.isUploadingLecture = false;
+      return;
+    }
+
     this.isUploadingLecture = true;
-    this.lectureService.uploadLecture(studentEmail, subject, date, duration, link, name, '').subscribe({
+    this.lectureService.uploadLecture(studentEmail, subject, link, name).subscribe({
       next: (response: LectureResponse) => {
         if (response.success) {
           this.lectureForm.reset();
+          Object.keys(this.lectureForm.controls).forEach(key => {
+            this.lectureForm.get(key)?.setErrors(null);
+            this.lectureForm.get(key)?.markAsUntouched();
+          });
           this.loadProfile();
           this.showToast('success', 'profile.success', 'profile.lectureUploaded', 'uploadLecture');
         } else {
@@ -608,6 +657,10 @@ export class ProfileComponent implements OnInit, OnDestroy {
       next: (response: any) => {
         if (response.success) {
           this.pdfRequestForm.reset();
+          Object.keys(this.pdfRequestForm.controls).forEach(key => {
+            this.pdfRequestForm.get(key)?.setErrors(null);
+            this.pdfRequestForm.get(key)?.markAsUntouched();
+          });
           this.selectedPdfFile = null;
           this.showToast('success', 'profile.success', 'profile.pdfRequestSubmitted', 'uploadPdfRequest');
         } else {

@@ -7,16 +7,24 @@ import { ApiEndpoints } from '../constants/api-endpoints';
 export interface LectureResponse {
   success: boolean;
   message: string;
-  lecture?: { _id: string; studentEmail: string; subject: string; date: string; duration: number; link: string; name: string };
-  lectures?: { _id: string; studentEmail: string; subject: string; date: string; duration: number; link: string; name: string }[];
+  lecture?: {
+    _id?: string;
+    studentEmail: string;
+    subject: string;
+    link: string;
+    name: string;
+    createdAt?: string;
+  };
+  lectures?: {
+    _id?: string;
+    studentEmail: string;
+    subject: string;
+    link: string;
+    name: string;
+    createdAt?: string;
+  }[];
   lectureCount?: number;
   volunteerHours?: number;
-}
-
-export interface PdfResponse {
-  success: boolean;
-  message: string;
-  pdfs?: { _id: string; title: string; description: string; creatorName: string; subject: string; semester: string; country: string; academicLevel: string; fileName: string; createdAt: string }[];
 }
 
 export interface LowLectureMembersResponse {
@@ -24,14 +32,19 @@ export interface LowLectureMembersResponse {
   message: string;
   members: {
     id: string | null;
-    lowLectureStudents: any;
     _id: string;
     name: string;
     email: string;
-    underTargetSubjects: {
-      name: string;
-      minLectures: number;
-      deliveredLectures: number;
+    lowLectureWeekCount: number;
+    underTargetStudents: {
+      studentName: string;
+      studentEmail: string;
+      academicLevel: string;
+      underTargetSubjects: {
+        name: string;
+        minLectures: number;
+        deliveredLectures: number;
+      }[];
     }[];
     lectures: {
       _id: string;
@@ -67,26 +80,16 @@ export class LectureService {
   }
 
   uploadLecture(
-    userId: string,
     studentEmail: string,
     subject: string,
-    date: string,
-    duration: number,
     link: string,
     name: string
   ): Observable<LectureResponse> {
-    console.log('Sending lecture data:', { userId, studentEmail, subject, date, duration, link, name });
-    if (!userId || !studentEmail || !subject || !date || !duration || !link || !name) {
+    console.log('Sending lecture data:', { studentEmail, subject, link, name });
+    if (!studentEmail || !subject || !link || !name) {
       return throwError(() => ({
         success: false,
-        message: 'All fields (userId, studentEmail, subject, date, duration, link, name) are required'
-      }));
-    }
-    const parsedDuration = parseInt(duration.toString(), 10);
-    if (!Number.isInteger(parsedDuration) || parsedDuration <= 0) {
-      return throwError(() => ({
-        success: false,
-        message: 'Duration must be a positive integer'
+        message: 'All fields (studentEmail, subject, link, name) are required'
       }));
     }
     if (!this.isValidUrl(link)) {
@@ -95,10 +98,22 @@ export class LectureService {
         message: 'Lecture link must be a valid URL starting with http:// or https://'
       }));
     }
+    if (name.length < 1 || name.length > 100) {
+      return throwError(() => ({
+        success: false,
+        message: 'Lecture name must be between 1 and 100 characters'
+      }));
+    }
+    if (subject.length < 1 || subject.length > 100) {
+      return throwError(() => ({
+        success: false,
+        message: 'Subject name must be between 1 and 100 characters'
+      }));
+    }
     return this.http
       .post<LectureResponse>(
         ApiEndpoints.lectures.upload,
-        { userId, studentEmail, subject, date, duration: parsedDuration, link, name },
+        { studentEmail, subject, link, name },
         { headers: this.getAuthHeaders() }
       )
       .pipe(
@@ -110,15 +125,7 @@ export class LectureService {
           return {
             success: true,
             message: response.message || 'Lecture uploaded successfully',
-            lecture: response.lecture || {
-              _id: '',
-              studentEmail,
-              subject,
-              date,
-              duration: parsedDuration,
-              link,
-              name
-            },
+            lecture: response.lecture,
             lectureCount: response.lectureCount || 0,
             volunteerHours: response.volunteerHours || 0
           };
@@ -127,7 +134,7 @@ export class LectureService {
           console.error('Upload lecture error:', error);
           let message = 'Failed to upload lecture';
           if (error.status === 404) {
-            message = 'Student email not found';
+            message = 'Student email or join request not found';
           } else if (error.status === 400) {
             message = error.error?.message || 'Invalid lecture data';
           } else if (error.status === 401) {
@@ -146,26 +153,22 @@ export class LectureService {
 
   updateLecture(
     lectureId: string,
-    userId: string,
     studentEmail: string,
     subject: string,
-    date: string,
-    duration: number,
     link: string,
     name: string
   ): Observable<LectureResponse> {
-    console.log('Updating lecture data:', { lectureId, userId, studentEmail, subject, date, duration, link, name });
-    if (!lectureId || !userId || !studentEmail || !subject || !date || !duration || !link || !name) {
+    console.log('Updating lecture data:', { lectureId, studentEmail, subject, link, name });
+    if (!lectureId || !studentEmail || !subject || !link || !name) {
       return throwError(() => ({
         success: false,
-        message: 'All fields (lectureId, userId, studentEmail, subject, date, duration, link, name) are required'
+        message: 'All fields (lectureId, studentEmail, subject, link, name) are required'
       }));
     }
-    const parsedDuration = parseInt(duration.toString(), 10);
-    if (!Number.isInteger(parsedDuration) || parsedDuration <= 0) {
+    if (!/^[0-9a-fA-F]{24}$/.test(lectureId.trim())) {
       return throwError(() => ({
         success: false,
-        message: 'Duration must be a positive integer'
+        message: 'Invalid lecture ID: Must be a valid MongoDB ObjectId'
       }));
     }
     if (!this.isValidUrl(link)) {
@@ -174,10 +177,22 @@ export class LectureService {
         message: 'Lecture link must be a valid URL starting with http:// or https://'
       }));
     }
+    if (name.length < 1 || name.length > 100) {
+      return throwError(() => ({
+        success: false,
+        message: 'Lecture name must be between 1 and 100 characters'
+      }));
+    }
+    if (subject.length < 1 || subject.length > 100) {
+      return throwError(() => ({
+        success: false,
+        message: 'Subject name must be between 1 and 100 characters'
+      }));
+    }
     return this.http
       .put<LectureResponse>(
         ApiEndpoints.lectures.update(lectureId),
-        { userId, studentEmail, subject, date, duration: parsedDuration, link, name },
+        { studentEmail, subject, link, name },
         { headers: this.getAuthHeaders() }
       )
       .pipe(
@@ -189,15 +204,7 @@ export class LectureService {
           return {
             success: true,
             message: response.message || 'Lecture updated successfully',
-            lecture: response.lecture || {
-              _id: lectureId,
-              studentEmail,
-              subject,
-              date,
-              duration: parsedDuration,
-              link,
-              name
-            },
+            lecture: response.lecture,
             lectureCount: response.lectureCount || 0,
             volunteerHours: response.volunteerHours || 0
           };
@@ -231,6 +238,12 @@ export class LectureService {
         message: 'Lecture ID is required'
       }));
     }
+    if (!/^[0-9a-fA-F]{24}$/.test(lectureId.trim())) {
+      return throwError(() => ({
+        success: false,
+        message: 'Invalid lecture ID: Must be a valid MongoDB ObjectId'
+      }));
+    }
     return this.http
       .delete<LectureResponse>(ApiEndpoints.lectures.delete(lectureId), { headers: this.getAuthHeaders() })
       .pipe(
@@ -253,6 +266,8 @@ export class LectureService {
             message = 'Lecture not found';
           } else if (error.status === 401) {
             message = 'Unauthorized. Please log in again.';
+          } else if (error.status === 403) {
+            message = 'Admin access required.';
           } else if (error.status === 0) {
             message = 'Network error. Please check your connection.';
           }
@@ -320,6 +335,120 @@ export class LectureService {
           console.error('Get low lecture members error:', error);
           let message = 'Failed to fetch low lecture members';
           if (error.status === 401) {
+            message = 'Unauthorized. Please log in again.';
+          } else if (error.status === 403) {
+            message = 'Admin access required.';
+          } else if (error.status === 0) {
+            message = 'Network error. Please check your connection.';
+          }
+          return throwError(() => ({
+            success: false,
+            message,
+            error: error.statusText || error.message
+          }));
+        })
+      );
+  }
+
+  getNotifications(): Observable<any> {
+    console.log('Fetching notifications');
+    return this.http
+      .get<any>(ApiEndpoints.lectures.notifications, { headers: this.getAuthHeaders() })
+      .pipe(
+        map(response => {
+          console.log('Notifications response:', response);
+          if (!response.success) {
+            throw new Error(response.message || 'Failed to fetch notifications');
+          }
+          return {
+            success: true,
+            message: response.message || 'Notifications fetched successfully',
+            notifications: response.notifications || []
+          };
+        }),
+        catchError(error => {
+          console.error('Get notifications error:', error);
+          let message = 'Failed to fetch notifications';
+          if (error.status === 401) {
+            message = 'Unauthorized. Please log in again.';
+          } else if (error.status === 0) {
+            message = 'Network error. Please check your connection.';
+          }
+          return throwError(() => ({
+            success: false,
+            message,
+            error: error.statusText || error.message
+          }));
+        })
+      );
+  }
+
+  markNotificationsRead(): Observable<any> {
+    console.log('Marking notifications as read');
+    return this.http
+      .post<any>(ApiEndpoints.lectures.markNotificationsRead, {}, { headers: this.getAuthHeaders() })
+      .pipe(
+        map(response => {
+          console.log('Mark notifications read response:', response);
+          if (!response.success) {
+            throw new Error(response.message || 'Failed to mark notifications as read');
+          }
+          return {
+            success: true,
+            message: response.message || 'Notifications marked as read',
+            notifications: response.notifications || []
+          };
+        }),
+        catchError(error => {
+          console.error('Mark notifications read error:', error);
+          let message = 'Failed to mark notifications as read';
+          if (error.status === 401) {
+            message = 'Unauthorized. Please log in again.';
+          } else if (error.status === 0) {
+            message = 'Network error. Please check your connection.';
+          }
+          return throwError(() => ({
+            success: false,
+            message,
+            error: error.statusText || error.message
+          }));
+        })
+      );
+  }
+
+  deleteNotification(notificationId: string): Observable<any> {
+    console.log('Deleting notification:', { notificationId });
+    if (!notificationId) {
+      return throwError(() => ({
+        success: false,
+        message: 'Notification ID is required'
+      }));
+    }
+    if (!/^[0-9a-fA-F]{24}$/.test(notificationId.trim())) {
+      return throwError(() => ({
+        success: false,
+        message: 'Invalid notification ID: Must be a valid MongoDB ObjectId'
+      }));
+    }
+    return this.http
+      .delete<any>(ApiEndpoints.lectures.deleteNotification(notificationId), { headers: this.getAuthHeaders() })
+      .pipe(
+        map(response => {
+          console.log('Delete notification response:', response);
+          if (!response.success) {
+            throw new Error(response.message || 'Failed to delete notification');
+          }
+          return {
+            success: true,
+            message: response.message || 'Notification deleted successfully'
+          };
+        }),
+        catchError(error => {
+          console.error('Delete notification error:', error);
+          let message = 'Failed to delete notification';
+          if (error.status === 404) {
+            message = 'Notification not found';
+          } else if (error.status === 401) {
             message = 'Unauthorized. Please log in again.';
           } else if (error.status === 0) {
             message = 'Network error. Please check your connection.';

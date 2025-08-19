@@ -1,4 +1,4 @@
-import { environment } from "../../../environments/environment";
+import { environment } from '../../../environments/environment';
 
 const base = environment.apiBaseUrl;
 
@@ -30,10 +30,20 @@ export const ApiEndpoints = {
   },
   lectures: {
     upload: `${base}/lectures`,
-    update: (lectureId: string) => `${base}/lectures/${lectureId.trim()}`,
-    delete: (lectureId: string) => `${base}/lectures/${lectureId.trim()}`,
+    update: (lectureId: string) => {
+      if (!lectureId || typeof lectureId !== 'string' || lectureId.trim() === '' || !/^[0-9a-fA-F]{24}$/.test(lectureId.trim())) {
+        throw new Error('Invalid lecture ID: Must be a valid MongoDB ObjectId');
+      }
+      return `${base}/lectures/${lectureId.trim()}`;
+    },
+    delete: (lectureId: string) => {
+      if (!lectureId || typeof lectureId !== 'string' || lectureId.trim() === '' || !/^[0-9a-fA-F]{24}$/.test(lectureId.trim())) {
+        throw new Error('Invalid lecture ID: Must be a valid MongoDB ObjectId');
+      }
+      return `${base}/lectures/${lectureId.trim()}`;
+    },
     list: `${base}/lectures`,
-    lowLectureMembers: `${base}/lectures/low-lecture-members?t=${Date.now()}`,
+    lowLectureMembers: `${base}/lectures/low-lecture-members`,
     removeLowLectureMember: (memberId: string) => {
       if (!memberId || typeof memberId !== 'string' || memberId.trim() === '' || !/^[0-9a-fA-F]{24}$/.test(memberId.trim())) {
         throw new Error('Invalid member ID: Must be a valid MongoDB ObjectId');

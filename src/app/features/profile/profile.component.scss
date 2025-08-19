@@ -246,6 +246,56 @@ body {
   }
 }
 
+// Calendar styles
+.calendar-container {
+  max-width: 800px;
+  margin: 0 auto 1.5rem;
+
+  full-calendar {
+    width: 100%;
+    height: 400px;
+
+    @media (max-width: 767px) {
+      height: 300px;
+    }
+
+    @media (max-width: 576px) {
+      height: 250px;
+    }
+
+    .fc {
+      font-size: 0.85rem;
+
+      .fc-daygrid-day {
+        padding: 0.25rem;
+      }
+
+      .fc-toolbar {
+        padding: 0.5rem;
+        .fc-toolbar-title {
+          font-size: 1rem;
+          font-weight: 600;
+        }
+      }
+
+      .fc-col-header-cell {
+        padding: 0.25rem;
+        font-size: 0.8rem;
+      }
+
+      .fc-daygrid-day-number {
+        font-size: 0.75rem;
+      }
+
+      .fc-event {
+        font-size: 0.7rem;
+        padding: 0.2rem;
+        border-radius: 4px;
+      }
+    }
+  }
+}
+
 // Toast styles
 .toast-container {
   z-index: 1050;
@@ -329,6 +379,17 @@ body {
 
   &.is-invalid {
     border-color: $danger-color;
+  }
+
+  &.form-control-sm {
+    padding: 0.5rem;
+    font-size: 0.85rem;
+    height: calc(1.5em + 0.5rem + 2px);
+
+    + label {
+      font-size: 0.85rem;
+      transform: translateY(-50%) scale(0.8);
+    }
   }
 }
 
@@ -519,29 +580,29 @@ body {
   background: $white;
   color: $neutral-color;
   border-bottom: 1px solid $border-color;
-  padding: 1.25rem;
+  padding: 0.75rem 1rem;
 
   .modal-title {
     font-weight: 700;
-    font-size: 1.25rem;
+    font-size: 1.1rem;
 
-    @media (min-width: 768px) {
-      font-size: 1.5rem;
+    @media (min-width: 576px) {
+      font-size: 1.25rem;
     }
   }
 }
 
 .modal-body {
-  padding: 1.5rem;
+  padding: 1rem;
 
-  @media (min-width: 768px) {
-    padding: 2rem;
+  @media (min-width: 576px) {
+    padding: 1.25rem;
   }
 }
 
 .modal-footer {
   border-top: 1px solid $border-color;
-  padding: 1rem;
+  padding: 0.75rem;
 }
 
 // Definition list styles
