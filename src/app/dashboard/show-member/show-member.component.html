@@ -56,9 +56,16 @@
             <div class="col-md-6">
               <dl class="row">
                 <dt class="col-sm-4">الحالة:</dt>
-                <dd class="col-sm-8">{{ member.status || 'غير محدد' }}</dd>
+                <dd class="col-sm-8">
+                  {{ member.status || 'غير محدد' }}
+                  <div *ngIf="member.status === 'Pending'" class="mt-2">
+                    <button class="btn btn-success btn-sm me-2" (click)="approveMember()">الموافقة</button>
+                    <button class="btn btn-danger btn-sm" (click)="rejectMember()">الرفض</button>
+                  </div>
+                  <button class="btn btn-danger btn-sm mt-2" (click)="deleteMember()">حذف العضو</button>
+                </dd>
                 <dt class="col-sm-4">تاريخ الإنشاء:</dt>
-                <dd class="col-sm-8">{{ member.createdAt || 'غير متوفر' }}</dd>
+                <dd class="col-sm-8">{{ formatDate(member.createdAt) || 'غير متوفر' }}</dd>
                 <dt class="col-sm-4">ساعات التطوع:</dt>
                 <dd class="col-sm-8">{{ editMode ? '' : (member.volunteerHours || 0) }}</dd>
                 <dt class="col-sm-4">عدد الطلاب:</dt>
@@ -76,9 +83,9 @@
           </div>
 
           <!-- Lecture Warning -->
-          <div *ngIf="showLectureWarning" class="alert alert-warning mt-3">
+          <!-- <div *ngIf="showLectureWarning" class="alert alert-warning mt-3">
             تحذير: هذا العضو لديه طلاب بمحاضرات أقل من الحد الأدنى المطلوب.
-          </div>
+          </div> -->
 
           <!-- Edit Mode Toggle -->
           <div class="mt-3">
@@ -219,7 +226,7 @@
                   <div *ngFor="let subject of newStudent.subjects; let i = index" class="mb-2">
                     <label for="minLectures{{i}}" class="form-label">{{ subject }}</label>
                     <input type="number" class="form-control" id="minLectures{{i}}" [(ngModel)]="newStudent.minLectures[i]" [ngModelOptions]="{name: 'minLectures' + i}" min="0" dir="rtl" required #minLectures="ngModel" (ngModelChange)="validateMinLectures()" [ngClass]="{'is-invalid': minLectures.invalid && (minLectures.dirty || minLectures.touched)}">
-                    <div *ngIf="studentErrors.minLectures[i]" class="invalid-feedback">{{ studentErrors.minLectures[i] }}</div>
+                    <div *ngIf="studentErrors.minLectures && studentErrors.minLectures[i]" class="invalid-feedback">{{ studentErrors.minLectures[i] }}</div>
                   </div>
                 </div>
               </div>
@@ -270,9 +277,9 @@
           <h4 class="mb-0">المحاضرات</h4>
         </div>
         <div class="card-body">
-          <div *ngIf="showLectureWarning" class="alert alert-warning">
+          <!-- <div *ngIf="showLectureWarning" class="alert alert-warning">
             تحذير: هذا العضو لديه طلاب بمحاضرات أقل من الحد الأدنى المطلوب.
-          </div>
+          </div> -->
           <div *ngIf="member.lectures.length === 0" class="alert alert-info">لا توجد محاضرات مسجلة.</div>
           <div class="table-responsive" *ngIf="member.lectures.length > 0">
             <table class="table table-hover">
@@ -292,7 +299,7 @@
                   <td>{{ lecture.name || 'غير محدد' }}</td>
                   <td>{{ lecture.studentEmail || 'غير محدد' }}</td>
                   <td>{{ lecture.subject || 'غير محدد' }}</td>
-                  <td>{{ lecture.date || 'غير متوفر' }}</td>
+                  <td>{{ formatDate(lecture.date) || 'غير متوفر' }}</td>
                   <td>{{ lecture.duration || 0 }}</td>
                   <td>
                     <a *ngIf="lecture.link" [href]="lecture.link" target="_blank" class="text-primary">{{ lecture.link }}</a>
@@ -331,7 +338,7 @@
           <div *ngIf="!isLoadingMessages && activeMessage" class="mb-3">
             <h5>الرسالة النشطة</h5>
             <p><strong>المحتوى:</strong> {{ activeMessage.content || 'غير محدد' }}</p>
-            <p><strong>تنتهي في:</strong> {{ activeMessage.displayUntil | date:'medium':'ar-EG' }}</p>
+            <p><strong>تنتهي في:</strong> {{ formatDate(activeMessage.displayUntil) }}</p>
             <div class="button-group">
               <button class="btn btn-primary me-2" (click)="startEditMessage()">تعديل الرسالة</button>
               <button class="btn btn-danger" (click)="deleteMessage()">حذف الرسالة</button>

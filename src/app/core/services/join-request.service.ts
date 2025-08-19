@@ -261,69 +261,84 @@ export class JoinRequestService {
         message: 'معرف العضو مطلوب'
       }));
     }
-    return this.http.get<JoinRequestResponse>(ApiEndpoints.joinRequests.getMember(id), { headers: this.getAuthHeaders() }).pipe(
-      tap(response => console.log('Raw getMember response:', response)),
+    console.log('Fetching member with ID:', id); // تسجيل الـ ID للتحقق
+    return this.http.get<any>(ApiEndpoints.joinRequests.getMember(id), { headers: this.getAuthHeaders() }).pipe( // غيرت إلى <any> لتجنب افتراضات صارمة
+      tap(response => console.log('Raw getMember response:', response)), // تسجيل الاستجابة الكاملة
       map(response => {
-        if (!response.success || !response.member) {
-          throw new Error(response.message || 'Member not found or data is incomplete');
+        if (response.success && response.member) {
+          const member = response.member;
+          return {
+            success: true,
+            message: 'تم جلب بيانات العضو بنجاح',
+            member: {
+              id: member._id || member.id || '',
+              _id: member._id,
+              name: member.name || '',
+              email: member.email || '',
+              phone: member.number || member.phone || '',
+              number: member.number,
+              academicSpecialization: member.academicSpecialization || '',
+              address: member.address || '',
+              status: member.status || 'Pending',
+              volunteerHours: member.volunteerHours || 0,
+              numberOfStudents: member.numberOfStudents || 0,
+              subjects: member.subjects || [],
+              subjectsCount: member.subjects?.length || 0,
+              students: (member.students || []).map((student: { name: any; email: any; phone: any; grade: any; subjects: any; }) => ({
+                name: student.name || '',
+                email: student.email || '',
+                phone: student.phone || '',
+                grade: student.grade || '',
+                subjects: (student.subjects || []).map((subject: { name: any; minLectures: any; }) => ({
+                  name: subject.name || '',
+                  minLectures: subject.minLectures ?? 0
+                }))
+              })),
+              lectures: (member.lectures || []).map((lecture: { _id: any; studentEmail: any; subject: any; date: any; duration: any; link: any; name: any; }) => ({
+                _id: lecture._id || '',
+                studentEmail: lecture.studentEmail || '',
+                subject: lecture.subject || '',
+                date: lecture.date || '',
+                duration: lecture.duration || 0,
+                link: lecture.link || '',
+                name: lecture.name || ''
+              })),
+              lectureCount: member.lectureCount || 0,
+              createdAt: member.createdAt || '',
+              messages: this.filterActiveMessages(member.messages || []),
+              meetings: (member.meetings || []).map((meeting: { id: any; _id: any; title: any; date: any; startTime: any; endTime: any; }) => ({
+                id: meeting.id || meeting._id || '',
+                _id: meeting._id,
+                title: meeting.title || '',
+                date: meeting.date || '',
+                startTime: meeting.startTime || '',
+                endTime: meeting.endTime || ''
+              })),
+              profileImage: member.profileImage || ''
+            }
+          };
+        } else {
+          // معالجة حالة success: false بدون إلقاء خطأ فوري
+          return {
+            success: false,
+            message: response.message || 'العضو غير موجود أو بيانات غير كاملة',
+            error: 'Response without member data'
+          };
         }
-        const member = response.member;
-        return {
-          success: true,
-          message: 'تم جلب بيانات العضو بنجاح',
-          member: {
-            id: member._id || member.id || '',
-            _id: member._id,
-            name: member.name || '',
-            email: member.email || '',
-            phone: member.number || member.phone || '',
-            number: member.number,
-            academicSpecialization: member.academicSpecialization || '',
-            address: member.address || '',
-            status: member.status || 'Pending',
-            volunteerHours: member.volunteerHours || 0,
-            numberOfStudents: member.numberOfStudents || 0,
-            subjects: member.subjects || [],
-            subjectsCount: member.subjects?.length || 0,
-            students: (member.students || []).map(student => ({
-              name: student.name || '',
-              email: student.email || '',
-              phone: student.phone || '',
-              grade: student.grade || '',
-              subjects: (student.subjects || []).map(subject => ({
-                name: subject.name || '',
-                minLectures: subject.minLectures ?? 0
-              }))
-            })),
-            lectures: (member.lectures || []).map(lecture => ({
-              _id: lecture._id || '',
-              studentEmail: lecture.studentEmail || '',
-              subject: lecture.subject || '',
-              date: lecture.date || '',
-              duration: lecture.duration || 0,
-              link: lecture.link || '',
-              name: lecture.name || ''
-            })),
-            lectureCount: member.lectureCount || 0,
-            createdAt: member.createdAt || '',
-            messages: this.filterActiveMessages(member.messages || []),
-            meetings: (member.meetings || []).map(meeting => ({
-              id: meeting.id || meeting._id || '',
-              _id: meeting._id,
-              title: meeting.title || '',
-              date: meeting.date || '',
-              startTime: meeting.startTime || '',
-              endTime: meeting.endTime || ''
-            })),
-            profileImage: member.profileImage || ''
-          }
-        };
       }),
       catchError(error => {
         console.error('Error fetching member details:', error);
+        let errorMessage = 'فشل في جلب بيانات العضو، تحقق من المعرف أو الاتصال بالخادم';
+        if (error.status === 401) {
+          errorMessage = 'غير مصرح - يرجى تسجيل الدخول مرة أخرى';
+        } else if (error.status === 404) {
+          errorMessage = 'العضو غير موجود';
+        } else if (error.status === 0) {
+          errorMessage = 'مشكلة في الاتصال بالخادم - تحقق من الإنترنت';
+        }
         return throwError(() => ({
           success: false,
-          message: error.message || error.error?.message || 'فشل في جلب بيانات العضو، تحقق من المعرف أو الاتصال بالخادم',
+          message: errorMessage,
           error: error.statusText || error.message,
           status: error.status
         }));
