@@ -37,7 +37,7 @@ export class CustomValidators {
   static phoneNumber(control: AbstractControl): ValidationErrors | null {
     const value = control.value?.trim();
     if (!value) return null; // Let Validators.required handle empty input
-    const phonePattern = /^\d{9,10}$/;
+    const phonePattern = /^\d{9,12}$/;
     return phonePattern.test(value) ? null : { pattern: true };
   }
 }
