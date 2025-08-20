@@ -97,7 +97,6 @@ $black: #000000;
     align-items: center;
     width: 100%;
     background-color: $primary-color;
-    margin-top: -3.8rem;
     justify-items: center;
   }
 
@@ -318,6 +317,8 @@ $black: #000000;
     }
 
     .navbar-collapse {
+      margin-top: -3.8rem;
+
       &.show {
         max-height: calc(100vh - 70px);
         padding: 0.75rem;

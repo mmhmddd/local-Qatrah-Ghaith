@@ -1,17 +1,19 @@
-$primary-color: #00adb5;
-$secondary-color: #0097b2;
-$accent-color: #ff914d;
-$neutral-color: #545454;
-$dark-color: #1a1a1a;
-$light-gray: #f8f9fa;
+$primary-color: #1e88e5; // Modern blue
+$secondary-color: #1565c0; // Darker blue for hover
+$accent-color: #ff6d00; // Vibrant orange
+$neutral-color: #607d8b; // Modern gray
+$dark-color: #263238; // Darker shade for text
+$light-gray: #f5f7fa; // Softer background
 $white: #ffffff;
-$black: #000;
+$black: #212121;
+$success-color: #4caf50; // Green for success
+$error-color: #d32f2f; // Red for error
 
 .page-wrapper {
   display: flex;
   min-height: 100vh;
   direction: rtl;
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif; // Modern font stack
 
   &.sidebar-visible {
     app-sidebar {
@@ -38,19 +40,21 @@ $black: #000;
   top: 20px;
   right: 20px;
   z-index: 1001;
-  background: $dark-color;
+  background: $primary-color;
   border: none;
-  padding: 10px;
+  padding: 12px;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba($black, 0.2);
 
   .hamburger-line {
     display: block;
     width: 24px;
     height: 3px;
     background: $white;
-    margin: 4px 0;
+    margin: 5px 0;
     transition: all 0.3s ease;
+    border-radius: 2px;
   }
 
   &.active {
@@ -77,7 +81,7 @@ $black: #000;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba($black, 0.5);
+  background: rgba($black, 0.6);
   z-index: 999;
 
   &.visible {
@@ -91,9 +95,9 @@ $black: #000;
 
 main {
   flex: 1;
-  padding: 20px;
+  padding: 24px;
   background: $light-gray;
-  margin-right: 220px;
+  margin-right: 240px; // Slightly wider sidebar
   transition: margin-right 0.3s ease;
 
   @media (max-width: 1024px) {
@@ -102,7 +106,7 @@ main {
 }
 
 .container {
-  max-width: 1400px; /* Increased max-width for wider table */
+  max-width: 1440px; // Slightly wider for modern displays
   margin: 0 auto;
 }
 
@@ -110,39 +114,48 @@ main {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  padding: 16px;
+  background: $white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba($black, 0.1);
 
   h2 {
-    font-size: 24px;
+    font-size: 28px;
     color: $dark-color;
+    font-weight: 600;
   }
 }
 
 .page-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 
   .refresh-btn, .export-btn {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 8px 16px;
+    padding: 10px 20px;
     background: $primary-color;
     color: $white;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 14px;
-    transition: background 0.2s ease;
+    font-size: 15px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba($black, 0.2);
 
     &:hover {
       background: $secondary-color;
+      transform: translateY(-1px);
     }
 
     &:disabled {
       background: $neutral-color;
       cursor: not-allowed;
+      box-shadow: none;
     }
 
     .refresh-icon.spinning {
@@ -171,15 +184,18 @@ main {
 .loading-message {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   justify-content: center;
-  padding: 20px;
+  padding: 24px;
   color: $dark-color;
+  background: $white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba($black, 0.1);
 
   .spinner {
-    width: 24px;
-    height: 24px;
-    border: 3px solid $primary-color;
+    width: 28px;
+    height: 28px;
+    border: 4px solid $primary-color;
     border-top-color: transparent;
     border-radius: 50%;
     animation: spin 1s linear infinite;
@@ -189,35 +205,39 @@ main {
 .success-message {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 15px;
-  background: #e6ffed;
-  color: #2e7d32;
-  border-radius: 4px;
-  margin-bottom: 20px;
+  gap: 12px;
+  padding: 16px;
+  background: lighten($success-color, 40%);
+  color: $success-color;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba($black, 0.1);
 }
 
 .error-message {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 15px;
-  background: #ffebee;
-  color: #c0392b;
-  border-radius: 4px;
-  margin-bottom: 20px;
+  gap: 12px;
+  padding: 16px;
+  background: lighten($error-color, 40%);
+  color: $error-color;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba($black, 0.1);
 
   .retry-btn {
-    padding: 6px 12px;
-    background: #c0392b;
+    padding: 8px 16px;
+    background: $error-color;
     color: $white;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
-    transition: background 0.2s ease;
+    font-weight: 500;
+    transition: all 0.2s ease;
 
     &:hover {
-      background: darken(#c0392b, 10%);
+      background: darken($error-color, 10%);
+      transform: translateY(-1px);
     }
   }
 }
@@ -225,64 +245,71 @@ main {
 .no-members {
   display: flex;
   align-items: center;
-  gap: 15px;
-  padding: 20px;
+  gap: 16px;
+  padding: 24px;
   background: $white;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba($black, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba($black, 0.1);
 
   .no-members-icon {
-    font-size: 32px;
+    font-size: 36px;
   }
 
   h3 {
     margin: 0;
     color: $dark-color;
+    font-weight: 600;
   }
 
   p {
-    margin: 5px 0 0;
+    margin: 8px 0 0;
     color: $neutral-color;
+    font-size: 15px;
   }
 }
 
 .table-wrapper {
   background: $white;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba($black, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba($black, 0.1);
   overflow: hidden;
 }
 
 .table-header {
-  padding: 15px;
+  padding: 16px;
   background: $light-gray;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid lighten($neutral-color, 30%);
 
   .search-input {
     width: 100%;
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
+    max-width: 400px; // Limit width for better layout
+    padding: 12px 16px;
+    border: 1px solid lighten($neutral-color, 30%);
+    border-radius: 6px;
+    font-size: 15px;
     background: $white;
     color: $dark-color;
     direction: rtl;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
+    transition: all 0.2s ease;
+    box-shadow: inset 0 1px 2px rgba($black, 0.05);
 
     &::placeholder {
-      color: $neutral-color;
+      color: lighten($neutral-color, 20%);
     }
 
     &:focus {
       outline: none;
       border-color: $primary-color;
-      box-shadow: 0 0 5px rgba($primary-color, 0.3);
+      box-shadow: 0 0 8px rgba($primary-color, 0.3);
     }
   }
 
   h3 {
     margin: 0;
     color: $dark-color;
+    font-weight: 600;
+    font-size: 18px;
   }
 }
 
@@ -297,54 +324,64 @@ main {
   th {
     background: $light-gray;
     color: $dark-color;
-    padding: 12px;
+    padding: 14px;
     text-align: right;
     font-weight: 600;
-    white-space: nowrap; /* Prevent header text wrapping */
+    font-size: 15px;
+    white-space: nowrap;
+    border-bottom: 2px solid lighten($neutral-color, 30%);
   }
 
   td {
-    padding: 12px;
-    border-bottom: 1px solid #eee;
-    color: $neutral-color;
+    padding: 14px;
+    border-bottom: 1px solid lighten($neutral-color, 35%);
+    color: $dark-color;
     text-align: right;
+    font-size: 14px;
   }
 
   .member-row {
     cursor: pointer;
-    transition: background 0.2s;
+    transition: all 0.2s ease;
+
+    &:nth-child(odd) {
+      background: lighten($light-gray, 1%); // Alternating row color
+    }
 
     &:hover {
-      background: lighten($light-gray, 2%);
+      background: lighten($primary-color, 45%);
+      transform: translateY(-1px);
     }
   }
 
   .name-cell {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
 
     .avatar {
-      width: 32px;
-      height: 32px;
+      width: 36px;
+      height: 36px;
       background: $primary-color;
       color: $white;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 16px;
-      font-weight: bold;
+      font-size: 18px;
+      font-weight: 600;
+      box-shadow: 0 1px 2px rgba($black, 0.2);
     }
   }
 
   .hours-badge {
     display: inline-block;
-    padding: 4px 8px;
+    padding: 6px 12px;
     background: $accent-color;
     color: $white;
-    border-radius: 12px;
-    font-size: 12px;
+    border-radius: 16px;
+    font-size: 13px;
+    font-weight: 500;
   }
 
   .member-students, .member-subjects, .member-lectures {
@@ -358,17 +395,20 @@ main {
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 6px 12px;
-      background: #c0392b;
+      padding: 8px 16px;
+      background: $error-color;
       color: $white;
       border: none;
-      border-radius: 4px;
+      border-radius: 6px;
       cursor: pointer;
       font-size: 14px;
-      transition: background 0.2s ease;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 3px rgba($black, 0.2);
 
       &:hover {
-        background: darken(#c0392b, 10%);
+        background: darken($error-color, 10%);
+        transform: translateY(-1px);
       }
     }
   }
@@ -380,7 +420,7 @@ main {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba($black, 0.5);
+  background: rgba($black, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -388,53 +428,61 @@ main {
 
   .dialog-content {
     background: $white;
-    padding: 20px;
-    border-radius: 4px;
-    box-shadow: 0 2px 8px rgba($black, 0.2);
+    padding: 24px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba($black, 0.2);
     max-width: 400px;
     width: 90%;
     text-align: center;
 
     h3 {
       color: $dark-color;
-      margin: 0 0 10px;
+      margin: 0 0 12px;
+      font-weight: 600;
     }
 
     p {
       color: $neutral-color;
-      margin: 0 0 20px;
+      margin: 0 0 24px;
+      font-size: 15px;
     }
 
     .dialog-actions {
       display: flex;
       justify-content: center;
-      gap: 10px;
+      gap: 12px;
 
       .confirm-btn {
-        padding: 8px 16px;
-        background: #c0392b;
+        padding: 10px 20px;
+        background: $error-color;
         color: $white;
         border: none;
-        border-radius: 4px;
+        border-radius: 6px;
         cursor: pointer;
-        transition: background 0.2s ease;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        box-shadow: 0 1px 3px rgba($black, 0.2);
 
         &:hover {
-          background: darken(#c0392b, 10%);
+          background: darken($error-color, 10%);
+          transform: translateY(-1px);
         }
       }
 
       .cancel-btn {
-        padding: 8px 16px;
+        padding: 10px 20px;
         background: $neutral-color;
         color: $white;
         border: none;
-        border-radius: 4px;
+        border-radius: 6px;
         cursor: pointer;
-        transition: background 0.2s ease;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        box-shadow: 0 1px 3px rgba($black, 0.2);
 
         &:hover {
           background: darken($neutral-color, 10%);
+          transform: translateY(-1px);
         }
       }
     }

@@ -203,7 +203,7 @@ export class TranslationService {
         volunteer: 'تطوع معنا',
         aboutUs: 'من نحن',
         aboutTitle: 'لمحة عننا',
-        aboutDescription: 'نحن مبادرة خيرية تعليمية تأسست عام 2020 هدفها مساعدة الطلاب الذين بحاجة لدراسة خاصة ولا تتوفر لهم الإمكانيات، من خلال استقطاب طلاب جامعيين أو خريجين للقيام بالمهمة.',
+        aboutDescription: 'نحن مبادرة خيرية تعليمية تأسست عام 2020 هدفها مساعدة الطلاب الذين بحاجة لدراسة خاصة ولا تتوفر لهم الإمكانيات، من خلال استقطاب طلاب جامعيين أو خريجين للقيام بالمهمة. توفر المبادرة بيئة تعليمية عن بعد لدعم جميع الصفوف وبجميع المواد الدراسية، إلى جانب التأسيس لمن هو بحاجة. يتم التعليم عن بعد عبر الإنترنت باستخدام تطبيقات مثل زووم وتيمز وغيرها، حيث تكون الحصص مباشرة ويتم تسجيلها من قبل المتطوعين ومراجعتها من مختصين لضمان سير العملية التعليمية بنجاح.',
         achievements: 'إنجازاتنا',
         achievementsTitle: 'إنجازات',
         achievementsDescription: 'أرقام تتحدث عن رحلتنا في خدمة التعليم',
@@ -215,7 +215,7 @@ export class TranslationService {
         helpSection: 'كيف تساعد',
         joinToday: 'انضم إلينا اليوم',
         helpDescription: 'ساهم في دعم مجتمعنا من خلال التبرع أو الانضمام إلى فريقنا.',
-        donateContact: 'نواصل معنا للتبرع',
+        donateContact: 'تواصل معنا للتبرع',
         joinUs: 'الانضمام إلينا',
         contactUs: 'اتصل بنا',
         contactTitle: 'تواصلوا معنا',
@@ -223,10 +223,48 @@ export class TranslationService {
         contactInfo: 'معلومات التواصل معنا',
         name: 'الاسم',
         email: 'البريد الإلكتروني',
+        phone: 'الهاتف',
+        address: 'عمان',
         message: 'رسالتك',
         send: 'إرسال',
-        address: 'عمان',
-        workingHours: 'نحن متاحون للرد على استفساراتكم من الساعة 8:00 ص إلى 4:00 م'
+        workingHours: 'نحن متاحون للرد على استفساراتكم من الساعة 8:00 ص إلى 4:00 م',
+        namePlaceholder: 'أدخل اسمك',
+        nameRequired: 'الاسم مطلوب',
+        nameMinLength: 'الاسم يجب أن يكون ${requiredLength} أحرف على الأقل',
+        nameMaxLength: 'الاسم يجب ألا يتجاوز ${maxLength} حرف',
+        nameValid: 'الاسم صالح',
+        emailPlaceholder: 'example@domain.com',
+        emailRequired: 'البريد الإلكتروني مطلوب',
+        emailInvalid: 'البريد الإلكتروني غير صالح',
+        emailValid: 'البريد الإلكتروني صالح',
+        phonePlaceholder: '07xxxxxxxx',
+        phoneRequired: 'رقم الهاتف مطلوب',
+        phonePattern: 'رقم الهاتف غير صالح',
+        phoneValid: 'رقم الهاتف صالح',
+        service: 'الخدمة',
+        selectService: 'اختر الخدمة',
+        educationalPrograms: 'البرامج التعليمية',
+        volunteering: 'التطوع',
+        support: 'الدعم',
+        partnership: 'الشراكة',
+        donation: 'التبرع',
+        other: 'أخرى',
+        serviceRequired: 'الخدمة مطلوبة',
+        serviceValid: 'الخدمة صالحة',
+        messagePlaceholder: 'أدخل رسالتك هنا',
+        messageRequired: 'الرسالة مطلوبة',
+        messageMinLength: 'الرسالة يجب أن تكون ${requiredLength} أحرف على الأقل',
+        messageMaxLength: 'الرسالة يجب ألا تتجاوز ${maxLength} حرف',
+        messageValid: 'الرسالة صالحة',
+        charCount: 'عدد الحروف',
+        submitting: 'جاري الإرسال',
+        clearForm: 'مسح النموذج',
+        successMessage: 'تم إرسال الرسالة بنجاح!',
+        errorMessage: 'حدث خطأ أثناء الإرسال',
+        formInvalid: 'يرجى ملء النموذج بشكل صحيح',
+        whatsappMessage: 'مرحبا، اسمي ${name}، بريدي ${email}، هاتفي ${phone}، أريد الاستفسار عن ${service}: ${message}',
+        followUs: 'تابعنا',
+        socialMediaDescription: 'ابق على اطلاع بآخر أخبارنا وفعالياتنا'
       },
       about: {
         introductionTitle: 'التعريف العام عن المبادرة',
@@ -413,6 +451,17 @@ export class TranslationService {
         sectionTitle: 'ألبوم الصور الخاص بنا',
         sectionDescription: 'استعرض مجموعتنا من الصور التي تعكس جهودنا في دعم الأطفال ومرضى السرطان في غزة.',
         viewGallery: 'شاهد معرض الصور'
+      },
+      faq: {
+        title: 'الأسئلة الشائعة',
+        joinPrograms: 'كيف يمكنني الانضمام إلى البرامج التعليمية؟',
+        joinProgramsAnswer: 'يمكنك ملء النموذج في صفحة الانضمام أو الاتصال بنا مباشرة.',
+        volunteeringOpportunities: 'ما هي فرص التطوع المتاحة؟',
+        volunteeringOpportunitiesAnswer: 'لدينا فرص في التدريس، الدعم الإداري، والأنشطة الترفيهية.',
+        supportInitiative: 'كيف يمكنني دعم المبادرة؟',
+        supportInitiativeAnswer: 'يمكنك التبرع، التطوع، أو نشر الوعي حول مبادراتنا.',
+        workingHours: 'ما هي ساعات العمل؟',
+        workingHoursAnswer: 'نحن متاحون من الساعة 8:00 صباحاً إلى 4:00 مساءً.'
       }
     },
     en: {
@@ -430,39 +479,39 @@ export class TranslationService {
         login: 'Login',
         logout: 'Logout'
       },
-  profile: {
-    "unauthorizedError": "You are not authorized to access this page.",
-    "studentDataMismatch": "Mismatch in student data. Please contact support.",
-    "loadError": "Failed to load profile.",
-    "unexpectedError": "An unexpected error occurred.",
-    "lowLectureWarning": "Some students have low lecture counts.",
-    "lowLectureLoadError": "Failed to load low lecture members.",
-    "fileSizeError": "File size exceeds 10MB limit.",
-    "invalidImageType": "Invalid image type. Please upload JPEG, PNG, GIF, or WebP.",
-    "pdfFileTypeError": "Invalid file type. Please upload a PDF.",
-    "selectImageFirst": "Please select an image to upload.",
-    "imageUploadSuccess": "Profile image uploaded successfully.",
-    "imageUploadError": "Failed to upload profile image.",
-    "fillAllFields": "Please fill in all required fields.",
-    "selectPdfFile": "Please select a PDF file to upload.",
-    "pdfRequestSuccess": "PDF request submitted successfully.",
-    "pdfRequestError": "Failed to submit PDF request.",
-    "passwordFieldsRequired": "Both current and new passwords are required.",
-    "passwordChangeSuccess": "Password changed successfully.",
-    "passwordChangeError": "Failed to change password.",
-    "meetingFieldsRequired": "All meeting fields are required.",
-    "meetingAddSuccess": "Meeting added successfully.",
-    "meetingAddError": "Failed to add meeting.",
-    "invalidMeetingId": "Invalid meeting ID.",
-    "meetingDeleteSuccess": "Meeting deleted successfully.",
-    "meetingDeleteError": "Failed to delete meeting.",
-    "studentEmailNotFound": "Student email not found.",
-    "validation": {
-      "subject": {
-        "invalid": "Invalid subject selected."
-      }
-    }
-},
+      profile: {
+        unauthorizedError: 'You are not authorized to access this page.',
+        studentDataMismatch: 'Mismatch in student data. Please contact support.',
+        loadError: 'Failed to load profile.',
+        unexpectedError: 'An unexpected error occurred.',
+        lowLectureWarning: 'Some students have low lecture counts.',
+        lowLectureLoadError: 'Failed to load low lecture members.',
+        fileSizeError: 'File size exceeds 10MB limit.',
+        invalidImageType: 'Invalid image type. Please upload JPEG, PNG, GIF, or WebP.',
+        pdfFileTypeError: 'Invalid file type. Please upload a PDF.',
+        selectImageFirst: 'Please select an image to upload.',
+        imageUploadSuccess: 'Profile image uploaded successfully.',
+        imageUploadError: 'Failed to upload profile image.',
+        fillAllFields: 'Please fill in all required fields.',
+        selectPdfFile: 'Please select a PDF file to upload.',
+        pdfRequestSuccess: 'PDF request submitted successfully.',
+        pdfRequestError: 'Failed to submit PDF request.',
+        passwordFieldsRequired: 'Both current and new passwords are required.',
+        passwordChangeSuccess: 'Password changed successfully.',
+        passwordChangeError: 'Failed to change password.',
+        meetingFieldsRequired: 'All meeting fields are required.',
+        meetingAddSuccess: 'Meeting added successfully.',
+        meetingAddError: 'Failed to add meeting.',
+        invalidMeetingId: 'Invalid meeting ID.',
+        meetingDeleteSuccess: 'Meeting deleted successfully.',
+        meetingDeleteError: 'Failed to delete meeting.',
+        studentEmailNotFound: 'Student email not found.',
+        validation: {
+          subject: {
+            invalid: 'Invalid subject selected.'
+          }
+        }
+      },
       home: {
         heroTitle: 'Remote E-Learning Initiative',
         heroSubtitle: 'Qatrah Ghaith',
@@ -491,10 +540,48 @@ export class TranslationService {
         contactInfo: 'Contact Information',
         name: 'Name',
         email: 'Email',
+        phone: 'Phone',
+        address: 'Amman',
         message: 'Your Message',
         send: 'Send',
-        address: 'Amman',
-        workingHours: 'We are available to respond to your inquiries from 8:00 AM to 4:00 PM'
+        workingHours: 'We are available to respond to your inquiries from 8:00 AM to 4:00 PM',
+        namePlaceholder: 'Enter your name',
+        nameRequired: 'Name is required',
+        nameMinLength: 'Name must be at least ${requiredLength} characters',
+        nameMaxLength: 'Name must not exceed ${maxLength} characters',
+        nameValid: 'Looks good!',
+        emailPlaceholder: 'example@domain.com',
+        emailRequired: 'Email is required',
+        emailInvalid: 'Invalid email format',
+        emailValid: 'Looks good!',
+        phonePlaceholder: '07xxxxxxxx',
+        phoneRequired: 'Phone is required',
+        phonePattern: 'Invalid phone number',
+        phoneValid: 'Looks good!',
+        service: 'Service',
+        selectService: 'Select Service',
+        educationalPrograms: 'Educational Programs',
+        volunteering: 'Volunteering',
+        support: 'Support',
+        partnership: 'Partnership',
+        donation: 'Donation',
+        other: 'Other',
+        serviceRequired: 'Service is required',
+        serviceValid: 'Looks good!',
+        messagePlaceholder: 'Enter your message here',
+        messageRequired: 'Message is required',
+        messageMinLength: 'Message must be at least ${requiredLength} characters',
+        messageMaxLength: 'Message must not exceed ${maxLength} characters',
+        messageValid: 'Looks good!',
+        charCount: 'Character Count',
+        submitting: 'Submitting',
+        clearForm: 'Clear Form',
+        successMessage: 'Message sent successfully!',
+        errorMessage: 'Error sending message',
+        formInvalid: 'Please fill the form correctly',
+        whatsappMessage: 'Hello, my name is ${name}, email ${email}, phone ${phone}, inquiring about ${service}: ${message}',
+        followUs: 'Follow Us',
+        socialMediaDescription: 'Stay updated with our latest news and events'
       },
       about: {
         introductionTitle: 'General Introduction to the Initiative',
@@ -681,6 +768,17 @@ export class TranslationService {
         sectionTitle: 'Our Photo Album',
         sectionDescription: 'Browse our collection of images reflecting our efforts in supporting children and cancer patients in Gaza.',
         viewGallery: 'View Image Gallery'
+      },
+      faq: {
+        title: 'Frequently Asked Questions',
+        joinPrograms: 'How can I join the educational programs?',
+        joinProgramsAnswer: 'You can fill out the form on the join us page or contact us directly.',
+        volunteeringOpportunities: 'What volunteering opportunities are available?',
+        volunteeringOpportunitiesAnswer: 'We offer opportunities in teaching, administrative support, and recreational activities.',
+        supportInitiative: 'How can I support the initiative?',
+        supportInitiativeAnswer: 'You can donate, volunteer, or spread awareness about our initiatives.',
+        workingHours: 'What are the working hours?',
+        workingHoursAnswer: 'We are available from 8:00 AM to 4:00 PM.'
       }
     }
   };
@@ -705,20 +803,17 @@ export class TranslationService {
       }
       this.currentLanguageSubject.next(language);
     } else {
-      console.warn(`Unsupported language: ${language}. Defaulting to 'ar'.`);
       this.setLanguage('ar');
     }
   }
 
   translate(key: string): string {
     if (!key) {
-      console.warn('Translation key is empty or undefined');
       return '';
     }
 
     const language = this.getCurrentLanguage();
     if (!this.translations[language as keyof Translations]) {
-      console.warn(`Translation for language "${language}" not found`);
       return '';
     }
 
@@ -729,13 +824,11 @@ export class TranslationService {
       if (current && typeof current === 'object' && k in current) {
         current = current[k];
       } else {
-        console.warn(`Translation key "${key}" not found for language "${language}"`);
         return '';
       }
     }
 
     if (typeof current !== 'string') {
-      console.warn(`Translation for key "${key}" in language "${language}" is not a string`);
       return '';
     }
 
@@ -763,4 +856,3 @@ export class TranslationService {
     return this.getCurrentLanguage() === 'ar';
   }
 }
-

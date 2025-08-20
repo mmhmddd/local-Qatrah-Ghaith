@@ -110,7 +110,9 @@ $black: #000000;
       overflow: hidden;
       @include box-shadow(0 20px 40px rgba(0, 0, 0, 0.1));
       @include transition();
-
+      img{
+        height: 500px !important;
+      }
       &:hover {
         transform: translateY(-5px);
         @include box-shadow(0 25px 50px rgba(0, 0, 0, 0.15));

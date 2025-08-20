@@ -18,26 +18,27 @@
     </button>
 
     <!-- Language Toggle and Login/Logout - Desktop only -->
-    <div class="d-none d-lg-flex flex-column align-items-end gap-2 order-lg-3">
-      <!-- Language Toggle Button -->
-      <button
-        class="btn btn-language-toggle"
-        (click)="toggleLanguage()"
-        [title]="currentLanguage === 'ar' ? 'Switch to English' : 'التبديل إلى العربية'"
-        type="button">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" class="me-1">
-          <path d="M8 1a7 7 0 0 0-7 7 7 7 0 0 0 7 7 7 7 0 0 0 7-7 7 7 0 0 0-7-7zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/>
-          <path d="M4 8h8"/>
-          <path d="M8 4v8"/>
-        </svg>
-        <span class="d-none d-sm-inline">{{ getLanguageButtonText() }}</span>
-      </button>
+<div class="d-none d-lg-flex flex-column align-items-end gap-2 order-lg-3">
+  <!-- Language Toggle Button -->
+  <button
+    class="btn btn-language-toggle"
+    (click)="toggleLanguage()"
+    [disabled]="isProfileRoute"
+    [title]="currentLanguage === 'ar' ? 'Switch to English' : 'التبديل إلى العربية'"
+    type="button">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" class="me-1">
+      <path d="M8 1a7 7 0 0 0-7 7 7 7 0 0 0 7 7 7 7 0 0 0 7-7 7 7 0 0 0-7-7zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/>
+      <path d="M4 8h8"/>
+      <path d="M8 4v8"/>
+    </svg>
+    <span class="d-none d-sm-inline">{{ getLanguageButtonText() }}</span>
+  </button>
 
-      <!-- Login/Logout Button -->
-      <button class="btn" [ngClass]="isLoggedIn() ? 'btn-danger' : 'btn-primary'" (click)="handleAuthAction()">
-        {{ isLoggedIn() ? ('nav.logout' | translate) : ('nav.login' | translate) }}
-      </button>
-    </div>
+  <!-- Login/Logout Button -->
+  <button class="btn" [ngClass]="isLoggedIn() ? 'btn-danger' : 'btn-primary'" (click)="handleAuthAction()">
+    {{ isLoggedIn() ? ('nav.logout' | translate) : ('nav.login' | translate) }}
+  </button>
+</div>
 
     <!-- Navbar items (Center) and Buttons (Right) -->
     <div
@@ -92,6 +93,7 @@
         <!-- Language Toggle and Login/Logout for Mobile - shown in collapsed menu -->
         <div class="d-lg-none mobile-auth-buttons">
           <button
+            *ngIf="!isProfileRoute"
             class="btn btn-language-toggle mb-2"
             (click)="toggleLanguage()"
             [title]="currentLanguage === 'ar' ? 'Switch to English' : 'التبديل إلى العربية'"

@@ -1,4 +1,3 @@
-// Enhanced Variables (unchanged)
 $primary-color: #00adb5;
 $secondary-color: #0097b2;
 $accent-color: #ff914d;
@@ -8,7 +7,6 @@ $light-gray: #f8f9fa;
 $white: #ffffff;
 $black: #000000;
 
-// Modern gradient mixins (unchanged)
 @mixin gradient-primary {
   background: linear-gradient(135deg, $primary-color 0%, $secondary-color 100%);
 }
@@ -46,12 +44,14 @@ $black: #000000;
 
     @media (max-width: 768px) {
       aspect-ratio: 4 / 3;
-      min-height: 250px;
+      min-height: 400px; // Increased height for tablet/mobile
+      height: 60vh; // Explicit height for better control
     }
 
     @media (max-width: 576px) {
       aspect-ratio: 3 / 2;
-      min-height: 200px;
+      min-height: 350px; // Increased height for smaller mobile
+      height: 50vh; // Explicit height for mobile
     }
   }
 
@@ -63,7 +63,12 @@ $black: #000000;
       animation: kenBurns 8s ease-in-out infinite alternate;
     }
   }
-
+    // @media (max-width: 576px) {
+    //   .hero-wrapper[_ngcontent-ng-c1099692643] .carousel-item[_ngcontent-ng-c1099692643] {
+    //     transition: transform 0.8s ease-in-out, opacity 0.8s ease-in-out;
+    //     height: 325px;
+    //     }
+    // }
   .carousel-img-wrapper {
     position: relative;
     height: 100%;
@@ -72,11 +77,20 @@ $black: #000000;
   }
 
   .carousel-img {
-    object-fit: contain;
+    object-fit: cover; // Changed to cover for better scaling
     height: 100%;
     width: 100%;
     transition: transform 0.8s ease-in-out;
     filter: brightness(0.7);
+    margin-top: 0; // Removed margin-top for full height utilization
+
+    @media (max-width: 768px) {
+      height: 100%; // Ensure image takes full container height
+    }
+
+    @media (max-width: 576px) {
+      height: 100%; // Ensure image takes full container height
+    }
   }
 
   .carousel-overlay {
@@ -95,7 +109,7 @@ $black: #000000;
   }
 
   .carousel-indicators {
-    bottom: 15px; // Adjusted for better mobile spacing
+    bottom: 15px;
     margin-bottom: 0;
 
     [data-bs-target] {
@@ -112,7 +126,7 @@ $black: #000000;
       }
 
       @media (max-width: 576px) {
-        width: 25px; // Smaller for mobile
+        width: 25px;
         height: 2px;
         margin: 0 2px;
       }
@@ -123,7 +137,7 @@ $black: #000000;
   .carousel-control-next {
     width: 50px;
     height: 50px;
-    top: 50%; // Centered vertically
+    top: 50%;
     transform: translateY(-50%);
     background: transparent;
     transition: all 0.4s ease;
@@ -152,7 +166,7 @@ $black: #000000;
     }
 
     @media (max-width: 576px) {
-      width: 35px; // Smaller controls for mobile
+      width: 35px;
       height: 35px;
 
       svg {
@@ -163,7 +177,7 @@ $black: #000000;
   }
 
   .carousel-control-prev {
-    left: 15px; // Adjusted for mobile
+    left: 15px;
 
     @media (max-width: 576px) {
       left: 8px;
@@ -171,7 +185,7 @@ $black: #000000;
   }
 
   .carousel-control-next {
-    right: 15px; // Adjusted for mobile
+    right: 15px;
 
     @media (max-width: 576px) {
       right: 8px;
@@ -194,7 +208,7 @@ $black: #000000;
     z-index: 10;
     width: 90%;
     max-width: 800px;
-    padding: 15px; // Reduced padding for better mobile fit
+    padding: 15px;
     box-sizing: border-box;
     overflow: visible;
 
@@ -204,38 +218,38 @@ $black: #000000;
     }
 
     @media (max-width: 576px) {
-      width: 90%; // Slightly reduced to avoid edge clipping
+      width: 90%;
       padding: 8px 10px;
       max-width: none;
     }
   }
 
   .hero-title {
-    margin-bottom: 10px; // Reduced for better mobile spacing
+    margin-bottom: 10px;
     width: 100%;
     overflow: visible;
 
     .title-main {
       display: block;
-      font-size: clamp(1.5rem, 5vw, 2.5rem); // Slightly smaller max for mobile
+      font-size: clamp(1.5rem, 5vw, 2.5rem);
       font-weight: 800;
       color: $white;
       text-shadow: 2px 2px 4px rgba($black, 0.5);
-      margin-bottom: 6px; // Reduced for mobile
+      margin-bottom: 6px;
       letter-spacing: 1px;
       line-height: 1.2;
       overflow-wrap: break-word;
       white-space: normal;
 
       @media (max-width: 576px) {
-        font-size: clamp(1.2rem, 4vw, 1.8rem); // Adjusted for better fit
+        font-size: clamp(1.2rem, 4vw, 1.8rem);
         margin-bottom: 4px;
       }
     }
 
     .title-subtitle {
       display: block;
-      font-size: clamp(1rem, 3vw, 1.6rem); // Slightly smaller max
+      font-size: clamp(1rem, 3vw, 1.6rem);
       font-weight: 600;
       color: $accent-color;
       text-shadow: 1px 1px 3px rgba($black, 0.5);
@@ -249,9 +263,9 @@ $black: #000000;
   }
 
   .hero-description {
-    font-size: clamp(0.9rem, 2vw, 1.1rem); // Slightly smaller max
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
     color: rgba($white, 0.9);
-    margin-bottom: 15px; // Reduced for mobile
+    margin-bottom: 15px;
     font-weight: 400;
     overflow-wrap: break-word;
     white-space: normal;
@@ -266,24 +280,24 @@ $black: #000000;
 
   .hero-actions {
     display: flex;
-    gap: 10px; // Reduced gap for mobile
+    gap: 10px;
     justify-content: center;
     align-items: center;
-    flex-wrap: nowrap; // Keep buttons in a row
+    flex-wrap: nowrap;
     width: 100%;
-    max-width: 100%; // Ensure buttons fit within container
+    max-width: 100%;
 
     @media (max-width: 576px) {
       gap: 8px;
-      flex-direction: row; // Keep buttons in a row
-      flex-wrap: nowrap; // Prevent wrapping
+      flex-direction: row;
+      flex-wrap: nowrap;
       justify-content: center;
-      padding: 0 5px; // Add slight padding to avoid edge clipping
+      padding: 0 5px;
     }
   }
 
   .hero-btn {
-    padding: 10px 20px; // Slightly smaller padding
+    padding: 10px 20px;
     font-size: clamp(0.9rem, 1.5vw, 1rem);
     font-weight: 600;
     border-radius: 50px;
@@ -291,7 +305,7 @@ $black: #000000;
     text-decoration: none;
     border: 2px solid transparent;
     width: auto;
-    min-width: 100px; // Smaller min-width for mobile
+    min-width: 100px;
     text-align: center;
     white-space: nowrap;
 
@@ -320,9 +334,9 @@ $black: #000000;
     }
 
     @media (max-width: 576px) {
-      padding: 8px 15px; // Smaller padding for mobile
-      font-size: clamp(0.75rem, 1.3vw, 0.85rem); // Smaller font
-      min-width: 80px; // Smaller buttons to fit in a row
+      padding: 8px 15px;
+      font-size: clamp(0.75rem, 1.3vw, 0.85rem);
+      min-width: 80px;
     }
   }
 
@@ -368,6 +382,8 @@ $black: #000000;
   0% { width: 0%; }
   100% { width: 100%; }
 }
+
+
 /* About Us Section */
 .about-us-section {
   padding: 5rem 0;
@@ -1086,5 +1102,11 @@ $black: #000000;
     .hero-wrapper{
       margin-top: 2rem;
         height: auto !important;
+    }
+}
+@media (max-width: 576px) {
+    .hero-wrapper[_ngcontent-ng-c530795634] .carousel-img[_ngcontent-ng-c530795634] {
+        height: 100%;
+        height: 323px;
     }
 }

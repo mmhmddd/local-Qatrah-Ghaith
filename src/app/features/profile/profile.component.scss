@@ -422,11 +422,12 @@ body {
 .calendar-container {
   max-width: 100%;
   margin: 0 auto 1rem;
+  overflow-x: auto;
 
   full-calendar {
     width: 100%;
     height: auto;
-    min-height: 250px;
+    min-height: 200px;
 
     @media (min-width: 768px) {
       min-height: 350px;
@@ -437,37 +438,82 @@ body {
     }
 
     .fc {
-      font-size: 0.8rem;
+      font-size: 0.7rem;
+
+      @media (max-width: 576px) {
+        font-size: 0.65rem;
+      }
 
       .fc-daygrid-day {
-        padding: 0.2rem;
+        padding: 0.15rem;
+
+        @media (max-width: 576px) {
+          padding: 0.1rem;
+        }
       }
 
       .fc-toolbar {
-        padding: 0.5rem;
+        padding: 0.4rem;
         flex-wrap: wrap;
 
+        @media (max-width: 576px) {
+          padding: 0.3rem;
+        }
+
         .fc-toolbar-title {
-          font-size: 0.9rem;
+          font-size: 0.85rem;
           font-weight: 600;
+
+          @media (max-width: 576px) {
+            font-size: 0.75rem;
+          }
 
           @media (min-width: 768px) {
             font-size: 1rem;
           }
         }
+
+        .fc-button {
+          padding: 0.2rem 0.4rem;
+          font-size: 0.7rem;
+
+          @media (max-width: 576px) {
+            padding: 0.15rem 0.3rem;
+            font-size: 0.6rem;
+
+            .fc-icon {
+              font-size: 0.6rem;
+            }
+          }
+
+          @media (min-width: 768px) {
+            padding: 0.3rem 0.5rem;
+            font-size: 0.8rem;
+          }
+        }
       }
 
       .fc-col-header-cell {
-        padding: 0.2rem;
-        font-size: 0.75rem;
+        padding: 0.15rem;
+        font-size: 0.7rem;
+
+        @media (max-width: 576px) {
+          font-size: 0.65rem;
+          padding: 0.1rem;
+        }
 
         @media (min-width: 768px) {
           font-size: 0.85rem;
+          padding: 0.2rem;
         }
       }
 
       .fc-daygrid-day-number {
-        font-size: 0.7rem;
+        font-size: 0.65rem;
+
+        @media (max-width: 576px) {
+          font-size: 0.6rem;
+        }
 
         @media (min-width: 768px) {
           font-size: 0.8rem;
@@ -475,9 +521,14 @@ body {
       }
 
       .fc-event {
-        font-size: 0.65rem;
-        padding: 0.15rem;
-        border-radius: 3px;
+        font-size: 0.6rem;
+        padding: 0.1rem;
+        border-radius: 2px;
+
+        @media (max-width: 576px) {
+          font-size: 0.55rem;
+          padding: 0.08rem;
+        }
 
         @media (min-width: 768px) {
           font-size: 0.75rem;

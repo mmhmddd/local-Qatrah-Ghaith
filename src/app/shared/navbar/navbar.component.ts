@@ -17,6 +17,7 @@ export class NavbarComponent {
   isNavbarExpanded = false;
   scrolled = false;
   currentLanguage = 'ar';
+  isProfileRoute = false;
 
   constructor(
     private router: Router,
@@ -24,9 +25,14 @@ export class NavbarComponent {
     private translationService: TranslationService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
+    // Subscribe to router events to detect route changes
     this.router.events.subscribe(event => {
-      if (event instanceof NavigationEnd && isPlatformBrowser(this.platformId)) {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (event instanceof NavigationEnd) {
+        // Check if the current route is /profile
+        this.isProfileRoute = event.urlAfterRedirects === '/profile';
+        if (isPlatformBrowser(this.platformId)) {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
       }
     });
 

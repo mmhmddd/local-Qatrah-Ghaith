@@ -1,71 +1,118 @@
-$primary-color: #00adb5;
-$secondary-color: #0097b2;
-$accent-color: #ff914d;
-$neutral-color: #545454;
-$dark-color: #1a1a1a;
-$light-gray: #f8f9fa;
+$primary-color: #1e88e5; // Modern blue
+$secondary-color: #1565c0; // Darker blue for hover
+$accent-color: #ff6d00; // Vibrant orange
+$neutral-color: #607d8b; // Modern gray
+$dark-color: #263238; // Darker shade for text
+$light-gray: #f5f7fa; // Softer background
 $white: #ffffff;
-$success-color: #28a745;
-$danger-color: #dc3545;
-$pending-color: #ffc107;
-$black: #000;
+$success-color: #4caf50; // Green for success
+$danger-color: #d32f2f; // Red for error
+$pending-color: #ffb300; // Amber for pending
+$black: #212121;
 
 main {
-  margin-right: 220px;
+  margin-right: 240px; // Adjusted for wider sidebar
   background: $light-gray;
   min-height: 100vh;
   padding: 1.5rem;
+  transition: margin-right 0.3s ease;
+
+  @media (max-width: 768px) {
+    margin-right: 0;
+  }
 }
 
 .join-requests-container {
-  font-family: 'Noto Kufi Arabic', sans-serif;
-  padding: 1rem;
+  font-family: 'Noto Kufi Arabic', -apple-system, BlinkMacSystemFont, Roboto, sans-serif; // Modern font stack
+  padding: 1.5rem;
+  max-width: 1440px; // Wider for modern displays
+  margin: 0 auto;
 
   h2 {
-    font-size: 1.5rem;
+    font-size: 1.75rem; // Slightly larger for emphasis
     color: $dark-color;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
   }
 
   .filter-container {
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.75rem;
 
     label {
       font-weight: 600;
       color: $dark-color;
+      font-size: 1rem;
     }
 
-    select {
-      padding: 0.5rem;
+    input.search-input { // Replaced select with search input
+      width: 100%;
+      max-width: 400px;
+      padding: 0.75rem 1rem;
       border-radius: 6px;
-      border: 1px solid $neutral-color;
+      border: 1px solid lighten($neutral-color, 30%);
       font-family: 'Noto Kufi Arabic', sans-serif;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
+      background: $white;
+      color: $dark-color;
+      transition: all 0.2s ease;
+      box-shadow: inset 0 1px 2px rgba($black, 0.05);
+
+      &::placeholder {
+        color: lighten($neutral-color, 20%);
+      }
+
+      &:focus {
+        outline: none;
+        border-color: $primary-color;
+        box-shadow: 0 0 8px rgba($primary-color, 0.3);
+      }
     }
   }
 
-  .table {
+  .table-responsive {
     background: $white;
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba($black, 0.1);
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba($black, 0.1);
     overflow: hidden;
+  }
+
+  .table {
+    width: 100%;
+    border-collapse: collapse;
 
     th, td {
-      padding: 0.75rem;
+      padding: 1rem;
       text-align: right;
+      font-size: 0.95rem;
     }
 
     th {
       background: $primary-color;
       color: $white;
       font-weight: 600;
+      border-bottom: 2px solid lighten($neutral-color, 30%);
+      white-space: nowrap;
     }
 
     td {
-      border-bottom: 1px solid $light-gray;
+      border-bottom: 1px solid lighten($neutral-color, 35%);
+      color: $dark-color;
+    }
+
+    tr {
+      transition: all 0.2s ease;
+
+      &:nth-child(odd) {
+        background: lighten($light-gray, 1%); // Alternating row color
+      }
+
+      &:hover {
+        background: lighten($primary-color, 45%);
+        transform: translateY(-1px);
+      }
     }
 
     .text-center {
@@ -75,45 +122,78 @@ main {
     .status-approved {
       color: $success-color;
       font-weight: 600;
+      background: lighten($success-color, 40%);
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      display: inline-block;
     }
 
     .status-rejected {
       color: $danger-color;
       font-weight: 600;
+      background: lighten($danger-color, 40%);
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      display: inline-block;
     }
 
     .status-pending {
       color: $pending-color;
       font-weight: 600;
+      background: lighten($pending-color, 40%);
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      display: inline-block;
+    }
+
+    .text-primary {
+      color: $primary-color;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
     }
 
     .btn {
       margin: 0 0.5rem;
-      padding: 0.5rem 1rem;
+      padding: 0.5rem 1.25rem;
       border-radius: 6px;
       font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 3px rgba($black, 0.2);
 
       &.btn-success {
         background: $success-color;
         border: none;
+        color: $white;
 
         &:hover {
           background: darken($success-color, 10%);
+          transform: translateY(-1px);
         }
       }
 
       &.btn-danger {
         background: $danger-color;
         border: none;
+        color: $white;
 
         &:hover {
           background: darken($danger-color, 10%);
+          transform: translateY(-1px);
         }
       }
 
       &:disabled {
         opacity: 0.6;
         cursor: not-allowed;
+        box-shadow: none;
+      }
+
+      i {
+        margin-left: 0.5rem;
       }
     }
   }
@@ -124,7 +204,7 @@ main {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba($dark-color, 0.5);
+    background: rgba($dark-color, 0.6);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -133,32 +213,34 @@ main {
 
   .loading-content {
     background: $white;
-    padding: 1.5rem;
-    border-radius: 10px;
+    padding: 2rem;
+    border-radius: 8px;
     text-align: center;
+    box-shadow: 0 2px 10px rgba($black, 0.2);
   }
 
   .loading-spinner {
-    border: 4px solid $light-gray;
+    border: 4px solid lighten($neutral-color, 30%);
     border-top: 4px solid $primary-color;
     border-radius: 50%;
-    width: 30px;
-    height: 30px;
+    width: 32px;
+    height: 32px;
     animation: spin 1s linear infinite;
-    margin: 0 auto 0.5rem;
+    margin: 0 auto 0.75rem;
   }
 
   .toast {
     position: fixed;
-    top: 20px;
+    top: 24px;
     left: 50%;
     transform: translateX(-50%);
-    min-width: 300px;
-    padding: 1rem;
-    border-radius: 6px;
+    min-width: 320px;
+    padding: 1.25rem;
+    border-radius: 8px;
     color: $white;
     z-index: 2000;
-    box-shadow: 0 2px 8px rgba($black, 0.2);
+    box-shadow: 0 2px 10px rgba($black, 0.2);
+    font-size: 0.95rem;
     animation: slideIn 0.3s ease-out, fadeOut 0.3s ease-out 2.7s forwards;
 
     &.toast-success {
@@ -171,7 +253,7 @@ main {
   }
 
   @keyframes slideIn {
-    from { transform: translateX(-50%) translateY(-20px); opacity: 0; }
+    from { transform: translateX(-50%) translateY(-24px); opacity: 0; }
     to { transform: translateX(-50%) translateY(0); opacity: 1; }
   }
 
@@ -183,11 +265,5 @@ main {
   @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
-  }
-}
-
-@media (max-width: 768px) {
-  main {
-    margin-right: 0;
   }
 }
