@@ -101,7 +101,7 @@ export class LoginComponent {
 
   demoLogin(role: string): void {
     this.isLoading = true;
-    this.loginForm.disable(); // Disable form controls
+    this.loginForm.disable(); 
     this.loginError = null;
     this.loginSuccess = null;
 
@@ -113,14 +113,14 @@ export class LoginComponent {
     this.authService.login(demoCredentials).subscribe({
       next: (response) => {
         this.isLoading = false;
-        this.loginForm.enable(); // Re-enable form controls
+        this.loginForm.enable();
         this.loginSuccess = 'تم تسجيل الدخول بنجاح!';
         this.loginError = null;
         this.router.navigate(['/home']);
       },
       error: (error) => {
         this.isLoading = false;
-        this.loginForm.enable(); // Re-enable form controls
+        this.loginForm.enable();
         this.loginError = error.error?.message || 'فشل تسجيل الدخول';
         this.loginSuccess = null;
       }
@@ -134,32 +134,33 @@ export class LoginComponent {
     }
 
     this.isLoading = true;
-    this.loginForm.disable(); // Disable form controls
+    this.loginForm.disable();
     this.loginError = null;
     this.loginSuccess = null;
 
     const credentials = {
       ...this.loginForm.value,
-      rememberMe: this.rememberMe // Include rememberMe in credentials
+      rememberMe: this.rememberMe
     };
 
     this.authService.login(credentials).subscribe({
       next: (response) => {
         this.isLoading = false;
-        this.loginForm.enable(); // Re-enable form controls
+        this.loginForm.enable();
         this.loginSuccess = 'تم تسجيل الدخول بنجاح!';
         this.loginError = null;
         this.router.navigate(['/home']);
       },
       error: (error) => {
         this.isLoading = false;
-        this.loginForm.enable(); // Re-enable form controls
+        this.loginForm.enable();
         this.loginError = error.error?.message || 'فشل تسجيل الدخول';
         this.loginSuccess = null;
       }
     });
   }
+
   goToHome(): void {
-  this.router.navigate(['/home']);
-}
+    this.router.navigate(['/home']);
+  }
 }

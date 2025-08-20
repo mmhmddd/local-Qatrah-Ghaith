@@ -21,8 +21,8 @@
              aria-atomic="true">
           <div class="toast-header">
             <strong class="me-auto">{{ toast.title }}</strong>
-            <button type="button" class="btn-close" (click)="closeToast(toast.id)" [attr.aria-label]="translationService.translate('common.close') || 'إغلاق'">
-              {{ translationService.translate('common.close') || 'إغلاق' }}
+            <button type="button" class="btn-close" (click)="closeToast(toast.id)" [attr.aria-label]="translationService.translate('common.close') || ''">
+              {{ translationService.translate('common.close') || '' }}
             </button>
           </div>
           <div class="toast-body">
@@ -43,7 +43,7 @@
         <!-- Profile Header -->
         <div class="profile-header card shadow-sm mb-4">
           <div class="card-body profile-header-content d-flex flex-column flex-md-row align-items-center">
-            <div class="profile-image-container me-md-4 mb-3 mb-md-0">
+            <div class="profile-image-container me-md-4 mb-3 mb-md-0 position-relative">
               <img *ngIf="profile.profileImage"
                    [src]="profile.profileImage"
                    [alt]="translationService.translate('profile.profileImage') || 'صورة الملف الشخصي'"
@@ -52,6 +52,9 @@
                    src="/assets/default-profile.png"
                    [alt]="translationService.translate('profile.defaultImage') || 'الصورة الافتراضية'"
                    class="profile-image rounded-circle">
+              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark" style="margin-bottom: 20px;">
+                {{ translationService.translate('profile.lowLectureCount') || 'عدد مرات التقصير مع الطلاب' }}: {{ lowLectureWeekCount }}
+              </span>
             </div>
             <div class="profile-details-container flex-grow-1">
               <h2 class="profile-name mb-3">{{ profile.name || (translationService.translate('profile.notSpecified') || 'غير محدد') }}</h2>
@@ -667,8 +670,8 @@
             <div class="modal-content">
               <div class="modal-header">
                 <h5 class="modal-title" id="passwordModalLabel">{{ translationService.translate('profile.changePassword') || 'تغيير كلمة المرور' }}</h5>
-                <button type="button" class="btn-close" (click)="closePasswordModal()" [attr.aria-label]="translationService.translate('common.close') || 'إغلاق'">
-                  {{ translationService.translate('common.close') || 'إغلاق' }}
+                <button type="button" class="btn-close" (click)="closePasswordModal()" [attr.aria-label]="translationService.translate('common.close') || ''">
+                  {{ translationService.translate('common.close') || '' }}
                 </button>
               </div>
               <div class="modal-body">
@@ -726,8 +729,8 @@
             <div class="modal-content">
               <div class="modal-header">
                 <h5 class="modal-title" id="meetingModalLabel">{{ translationService.translate('profile.addMeeting') || 'إضافة اجتماع' }}</h5>
-                <button type="button" class="btn-close" (click)="closeMeetingModal()" [attr.aria-label]="translationService.translate('common.close') || 'إغلاق'">
-                  {{ translationService.translate('common.close') || 'إغلاق' }}
+                <button type="button" class="btn-close" (click)="closeMeetingModal()" [attr.aria-label]="translationService.translate('common.close') || ''">
+                  {{ translationService.translate('common.close') || '' }}
                 </button>
               </div>
               <div class="modal-body">

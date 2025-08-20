@@ -14,7 +14,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin, { DateClickArg } from '@fullcalendar/interaction';
 import { CalendarOptions, EventClickArg } from '@fullcalendar/core';
-import { Toast as BootstrapToast } from 'bootstrap'; // Import Bootstrap Toast
+import { Toast as BootstrapToast } from 'bootstrap';
 
 interface Toast {
   id: string;
@@ -75,6 +75,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   activeSection = 'profile';
   isDeletingMeeting: { [key: string]: boolean } = {};
   showLectureWarning = false;
+  lowLectureWeekCount = 0;
   private submitSubject = new Subject<void>();
   private destroy$ = new Subject<void>();
   private isInitialLoad = true;
@@ -279,7 +280,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   getStudentSubjects(student: Student): string {
     if (!student.subjects || student.subjects.length === 0) {
-      return this.translationService.translate('profile.notSpecified');
+      return this.translationService.translate('profile.notSpecified') || 'غير محدد';
     }
     const currentLang = this.translationService.getCurrentLanguage();
     const translations = this.subjectsTranslations[currentLang as keyof typeof this.subjectsTranslations] || this.subjectsTranslations.en;
@@ -295,7 +296,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Validate translation keys
     if (!titleKey || titleKey.trim() === '') {
       console.error(`ProfileComponent: Invalid title key (source: ${source || 'unknown'})`, { titleKey });
       titleKey = 'profile.error';
@@ -305,28 +305,23 @@ export class ProfileComponent implements OnInit, OnDestroy {
       messageKey = 'profile.unknownError';
     }
 
-    // Translate title and message
     const title = this.translationService.translate(titleKey) || 'Notification';
-    const message = this.translationService.translate(messageKey) || 'تمت العمليه بنجاح';
+    const message = this.translationService.translate(messageKey) || 'Operation completed successfully';
 
-    // Fallback for empty translations
     if (!message || message.trim() === '') {
       console.error(`ProfileComponent: Translated message is empty (source: ${source || 'unknown'})`, { messageKey, translated: message });
       return;
     }
 
-    // Prevent duplicate toasts
     if (this.toasts.some(toast => toast.message === message && toast.source === source && toast.type === type)) {
       console.log(`ProfileComponent: Ignoring duplicate toast (source: ${source || 'unknown'}):`, { type, title, message });
       return;
     }
 
-    // Generate unique toast ID
     const id = Math.random().toString(36).substr(2, 9);
     this.toasts = [...this.toasts, { id, type, title, message, source }];
     console.log(`ProfileComponent: Showing toast (source: ${source || 'unknown'}):`, { id, type, title, message });
 
-    // Initialize and show Bootstrap toast
     setTimeout(() => {
       const toastElement = document.querySelector(`.toast[id="${id}"]`);
       if (toastElement) {
@@ -340,7 +335,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
         bootstrapToast.show();
       } else {
         console.error(`ProfileComponent: Toast element not found for ID: ${id}`);
-        this.closeToast(id); // Clean up if element not found
+        this.closeToast(id);
       }
     }, 100);
   }
@@ -419,18 +414,18 @@ export class ProfileComponent implements OnInit, OnDestroy {
       students: (member.students || []).map((student: Student) => ({
         ...student,
         id: student.id || '',
-        name: student.name || this.translationService.translate('profile.notSpecified'),
-        email: student.email || this.translationService.translate('profile.notSpecified'),
-        phone: student.phone || this.translationService.translate('profile.notSpecified'),
-        grade: student.grade || this.translationService.translate('profile.notSpecified'),
+        name: student.name || this.translationService.translate('profile.notSpecified') || 'غير محدد',
+        email: student.email || this.translationService.translate('profile.notSpecified') || 'غير محدد',
+        phone: student.phone || this.translationService.translate('profile.notSpecified') || 'غير محدد',
+        grade: student.grade || this.translationService.translate('profile.notSpecified') || 'غير محدد',
         subjects: (student.subjects || []).map((subject: { name: string; minLectures: number }) => ({
-          name: subject.name || this.translationService.translate('profile.notSpecified'),
+          name: subject.name || this.translationService.translate('profile.notSpecified') || 'غير محدد',
           minLectures: subject.minLectures ?? 0
         }))
       })),
       meetings: (member.meetings || []).map((meeting: Meeting, index: number) => ({
         id: meeting.id || meeting._id || `meeting-${index}-${Date.now()}`,
-        title: meeting.title || this.translationService.translate('profile.notSpecified'),
+        title: meeting.title || this.translationService.translate('profile.notSpecified') || 'غير محدد',
         date: typeof meeting.date === 'string' ? meeting.date : new Date(meeting.date).toISOString().split('T')[0],
         startTime: meeting.startTime || '',
         endTime: meeting.endTime || ''
@@ -475,6 +470,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
           const userId = this.authService.getUserId();
           const memberData = response.members.find(m => m.id === userId);
           this.showLectureWarning = !!memberData && memberData.underTargetStudents.length > 0;
+          this.lowLectureWeekCount = memberData?.lowLectureWeekCount || 0;
           if (this.showLectureWarning && !this.isInitialLoad) {
             this.showToast('error', 'profile.warning', 'profile.lowLectureWarning', 'loadLowLectureMembers');
           }
@@ -601,7 +597,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
     const lectureData = this.lectureForm.value;
     const { studentEmail, subject, date, duration, link, name } = lectureData;
 
-    // Additional validation for lecture data
     const selectedStudent = this.profile.students.find(student => student.email === studentEmail);
     if (!selectedStudent) {
       this.showToast('error', 'profile.error', 'profile.invalidStudent', 'uploadLecture');

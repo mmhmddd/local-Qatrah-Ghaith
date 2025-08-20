@@ -96,6 +96,9 @@ $black: #000000;
     justify-content: space-between;
     align-items: center;
     width: 100%;
+    background-color: $primary-color;
+    margin-top: -3.8rem;
+    justify-items: center;
   }
 
   .navbar-nav {
@@ -269,8 +272,6 @@ $black: #000000;
   }
 }
 
-
-
 @media (max-width: 996px) {
   .navbar {
     padding: 0.4rem 0.5rem;
@@ -321,30 +322,43 @@ $black: #000000;
         max-height: calc(100vh - 70px);
         padding: 0.75rem;
         border-radius: 0 0 12px 12px;
-      }
-
+        display: flex;
+        flex-direction: column;
+        align-items: center;
       .navbar-nav {
         gap: 0.6rem;
+        justify-content: center; /* Center nav items */
+        width: 100%; /* Ensure full width for centering */
+        flex-direction: column; /* Stack vertically */
+        align-items: center; /* Center horizontally */
 
         .nav-link {
           font-size: 0.9rem;
           padding: 10px 16px;
           max-width: 280px;
+          text-align: center; /* Center text */
         }
       }
 
       .buttons-container {
         gap: 0.6rem;
         max-width: 280px;
+        width: 100%; /* Ensure full width for centering */
+        justify-content: center; /* Center buttons */
+        flex-direction: column; /* Stack vertically */
+        align-items: center; /* Center horizontally */
 
         .mobile-auth-buttons {
           max-width: 260px;
+          width: 100%; /* Ensure full width */
+          align-items: center; /* Center buttons */
         }
 
         .btn {
           max-width: 260px;
           padding: 0.5rem 1rem;
           font-size: 0.9rem;
+          text-align: center; /* Center text */
         }
       }
     }
@@ -396,30 +410,45 @@ $black: #000000;
         max-height: calc(100vh - 65px);
         padding: 0.6rem;
         border-radius: 0 0 10px 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* Center horizontally */
       }
 
       .navbar-nav {
         gap: 0.5rem;
+        justify-content: center; /* Center nav items */
+        width: 100%; /* Ensure full width for centering */
+        flex-direction: column; /* Stack vertically */
+        align-items: center; /* Center horizontally */
 
         .nav-link {
           font-size: 0.85rem;
           max-width: 250px;
           padding: 8px 12px;
+          text-align: center; /* Center text */
         }
       }
 
       .buttons-container {
         max-width: 250px;
         gap: 0.5rem;
+        width: 100%; /* Ensure full width for centering */
+        justify-content: center; /* Center buttons */
+        flex-direction: column; /* Stack vertically */
+        align-items: center; /* Center horizontally */
 
         .mobile-auth-buttons {
           max-width: 230px;
+          width: 100%; /* Ensure full width */
+          align-items: center; /* Center buttons */
         }
 
         .btn {
           max-width: 230px;
           padding: 0.45rem 0.8rem;
           font-size: 0.85rem;
+          text-align: center; /* Center text */
         }
       }
     }
@@ -468,4 +497,4 @@ body {
       margin-top: 50px;
     }
   }
-}
+}}

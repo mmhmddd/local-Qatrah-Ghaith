@@ -1,3 +1,4 @@
+
 <div class="dashboard-wrapper">
   <app-sidebar></app-sidebar>
 
@@ -39,9 +40,9 @@
         <button type="button" class="btn-close" (click)="error = null"></button>
       </div>
 
+
       <!-- Dashboard Cards -->
       <div class="row g-4">
-        <!-- Card 1: All Members -->
         <div class="col-sm-12 col-md-6 col-lg-4">
           <div class="card shadow-sm dashboard-card card-members" (click)="navigateTo('/all-members')">
             <div class="card-body text-center">
@@ -51,8 +52,6 @@
             </div>
           </div>
         </div>
-
-        <!-- Card 2: Join Requests -->
         <div class="col-sm-12 col-md-6 col-lg-4">
           <div class="card shadow-sm dashboard-card card-requests" (click)="navigateTo('/requests')">
             <div class="card-body text-center">
@@ -62,8 +61,6 @@
             </div>
           </div>
         </div>
-
-        <!-- Card 3: Add Book -->
         <div class="col-sm-12 col-md-6 col-lg-4">
           <div class="card shadow-sm dashboard-card card-book" (click)="navigateTo('/upload-pdf')">
             <div class="card-body text-center">
@@ -73,8 +70,6 @@
             </div>
           </div>
         </div>
-
-        <!-- Card 4: Add Testimonial -->
         <div class="col-sm-12 col-md-6 col-lg-4">
           <div class="card shadow-sm dashboard-card card-opinion" (click)="navigateTo('/add-testimonials')">
             <div class="card-body text-center">
@@ -84,8 +79,6 @@
             </div>
           </div>
         </div>
-
-        <!-- Card 5: Add Leaderboard -->
         <div class="col-sm-12 col-md-6 col-lg-4">
           <div class="card shadow-sm dashboard-card card-leaderboard" (click)="navigateTo('/add-leaderboards')">
             <div class="card-body text-center">
@@ -95,8 +88,6 @@
             </div>
           </div>
         </div>
-
-        <!-- Card 6: Add Gallery -->
         <div class="col-sm-12 col-md-6 col-lg-4">
           <div class="card shadow-sm dashboard-card card-gallery" (click)="navigateTo('/add-gallery')">
             <div class="card-body text-center">
@@ -106,8 +97,6 @@
             </div>
           </div>
         </div>
-
-        <!-- Card 7: Low Lecture Members -->
         <div class="col-sm-12 col-md-6 col-lg-4">
           <div class="card shadow-sm dashboard-card card-low-lecture-members" (click)="navigateTo('/low-lecture-members')">
             <div class="card-body text-center">
@@ -117,8 +106,6 @@
             </div>
           </div>
         </div>
-
-        <!-- Card 8: Lecture PDF Requests -->
         <div class="col-sm-12 col-md-6 col-lg-4">
           <div class="card shadow-sm dashboard-card card-request-pdf" (click)="navigateTo('/lectures-request')">
             <div class="card-body text-center">
@@ -129,6 +116,34 @@
           </div>
         </div>
       </div>
+
+
+
+      <!-- Pie Chart Section -->
+      <section class="chart-section" style="margin-top: 12px;">
+        <h2>إحصائيات الطلبات</h2>
+        <div class="pie-chart-container">
+          <canvas baseChart
+            [data]="pieChartData"
+            [options]="pieChartOptions"
+            [type]="pieChartType"
+            [labels]="pieChartLabels">
+          </canvas>
+        </div>
+      </section>
+
+      <!-- Bar Chart Section: Top 5 Volunteers -->
+      <section class="chart-section">
+        <h2>أعلى 5 متطوعين بساعات التطوع</h2>
+        <div class="chart-container">
+          <canvas baseChart
+            [data]="barChartData"
+            [options]="barChartOptions"
+            [type]="barChartType"
+            [labels]="barChartLabels">
+          </canvas>
+        </div>
+      </section>
 
       <router-outlet></router-outlet>
     </section>
